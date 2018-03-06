@@ -19,7 +19,7 @@ void producer(int items)
     sum += Q.push(1);    
   Q.push(-1); // signalize termination
   Total += sum;
-  printf ("Produced: %9d %d\n", sum, Q.flows());
+  printf ("Produced: %9d %d\n", sum, Q.taskid());
 }
 
 void consumer()
