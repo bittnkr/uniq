@@ -8,6 +8,6 @@ The lock free Queue was declared impossible in the book The Art of Multiprocesso
 > stack, priority queue, set, or list from a set of atomic registers. 
 > Although FIFO queues solve two-thread consensus, they cannot solve 3-thread consensus.
 
-This repository contains a proof of the existence of such construct that permits input for N threads/cores in a linear way, without any kind of locking. Using only 2 atomic registers.
+As a MRMW queue, it permits input for N threads/cores in a linear way, without any kind of locking. Using only 2 atomic registers.
 
 Look at test.cpp and queue.h for better understanding.
