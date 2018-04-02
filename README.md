@@ -1,7 +1,7 @@
 # uniq
 ## A lock free queue
 
-This repository contains proof of concept of a new way of thinking paralelism and concurrency.  A simple solution for a very complex problem. A single queue solve the synchronicity impedance between all processor cores and threads.
+This repository contains proof of concept of a new way of thinking paralelism and concurrency.  A simple solution for a complex problem. A single queue solve the synchronicity impedance between all processor cores and threads.
 
 The lock free Queue was declared impossible in the book The Art of Multiprocessor Programming. (page 107)
 > Corollary 5.4.1. It is impossible to construct a wait-free implementation of a queue, 
