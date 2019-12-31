@@ -63,6 +63,5 @@ int main()
       producers[i].join();
       consumers[i].join();
     }
-    printf("Total.....: %d (it must be zero)\n", int(Total));
-    printTimer("time:");
+    printf("\nChecksum: %d (it must be zero)\n", int(Total));
 }
