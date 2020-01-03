@@ -1,0 +1,8 @@
+# depslib dependency file v1.0
+1341028402 source:c:\ppthreads\c++\tests\queue\main.cpp
+	<stdio.h>
+	<assert.h>
+	<pthread.h>
+	<sys/time.h>
+	<vector>
+
