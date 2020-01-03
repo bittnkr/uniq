@@ -21,7 +21,7 @@ void producer(int items) // this is the producer thread, it pushes data into the
   int v, sum=0;
 
   for(int i = 1; i <= items; i++)
-    sum += Q.push(1); // push the value 1 to the quey
+    sum += Q.push(1); // push the value 1 to the qeue
 
   Q.push(-1); // signalize termination with a -1
   Total += sum;
