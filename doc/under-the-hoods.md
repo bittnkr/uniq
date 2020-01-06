@@ -1,32 +1,38 @@
 # Under the hoods
 
-The Queue object, and the prooftest. 
+## Introduction
 
-## Properties of the Queue object 
+Imagine a long row of people wanting to cross a bridge or a ferry... 
 
-``buffer`` A contigous space of memory capable of holding integers or pointers. Allow more than one element to enter the queue at the same time.
+This ferry only alow one car/person to cross at any time.
 
-``size`` must be a power of two. At minimum 1.
+The gate is open, the car get in, the crossing happens and after the delivery, the ferry get back to take another.
 
-``tail`` where we register the new elements. Holds a the ID of last inserted element. 
+This operation takes time and has a price.
 
-``head`` from where elements get out. Registers the next element to be removed.
+In computers programming the "transport" problem is about transfering data between different process/actors of the system.
 
-**tail & head** are simple integers. Topped by the ``size`` of the buffer. At minimum, a single bit.
+When two processors live in the same memory space, the faster approch is just allow the cores to share the memory instead of transfering the data.
+
+## How to share a memory space between multiple threads? 
+
+The common solution is the use of Semaphores, Mutexes and Critical Sessions to create locks, making the resource unavailable while some operation is running. 
+
+But this pattern **lock/use/release** has a problem: While a operation does not finish, another cannot start. 
+
+# The Queue object 
+
+Here I present the solution to the 3-thread consensus. 
+
+A queue implemented as a lock free circular buffer.
 
 ## Methods
-
-Our queue object, has essentialy 2 methods:
-
-``push()`` insert data onto the queue.
-
-``pop()`` remove data from the queue.
 
 ## The prototype 
 Here is a simple interface and starting point for your Queue object with the minimum properties and methods.
 
 ```
-class Queue(size=64) {
+class Queue(size) {
 
   var head = 0, tail = 0
     , buffer = Array(size)
@@ -36,6 +42,24 @@ class Queue(size=64) {
   pop() // remove & return the next item.
 }
 ```
+
+Our queue object, has only 2 methods:
+
+`push()` insert data onto the queue.
+
+`pop()` remove data from the queue.
+
+## Properties
+`buffer` A contigous space of memory capable of holding integers or pointers. Allow more than one element to enter the queue at the same time.
+
+`size` must be a power of two. At minimum 1.
+
+`tail` where we register the new elements. Holds a the ID of last inserted element. 
+
+`head` from where elements get out. Registers the next element to be removed.
+
+`tail & head` are simple integers. Topped by the ``size`` of the buffer. At minimum, a single bit.
+
 
 Now, with the minimum especification defined, its time to put it on fire... 
 
@@ -58,7 +82,7 @@ producer()
 }
 ```
 
-To achieve a **mininum working example** with **maximum benchmarks**, we allways pushed the number 1, but random() must work equally.
+To achieve a **mininum working example** with **maximum benchmarks**, we allways pushed the number 1, but a positive `random()` must work equally.
 
 We signalize the termination of the  job with a special constant (-1). Also can be implemented with external flags.
 
@@ -82,9 +106,7 @@ function consumer()
 }
 ```
 
-Now its a matter of starting the threads and check if what we get out the queue its equal to what we pushed into.  
-
-Time to fry the processors :D
+Now its a matter of starting the threads and check if what we get out the queue its equal to what we pushed into. Time to fry the processors :D
 
 ```
 var producers = []
@@ -102,7 +124,9 @@ log("Sum: %d", Total);
 
 ```
 
-Here we create a 8 of threads to flow data (4 produceres & 4 consumers). For simplicity, the producers and consumers are created in pairs, but it works equally in assimetric conditions. 
+Here we create a 8 of threads to flow data (4 produceres & 4 consumers). 
+
+For simplicity, whe create the same number of the producers and consumers, but it works equally in assimetric conditions. 
 
 After creating the Threads, we call the ``wait`` function to wait for the termination of the jobs.
 
@@ -123,7 +147,7 @@ Produced: 2.500.000
 Consumed: 3.414.652
 Produced: 2.500.000
 
-Total: 0 (it must be zero)
+Total: 0
 
 real    0m0,581s
 ```
@@ -133,13 +157,22 @@ The producers known the number of ITEMS produced, but the consumers is open. Thi
 
 The last line is the time took by the operation, in my computer, 581ms to flow 10 million itens. A throughput of 17.2 M Items/s, wich is a pretty impressive for an old Dell M6300 Core duo.
 
+## Testing
+To get a fully functional C++ implementation just clone this repository:
+
+```
+git clone https://github.com/bittnkr/uniq
+cd uniq/cpp
+sh build.sh
+```
+
 ## Benchmarks
 
 Here we have the measurements varing the buffer size. 
 
 ![Throughput x Buffer Size](https://i.stack.imgur.com/TgkKs.png)
 
-Now fixing the buffer size on the default size (64 positions) and varying the number of Threads.
+Fixing the buffer size on the default size (64 positions) and varying the number of Threads.
  
 ![Throughput x Threads](https://i.stack.imgur.com/laMSX.png)
 
