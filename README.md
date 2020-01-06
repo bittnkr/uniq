@@ -38,7 +38,7 @@ How construct a circular buffer that receive and delivery data without any kind 
 
 With only two threads the solution is known, and called two-thread consensus. But no absolute algorithm was known to solve the 3-thread consensus, yet.
 
-The Lock free Queue is one those hard problems in computer science. In a Stackoverflow [question][1] we see comments like:
+The Lock free Queue is one those hard problems in computer science. In a Stackoverflow [question][2] we see comments like:
 
 > I've made a particular study of lock-free data structures in the last couple of years. 
 > I've read most of the papers in the field (there's only about fourty or so - although only about ten or fifteen are any real use :-)
@@ -65,9 +65,11 @@ I believe this is the definitive solution to the ABA problem and race conditions
 
 Allowing a really free-flow comunication between multiple processor cores. 
 
-To better understand the solution, take a look under the hoods. If you like to put your hands dirt and dive right into de code, start at test.cpp and queue.h.
+To better understand the solution, take a look [under the hoods][5]. If you like to put your hands dirt and dive right into de code, start at [test.cpp and queue.h][6].
 
 [1]: https://en.wikipedia.org/wiki/Queue_(abstract_data_type) 
-[2]: https://stackoverflow.com/questions/871234/circular-lock-free-buffer
+[2]: https://stackoverflow.com/a/890269/9464885
 [3]: https://stackoverflow.com/questions/6089029/lock-free-queue#comment7056198_6089029
 [4]: https://www.amazon.com.br/Art-Multiprocessor-Programming-Revised-Reprint/dp/0123973376
+[5]: https://github.com/bittnkr/uniq/blob/master/doc/under-the-hoods.md
+[6]:https://github.com/bittnkr/uniq/blob/master/cpp
