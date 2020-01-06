@@ -33,16 +33,14 @@ To better understand the solution, take a look [under the hoods][5]. If you like
 
 We have implementations in C# and pascal too.
 
-<<<<<<< HEAD
 To test this on your computer:
 ```
 git clone https://github.com/bittnkr/uniq
 cd uniq/cpp
 sh build.sh
 ```
-=======
+
 To better understand the solution, take a look [under the hoods][5]. If you like to put your hands dirt and dive right into de code, start at [test.cpp and queue.h][6].
->>>>>>> dfd94af922eae24200db644a41c770ed8c1432f8
 
 [1]: https://en.wikipedia.org/wiki/Queue_(abstract_data_type) 
 [2]: https://stackoverflow.com/a/890269/9464885
