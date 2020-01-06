@@ -9,11 +9,7 @@ Allowing a really free-flow comunication between multiple processor cores.
 
 ## The breakthrough
 
-<<<<<<< HEAD
 The Lock free [Queue][1] is one those hard problems in computer science. In a Stackoverflow [question][2] we see comments like:
-=======
-The Lock free Queue is one those hard problems in computer science. In a Stackoverflow [question][2] we see comments like:
->>>>>>> dfd94af922eae24200db644a41c770ed8c1432f8
 
 > I've made a particular study of lock-free data structures in the last couple of years. I've read most of the papers in the field (there's only about fourty or so - although only about ten or fifteen are any real use :-)
 
