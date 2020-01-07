@@ -28,9 +28,12 @@ Searching the literature, I found no more encouraging words: The book [The Art o
 
 Here I present a **minimum/absolute** way to create a MRMW (multi-read/multi-write) circular queue, allowing input and output for N threads without locking. **Solving the 3-thread consensus using 2 atomic registers**.
 
+To better understand the solution, take a look [under the hoods][5]. 
+
+If you like to put your hands dirt and dive right into de code, start at [test.cpp and queue.h][6]. 
+
 We have implementations in C# and pascal too.
 
-To better understand the solution, take a look [under the hoods][5]. If you like to put your hands dirt and dive right into de code, start at [test.cpp and queue.h][6]. 
 
 ## Testing
 
