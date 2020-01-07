@@ -1,97 +1,116 @@
 using namespace std;
-#include <stdio.h>
 #include <pthread.h>
+#include <stdio.h>
+#include <thread>
 #include <vector>
+#include <atomic>
 
-
-inline bool CompareAndSet(int* destination, int currentValue, int newValue)
-{
-    return __sync_bool_compare_and_swap(destination, currentValue, newValue);
+inline bool CompareAndSwap(int *destination, int currentValue, int newValue) {
+  return __sync_bool_compare_and_swap(destination, currentValue, newValue);
 }
 
-class Queue
-{
-    private:
-        int _size, _head, _tail, mask;
-        vector<int> buffer;
-        vector<int> isfree;
+class Queue {
+private:
+  int _size, _head, _tail, mask;
+  vector<int> buffer;
+  vector<int> isfree;
 
-    protected:
-        int tail()  { while ( full()) sched_yield(); return _tail; }
-        int head()  { while (empty()) sched_yield(); return _head; }
+protected:
+  int tail() {
+    while (full())
+      sched_yield();
+    return _tail;
+  }
 
-    public:
-        Queue(int size=32){
-            _size  = size;
-            _tail  = _head = 0;
-            mask   = _size - 1;
-            buffer = vector<int>(_size, 0);
-            isfree = vector<int>(_size, 1);
-        }
-        int size()  { return _size; }
-        int count() { return _tail - _head; }
-        int empty() { return _tail == _head; }
-        int full()  { return _size == count(); }
+  int head() {
+    while (empty())
+      sched_yield();
+    return _head;
+  }
 
-        void push(int item) {
-            int t;
+public:
+  Queue(int size = 32) {
+    _size = size;
+    _tail = _head = 0;
+    mask = _size - 1;
+    buffer = vector<int>(_size, 0);
+    isfree = vector<int>(_size, 1);
+  }
+  int size() { return _size; }
+  int count() { return _tail - _head; }
+  int empty() { return _tail == _head; }
+  int full() { return _size == count(); }
 
-            do t = tail();
-            while ( !isfree[t & mask] || !CompareAndSet(&_tail, t, t+1) );
+  int push(int item) {
+    int t;
 
-            isfree[t &= mask] = 0;
-            buffer[t] = item;
-        }
-        
-        virtual int pop() {
-            int h;
+    do
+      t = tail();
+    while (!isfree[t & mask] || !CompareAndSwap(&_tail, t, t + 1));
 
-            do h = head();
-            while ( isfree[h & mask] || !CompareAndSet(&_head, h, h+1) );
+    isfree[t &= mask] = 0;
+    buffer[t] = item;
+    return t;
+  }
 
-            int r = buffer[h &= mask];
-            isfree[h] = 1;
-            return r;
-        }
+  int pop() {
+    int h;
+
+    do
+      h = head();
+    while (isfree[h & mask] || !CompareAndSwap(&_head, h, h + 1));
+
+    int r = buffer[h &= mask];
+    isfree[h] = 1;
+    return r;
+  }
 };
 
 Queue Q;
+atomic<int> Total(0); // a checsum, to ensure that all items pushed are poped
 
-void* producer(void*)
+// this is the producer thread, it pushes data into the queue
+void producer(int items) 
 {
-    int total = 10*1000*1000;
+  int v;
 
-    for(int i = total; i; i--) Q.push(1);
-    Q.push(-1); // end of the job
+  for (int i = 1; i <= items; i++)
+    Q.push(1); // push the value 1 to the qeue
 
-    printf ("produced: +%9d\n", total);
+  Q.push(-1); // signalize termination with a -1
+  Total += items;
+  printf("Produced: %'9d\n", items);
 }
 
-void* consumer(void*)
+void consumer() // the consumer thread, takes data from the queue
 {
-    int total = 0;
+  int v, sum = 0;
 
-    while ( Q.pop() ) total++;
+  while ((v = Q.pop()) > 0)
+    sum += v;
 
-    printf("consumed: -%9d \n", total);
+  Total -= sum;
+  printf("Consumed: %'9d\n", sum);
 }
 
+int main() {
+  int pairs = 4, Items = 10*1000*1000;
+  // pthread_t p[pairs], c[pairs];
+  vector<thread> producers(pairs);
+  vector<thread> consumers(pairs);
 
-int main()
-{
-    int pairs = 8;
-    pthread_t p[pairs], c[pairs];
+  for (int i = 0; i < pairs; i++) {
+    consumers[i] = thread(consumer);
+    producers[i] = thread(producer, Items / pairs);
+  }
 
-    for (int i=0; i < pairs; i++){
-        pthread_create(&p[i], NULL, &producer, NULL);
-        pthread_create(&c[i], NULL, &consumer, NULL);
-    };
+  // Wait consumers finish the job
+  for (int i = 0; i < pairs; i++) {
+    producers[i].join();
+    consumers[i].join();
+  }
+  printf("\nChecksum: %d (it must be zero)\n", int(Total));
 
-    for (int i=0; i < pairs; i++){
-        pthread_join(c[i], NULL);
-    };
-
-    return 0;
+  return 0;
 }
-
-// Part of uniQ library released under GNU 3.0 
+// Part of uniQ library released under GNU 3.0
