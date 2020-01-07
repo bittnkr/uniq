@@ -1,6 +1,5 @@
 # The Lock Free Queue
 
-
 This repository brings a solution to the 3-thread consensus.  
 
 I believe this is the definitive solution to the ABA problem and race conditions in multi-threaded programming. 
@@ -17,21 +16,23 @@ The Lock free [Queue][1] is one those hard problems in computer science. In a St
 
 In [another S.O. question][3] someone said: 
 
-> Lock-free queues are unicorns.
+> **Lock-free queues are unicorns**.
 
 Searching the literature, I found no more encouraging words: The book [The Art of Multiprocessor Programming][4] asserts that the construction of a lock free queue is impossible:
 
-> Corollary 5.4.1. It is impossible to construct a wait-free implementation of a queue, stack, priority queue, set, or list from a set of atomic registers. 
+> Corollary 5.4.1. **It is impossible to construct a wait-free implementation of a queue**, stack, priority queue, set, or list **from a set of atomic registers**. 
 
-> Although FIFO queues solve two-thread consensus, they cannot solve 3-thread consensus. (pg. 107)
+> **Although FIFO queues solve two-thread consensus, they cannot solve 3-thread consensus**. (pg. 107)
 
-Here I present a **minimum/absolute** way to create a MRMW (multi-read/multi-write) circular queue, allowing input and output for N threads without locking. Using only 2 atomic registers.
+## The solution
 
-## Testing
+Here I present a **minimum/absolute** way to create a MRMW (multi-read/multi-write) circular queue, allowing input and output for N threads without locking. **Solving the 3-thread consensus using 2 atomic registers**.
+
+We have implementations in C# and pascal too.
 
 To better understand the solution, take a look [under the hoods][5]. If you like to put your hands dirt and dive right into de code, start at [test.cpp and queue.h][6]. 
 
-We have implementations in C# and pascal too.
+## Testing
 
 To test this on your computer:
 ```
@@ -39,8 +40,6 @@ git clone https://github.com/bittnkr/uniq
 cd uniq/cpp
 sh build.sh
 ```
-
-To better understand the solution, take a look [under the hoods][5]. If you like to put your hands dirt and dive right into de code, start at [test.cpp and queue.h][6].
 
 [1]: https://en.wikipedia.org/wiki/Queue_(abstract_data_type) 
 [2]: https://stackoverflow.com/a/890269/9464885

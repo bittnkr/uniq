@@ -65,3 +65,4 @@ int main()
     }
     printf("\nChecksum: %d (it must be zero)\n", int(Total));
 }
+// Part of uniQ library released under GNU 3.0 

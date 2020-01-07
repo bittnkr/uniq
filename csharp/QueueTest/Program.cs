@@ -123,3 +123,5 @@ namespace QueueTest
         }
     }
 }
+
+// Part of uniQ library released under GNU 3.0 

@@ -53,3 +53,5 @@ public:
     return r;
   }
 };
+
+// Part of uniQ library released under GNU 3.0 

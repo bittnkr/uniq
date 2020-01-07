@@ -1,7 +1,5 @@
 # Under the hoods
 
-A simple solution to the 3-thread consensus. 
-
 A queue implemented as a lock free circular buffer.
 
 # The Queue object 
@@ -20,13 +18,9 @@ class Queue(size) {
 }
 ```
 
-`push()` insert data onto the queue.
-
-`pop()` remove data from the queue.
-
 ## Properties
 
-`buffer` A contigous space of memory capable of holding integers or any data. Allow more than one element to enter the queue at the same time.  
+`buffer` A contigous space of memory capable of holding integers or any data. Allow more than one element to enter the queue at the same time. 
 
 `size` **must be a power of two**. At minimum 1.
 
@@ -37,6 +31,11 @@ class Queue(size) {
 `tail & head` Are **atomic registers** of simple integers. Topped by the ``size`` of the buffer. **At minimum, a single bit**.
 
 Now, with the especification defined, its time to put it on fire... 
+
+`push()` insert data onto the queue.
+
+`pop()` remove data from the queue.
+
 
 ## Testing - The producer/consumer pattern
 
@@ -97,7 +96,7 @@ log("Sum: %d", Total);
 
 ```
 
-Here we create a 8 of threads to flow data (4 produceres & 4 consumers). 
+Here we create 8 of threads to flow data (4 produceres & 4 consumers). 
 
 For simplicity, whe create the same number of the producers and consumers, but it works equally in assimetric conditions. 
 
@@ -154,4 +153,4 @@ Note how the number of threads does not affect the overall performance of the sy
 ---
 This is a work in progress. Your comments and benchmarks are wellcome. 
 
-Released under the Creative Commons License (CC BY-SA 3.0)
+Code released under GNU 3.0 and docs under Creative Commons License (CC BY-SA 3.0)
