@@ -18,6 +18,10 @@ class Queue(size) {
 }
 ```
 
+`push()` insert data onto the queue.
+
+`pop()` remove data from the queue.
+
 ## Properties
 
 `buffer` A contigous space of memory capable of holding integers or any data. Allow more than one element to enter the queue at the same time. 
@@ -31,11 +35,6 @@ class Queue(size) {
 `tail & head` Are **atomic registers** of simple integers. Topped by the ``size`` of the buffer. **At minimum, a single bit**.
 
 Now, with the especification defined, its time to put it on fire... 
-
-`push()` insert data onto the queue.
-
-`pop()` remove data from the queue.
-
 
 ## Testing - The producer/consumer pattern
 
