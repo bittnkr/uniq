@@ -84,7 +84,7 @@ push(item)
   var t
   do {
 
-    t = tail
+    t = tail // get the current value of the register
     while (t - head == size) sleep() // if full, wait for space
 
   } while ( (data[t & mask]) || (CompareExchange(tail, t+1, t) != t) )
