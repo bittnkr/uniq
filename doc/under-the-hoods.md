@@ -6,8 +6,6 @@ A queue implemented as a lock free circular buffer.
 
 # The Queue object 
 
-## The prototype 
-
 This is the interface and starting point for the Queue object with the minimum properties and methods. 
 
 ```
@@ -21,8 +19,6 @@ class Queue(size) {
   pop() // remove & return the next item.
 }
 ```
-
-## Methods
 
 `push()` insert data onto the queue.
 
