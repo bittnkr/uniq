@@ -8,7 +8,7 @@ Allowing a really free-flow comunication between multiple processor cores.
 
 ## The breakthrough
 
-The Lock free [Queue][1] is one those hard problems in computer science. In a Stackoverflow [question][2] we see comments like:
+The Lock free [Queue][1] is one those hard problems in computer science. In a Stackoverflow [question][2] the most upvoted answer is:
 
 > I've made a particular study of lock-free data structures in the last couple of years. I've read most of the papers in the field (there's only about fourty or so - although only about ten or fifteen are any real use :-)
 
@@ -26,22 +26,22 @@ Searching the literature, we found no more encouraging words: The book [The Art 
 
 ## The solution
 
-Here I present a **minimum/absolute** way to create a MRMW (multi-read/multi-write) circular queue, allowing input and output for multiple threads without locking. **Solving the 3-thread consensus with 2 atomic registers**.
+Here I present a **minimum absolute** way to create a MRMW (multi-read/multi-write) circular queue, allowing input and output for multiple threads without locking. **Solving the 3-thread consensus with 2 atomic registers**.
 
 Bellow I made a detailed description of the finding. But If you like to put your hands dirt and dive right into de code, start at [test.cpp and queue.h][6]. We have implementations in C# and pascal too.
 
 # Under the hoods
 
-For the sake of simplicity in the docs **I'm using simplified JavaScript like pseudocode**, familiar for anyone using JS, Java, C, C++, C# or similar. For the real thing, refer to source code.
+For the sake of simplicity in these docs **I'm using simplified JavaScript like pseudocode**, familiar for anyone using JS, Java, C, C++, C# or similar. For the real thing, refer to source code.
 
 ## The Queue object 
 
-This is the interface for the Queue object and starting point of our quest. 
+This is the interface for the Queue object and the starting point of our quest. 
 
 ```JavaScript
 class Queue(size) {
 
-  var head = 0, tail = 0
+  var tail = 0, head = 0 
     , buffer = Array(size)
 
   push(item) // input an item and return an id.
@@ -82,6 +82,7 @@ push(item)
 
   var t
   do {
+
     t = tail
     while (t - head == size) sleep() // if full, wait for space
 
@@ -100,7 +101,7 @@ pop()
 {
   var h
   do {
-
+    
     h = head
     while (h == tail) sleep() // if empty, wait for items
 
@@ -111,6 +112,7 @@ pop()
   data[h] = 0 // release the seat
   return r
 }
+
 // Released under GNU 3.0 Licence 
 ```
 In these two methods is where the real action happens, and where lies the inovation.
@@ -119,7 +121,7 @@ Basically we have 2 nested while loops.
 
 When the first loop starts, we get a copy the atomic register on `h = head` and `t = tail`, then we check if the buffer is full or empty, in this case, we must `sleep()` until another actor remove or add data.
 
-In the last while condition, we check if the buffer has something (on push) or is empty (on pop), and then we try to update the atomic register.
+In the last while condition, we check if the seat is empty (on pop), and then we try to update the atomic register.
 
 If any of these operations fail, the loop just restarted getting a value for the next seat.
 
@@ -192,7 +194,7 @@ After creating the Threads, we `wait` for the termination.
 
 Producers increment the variable ``Total`` and consumers decrement. At the end, the ``Total`` value **must** be zero. This is the proof that there is no leaks.
 
-This is the results I get flowing 10M items through the test.cpp:
+This is the results I get running [test.cpp][6], flowing 10M items:
 
 ```
 Creating 4 producers & 4 consumers
@@ -215,7 +217,7 @@ Note that **producers** allways pushed the same amount of items (2.5M), but the 
 
 This is the normal behaviour. The only condition we have, is the sum of items consumed must be equal the produced. This was ensured by the global variable Total.
 
-The last line is the time took by the operation, in my computer, 581 ms to flow 10 million itens. A maximum throughput of 17.2 M Items/s, wich is a pretty impressive for an old Dell M6300 Core duo.
+The last line is the time took by the operation, in my computer, 581 ms to flow 10 million itens. A throughput of 17.2 M Items/s, wich is a pretty impressive for an old Dell M6300 Core duo.
 
 ## Testing
 To get a fully functional C++, C# or pascal implementation just clone the repository:
@@ -228,15 +230,15 @@ sh build.sh
 
 ## Benchmarks
 
-Here we have the measurements varing the buffer size. 
+Here we have the measurements varying the buffer size. 
 
 ![Throughput x Buffer Size](https://i.stack.imgur.com/TgkKs.png)
 
-Now, fixing the buffer size 64 positions and varying the number of Threads.
+Now, fixing the buffer size 64 positions and varying the number of threads.
  
 ![Throughput x Threads](https://i.stack.imgur.com/laMSX.png)
 
-Note how the number of threads does not affect the overall performance of the system. The flow for 2 threads is almost the same for 512. (It's lock-free dude!)
+Note how the number of threads does not affect the overall performance of the system. The flow for 2 threads is almost the same for 512. It's lock-free dude!
 
 This is a work in progress. Your comments and benchmarks are wellcome.
 
@@ -244,7 +246,7 @@ This is a work in progress. Your comments and benchmarks are wellcome.
 
 Code released under **GNU 3.0** and docs under Creative Commons License (CC BY-SA 3.0). 
 
-To use this code on a closed source application, you must ask a special permission to the author(bittnkr at gmail.com)
+To use this invention in hardware or closed source application, a special permission is needed (bittnkr at gmail.com)
 
 [1]: https://en.wikipedia.org/wiki/Queue_(abstract_data_type) 
 [2]: https://stackoverflow.com/a/890269/9464885
