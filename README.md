@@ -8,7 +8,7 @@ Allowing a really free-flow comunication between multiple processor cores.
 
 ## The breakthrough
 
-The Lock free [Queue][1] is one those hard problems in computer science. In a Stackoverflow [question][2] the most upvoted answer is:
+The Lock free [Queue][1] is one those hard problems in computer science. In a Stackoverflow [question][2] about the matter the most upvoted answer is:
 
 > I've made a particular study of lock-free data structures in the last couple of years. I've read most of the papers in the field (there's only about fourty or so - although only about ten or fifteen are any real use :-)
 
@@ -18,7 +18,7 @@ In [another S.O. question][3] someone said:
 
 > Lock-free queues are unicorns.
 
-Searching the literature, we found no more encouraging words: The book [The Art of Multiprocessor Programming][4] asserts that the construction of a lock free queue is impossible:
+Searching the literature, we found no more encouraging words: The book [The Art of Multiprocessor Programming][4] asserts that the construction of a wait free queue is impossible:
 
 > Corollary 5.4.1. **It is impossible to construct a wait-free implementation of a queue**, stack, priority queue, set, or list **from a set of atomic registers**. 
 
@@ -32,7 +32,7 @@ Bellow I made a detailed description of the finding. But If you like to put your
 
 # Under the hoods
 
-For the sake of simplicity in these docs **I'm using simplified JavaScript like pseudocode**, familiar for anyone using JS, Java, C, C++, C# or similar. For the real thing, refer to source code.
+For the sake of simplicity in these docs I'm using simplified JavaScript like pseudocode, familiar for anyone using JS, Java, C, C++, C# or similar. For the real thing, refer to source code.
 
 ## The Queue object 
 
@@ -58,11 +58,12 @@ class Queue(size) {
 
 These are **atomic registers** of simple integers. Topped by the ``size`` of the buffer. **At minimum, a single bit**.
 
-`buffer` Any contigous space of memory capable of holding integers or data. Don't need any kind of locking to be read or written. This is ensured by `tail` & `head`. 
+`buffer` A simple array capable of holding integers or data. Don't need any kind of locking to be read or written. This is ensured by `tail` & `head`. 
 
 `size` **must be a power of 2**. (minimum 1).
 
 ## Methods
+
 Here is the heart of the solution. Where we solve the 3-thread consensus. (Its so small that is incredible that nobody had figured it yet).
 
 The most important elements are the 2 atomic registers `tail` & `head`, aka **input & output**. 
@@ -119,9 +120,9 @@ In these two methods is where the real action happens, and where lies the inovat
 
 Basically we have 2 nested while loops. 
 
-When the first loop starts, we get a copy the atomic register on `h = head` and `t = tail`, then we check if the buffer is full or empty, in this case, we must `sleep()` until another actor remove or add data.
+When the first loop starts, we get a copy the atomic register on `h = head` and `t = tail`, then we check if the buffer is full or empty, in this case, we must `sleep()` until another thread remove or add data.
 
-In the last while condition, we check if the seat is empty (on pop), and then we try to update the atomic register.
+In the last while condition, we check if the seat is empty or has data, and then we try to update the atomic register.
 
 If any of these operations fail, the loop just restarted getting a value for the next seat.
 
@@ -186,15 +187,15 @@ wait(producers, consumers)
 log("Sum: %d", Total)
 ```
 
-Here we create 8 of threads to flow data (4 produceres & 4 consumers). 
+Here we create 8 threads to flow data (4 produceres & 4 consumers). 
 
-For sake of simplicity, we have the same number of the producers and consumers, but it works equally in assimetric conditions. 
-
-After creating the Threads, we `wait` for the termination.
+For sake of simplicity, we have the same number of the producers and consumers, but it works equally in asymmetric conditions. 
 
 Producers increment the variable ``Total`` and consumers decrement. At the end, the ``Total`` value **must** be zero. This is the proof that there is no leaks.
 
-This is the results I get running [test.cpp][6], flowing 10M items:
+After creating the Threads, we `wait` for the termination.
+
+This is the output I get running [test.cpp][6], flowing 10M items:
 
 ```
 Creating 4 producers & 4 consumers
@@ -215,9 +216,9 @@ real    0m0,581s
 ```
 Note that **producers** allways pushed the same amount of items (2.5M), but the **consumers** get different quantities, ranging from 1.3 to 3.8M. 
 
-This is the normal behaviour. The only condition we have, is the sum of items consumed must be equal the produced. This was ensured by the global variable Total.
+This is the normal behaviour. The only condition we have, is the sum of items consumed must be equal the produced. This was checked by the variable `Total`.
 
-The last line is the time took by the operation, in my computer, 581 ms to flow 10 million itens. A throughput of 17.2 M Items/s, wich is a pretty impressive for an old Dell M6300 Core duo.
+The last line is the time took by the operation: 581 ms to flow 10 million itens. A throughput of 17.2 M Items/s, wich is a pretty impressive for an old Dell M6300 Core duo.
 
 ## Testing
 To get a fully functional C++, C# or pascal implementation just clone the repository:
@@ -240,7 +241,7 @@ Now, fixing the buffer size 64 positions and varying the number of threads.
 
 Note how the number of threads does not affect the overall performance of the system. The flow for 2 threads is almost the same for 512. It's lock-free dude!
 
-This is a work in progress. Your comments and benchmarks are wellcome.
+This is a work in progress. Your comments and benchmarks are welcome.
 
 ---
 
