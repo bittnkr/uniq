@@ -1,35 +1,14 @@
 # Under the hoods
 
-## Introduction
-
-Imagine a long row of people wanting to cross a bridge or a ferry... 
-
-This ferry only alow one car/person to cross at any time.
-
-The gate is open, the car get in, the crossing happens and after the delivery, the ferry get back to take another.
-
-This operation takes time and has a price.
-
-In computers programming the "transport" problem is about transfering data between different process/actors of the system.
-
-When two processors live in the same memory space, the faster approch is just allow the cores to share the memory instead of transfering the data.
-
-## How to share a memory space between multiple threads? 
-
-The common solution is the use of Semaphores, Mutexes and Critical Sessions to create locks, making the resource unavailable while some operation is running. 
-
-But this pattern **lock/use/release** has a problem: While a operation does not finish, another cannot start. 
-
-# The Queue object 
-
-Here I present the solution to the 3-thread consensus. 
+A simple solution to the 3-thread consensus. 
 
 A queue implemented as a lock free circular buffer.
 
-## Methods
+# The Queue object 
 
 ## The prototype 
-Here is a simple interface and starting point for your Queue object with the minimum properties and methods.
+
+This is the interface and starting point for the Queue object with the minimum properties and methods. 
 
 ```
 class Queue(size) {
@@ -43,29 +22,29 @@ class Queue(size) {
 }
 ```
 
-Our queue object, has only 2 methods:
+## Methods
 
 `push()` insert data onto the queue.
 
 `pop()` remove data from the queue.
 
 ## Properties
-`buffer` A contigous space of memory capable of holding integers or pointers. Allow more than one element to enter the queue at the same time.
 
-`size` must be a power of two. At minimum 1.
+`buffer` A contigous space of memory capable of holding integers or any data. Allow more than one element to enter the queue at the same time.  
 
-`tail` where we register the new elements. Holds a the ID of last inserted element. 
+`size` **must be a power of two**. At minimum 1.
+
+`tail` Where we register the new elements. Holds a the ID of last inserted element. 
 
 `head` from where elements get out. Registers the next element to be removed.
 
-`tail & head` are simple integers. Topped by the ``size`` of the buffer. At minimum, a single bit.
+`tail & head` Are **atomic registers** of simple integers. Topped by the ``size`` of the buffer. **At minimum, a single bit**.
 
-
-Now, with the minimum especification defined, its time to put it on fire... 
+Now, with the especification defined, its time to put it on fire... 
 
 ## Testing - The producer/consumer pattern
 
-Here we create two groups of N threads each, one producing and another consuming data.
+Here we create two groups of threads, one group producing and another consuming data.
 
 The first thread type is called the **producer**, it pushes a bunch of of numbers into the queue `Q`. 
 
@@ -86,9 +65,7 @@ To achieve a **mininum working example** with **maximum benchmarks**, we allways
 
 We signalize the termination of the  job with a special constant (-1). Also can be implemented with external flags.
 
-Now, the work of our **consumer** is remove elements out of the queue, until receiving a termination value.  
-
-At minimum:
+Now, the work of our **consumer** is remove elements out of the queue, until receiving a termination value. At minimum:
 
 ```
 function consumer()
@@ -130,9 +107,9 @@ For simplicity, whe create the same number of the producers and consumers, but i
 
 After creating the Threads, we call the ``wait`` function to wait for the termination of the jobs.
 
-Producers incremented the variable ``Total`` and consumers decrement it. At the end, the ``Total`` value **must** be zero (everytime). This is our proof that there is no leaks in you solution.
+Producers incremented the variable ``Total`` and consumers decrement it. At the end, the ``Total`` value **must** be zero. This is the proof that there is no leaks.
 
-The results I get flowing 10M items:
+The results I get flowing 10M items through the test.cpp:
 
 ```
 Creating 4 producers & 4 consumers
@@ -151,7 +128,7 @@ Total: 0
 
 real    0m0,581s
 ```
-Note that all **producers** pushed the same amount of items (2.5M), but the **consumers** consumed different quantities, (ranging from 1.3 to 3.8M). 
+Note that **producers** allways pushed the same amount of items (2.5M), but the **consumers** consumed different quantities, (ranging from 1.3 to 3.8M). 
 
 The producers known the number of ITEMS produced, but the consumers is open. This is the normal behaviour. The only condition we have, is the sum of items consumed must be equal the produced. This was ensured by the global variable Total.
 
@@ -179,6 +156,6 @@ Fixing the buffer size on the default size (64 positions) and varying the number
 Note how the number of threads does not affect the overall performance of the system. The flow for 2 threads is almost the same for 512. (It's lock-free dude!)
 
 ---
-This is a work in progress. Comments and benchmarks are wellcome. 
+This is a work in progress. Your comments and benchmarks are wellcome. 
 
 Released under the Creative Commons License (CC BY-SA 3.0)
