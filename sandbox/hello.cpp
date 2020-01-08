@@ -1,103 +1,63 @@
-using namespace std;
-#include <pthread.h>
+// producer/consumer test for uniQ Library
+// See test.cpp for use case & README.md for details about the solution
+// compile using ./build hello
+
 #include <stdio.h>
+#include <locale.h>
 #include <thread>
 #include <vector>
 #include <atomic>
+#include "../cpp/uniq.h"
 
-inline bool CompareAndSwap(int *destination, int currentValue, int newValue) {
-  return __sync_bool_compare_and_swap(destination, currentValue, newValue);
+using namespace std;
+
+typedef long long Int64;
+
+int Threads = 8;           // 4 producers & 4 consumers
+int Items = 10*1000*1000;  // how many items will flow trough the queue 
+atomic<Int64> Total(0); // a checksum, to ensure that all count pushed are poped
+
+Queue<Int64> Q(64); // using the default 64 positions
+// Queue<Int64> Q(1); // stress test using a single position queue
+// Queue<Int64> Q(64*1024); // performance using a 64k queue
+
+void producer(int items) // pushes data into the queue
+{
+  Int64 v, sum = 0;
+
+  for (int i = 1; i <= items; i++) {
+    Int64 q0 = (1ULL<<32) + i + 0;  // value with non-zero high half can race against buffer[t] = 0
+    Int64 q1 = (0ULL<<32) + i + 1;
+    sum += q0 + q1;
+    Q.push(q0);
+    Q.push(q1);
+    // sum += v;
+  }
+  Q.push(-1); // signal termination with -1
+  Total += sum;
+  printf("Produced: %'llu\n", sum);
 }
 
-class Queue {
-private:
-  int _size, _head, _tail, mask;
-  vector<int> buffer;
-  vector<int> isfree;
-
-protected:
-  int tail() {
-    while (full())
-      sched_yield();
-    return _tail;
-  }
-
-  int head() {
-    while (empty())
-      sched_yield();
-    return _head;
-  }
-
-public:
-  Queue(int size = 32) {
-    _size = size;
-    _tail = _head = 0;
-    mask = _size - 1;
-    buffer = vector<int>(_size, 0);
-    isfree = vector<int>(_size, 1);
-  }
-  int size() { return _size; }
-  int count() { return _tail - _head; }
-  int empty() { return _tail == _head; }
-  int full() { return _size == count(); }
-
-  int push(int item) {
-    int t;
-
-    do
-      t = tail();
-    while (!isfree[t & mask] || !CompareAndSwap(&_tail, t, t + 1));
-
-    isfree[t &= mask] = 0;
-    buffer[t] = item;
-    return t;
-  }
-
-  int pop() {
-    int h;
-
-    do
-      h = head();
-    while (isfree[h & mask] || !CompareAndSwap(&_head, h, h + 1));
-
-    int r = buffer[h &= mask];
-    isfree[h] = 1;
-    return r;
-  }
-};
-
-Queue Q;
-atomic<int> Total(0); // a checsum, to ensure that all items pushed are poped
-
-// this is the producer thread, it pushes data into the queue
-void producer(int items) 
+void consumer() // takes data from the queue
 {
-  int v;
-
-  for (int i = 1; i <= items; i++)
-    Q.push(1); // push the value 1 to the qeue
-
-  Q.push(-1); // signalize termination with a -1
-  Total += items;
-  printf("Produced: %'9d\n", items);
-}
-
-void consumer() // the consumer thread, takes data from the queue
-{
-  int v, sum = 0;
+  Int64 v, sum = 0;
 
   while ((v = Q.pop()) > 0)
     sum += v;
 
   Total -= sum;
-  printf("Consumed: %'9d\n", sum);
+  printf("Consumed: %'llu\n", sum);
 }
 
 int main() {
-  int pairs = 4, Items = 10*1000*1000;
-  // pthread_t p[pairs], c[pairs];
+  int pairs = Threads / 2;
+
   vector<thread> producers(pairs);
   vector<thread> consumers(pairs);
+
+  setlocale(LC_NUMERIC, "");
+  printf("Creating %d producers & %d consumers\n", pairs, pairs);
+  printf("to flow %'d items trough the queue.\n\n", Items);
 
   for (int i = 0; i < pairs; i++) {
     consumers[i] = thread(consumer);
@@ -109,8 +69,7 @@ int main() {
     producers[i].join();
     consumers[i].join();
   }
-  printf("\nChecksum: %d (it must be zero)\n", int(Total));
 
-  return 0;
+  printf("\nChecksum: %llu (it must be zero)\n", Int64(Total));
 }
 // Part of uniQ library released under GNU 3.0
