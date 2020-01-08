@@ -1,57 +1,57 @@
-#include "utils.h"
+// uniQ The Lock free Queue. 
+// See test.cpp for use case & README.md for details about the solution
+
+#pragma once
+#include <atomic>
 #include <assert.h>
 #include <thread>
 #include <vector>
-#pragma once
-
 using namespace std;
 
 template <class T> class Queue {
 protected:
   vector<T> buffer;
   int mask;
-  atomic<int> head, tail;
+
+  atomic<int> in, out;
+  vector<int> isFree;
 
 public:
   Queue(int size_ = 64) : mask(size_) {
-    assert(mask && !(mask & (mask - 1)) &&
-           "Queue size must be a positive power of 2.");
+    assert(mask && !(mask & (mask - 1)) && "Queue size must be a positive power of 2.");
     buffer = vector<T>(mask, 0);
+    isFree = vector<int>(size_, 1);
     mask--;
-    head = tail = 0;
+
+    out = in = 0;
   }
 
-  virtual T push(T item) {
-    assert(item); // do not allow nulls
+  int push(T item) {
 
-    int t;
+    int i;
     do {
-      t = head;
-      while (t - tail > mask)
+      i = in;
+      while (i - out > mask)
         sched_yield(); // if full, wait for space
-    } while (buffer[t & mask] ||
-             !head.compare_exchange_weak(t, t + 1)); // head = t+1); // srsw)
-
-    buffer[t & mask] = item;
-    return item;
+    } while (!isFree[i & mask] || !in.compare_exchange_weak(i, i + 1));
+     
+    buffer[i & mask] = item;
+    isFree[i & mask] = 0;
+    return i;
   }
 
-  virtual T pop() {
-    int t;
+  T pop() {
+    int o;
     do {
-      t = tail;
-      while (t == head)
+      o = out;
+      while (o == in)
         sched_yield(); // if empty, wait for item
-    }
+    } while (isFree[o & mask] || !out.compare_exchange_weak(o, o + 1));
 
-    while (!buffer[t & mask] ||
-           !tail.compare_exchange_weak(t, t + 1) // tail = t+1 (ons swsr)
-    );
-
-    T r = buffer[t &= mask];
-    buffer[t] = 0;
+    T r = buffer[o &= mask];
+    isFree[o] = 1;
     return r;
   }
 };
 
-// Part of uniQ library released under GNU 3.0 
+// Released under GNU 3.0
