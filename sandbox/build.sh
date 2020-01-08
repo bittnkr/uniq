@@ -1,1 +1,0 @@
- g++ hello.cpp -lpthread -O3  -o test && ./test
