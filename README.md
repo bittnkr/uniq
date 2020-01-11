@@ -1,179 +1,190 @@
-# The Lock Free Queue
+# A Lock Free Queue
 
-This repository brings a solution to the 3-thread consensus.  
+The solution to the 3-thread consensus.  
 
-The definitive solution to the ABA problem and race conditions in multi-threaded programming. 
+## The problem
 
-Allowing a really free-flow comunication between multiple processor cores. 
+Lock free [Queue][1] is one those hard problems in computer science. 
 
-## The breakthrough
-
-The Lock free [Queue][1] is one those hard problems in computer science. In a Stackoverflow [question][2] about the matter the most upvoted answer is:
+In a [question in Stackoverflow][2], the most upvoted answer is:
 
 > I've made a particular study of lock-free data structures in the last couple of years. I've read most of the papers in the field (there's only about fourty or so - although only about ten or fifteen are any real use :-)
 
-> AFAIK, a lock-free circular buffer has not been invented.
+> **AFAIK, a lock-free circular buffer has not been invented.**
 
 In [another S.O. question][3] someone said: 
 
 > Lock-free queues are unicorns.
 
-Searching the literature, we found no more encouraging words: The book [The Art of Multiprocessor Programming][4] asserts that the construction of a wait free queue is impossible:
+Searching the literature, we found no more encouraging words: The book [The Art of Multiprocessor Programming][4] asserts that the construction of a wait-free queue is impossible:
 
 > Corollary 5.4.1. **It is impossible to construct a wait-free implementation of a queue**, stack, priority queue, set, or list **from a set of atomic registers**. 
 
 > Although FIFO queues solve two-thread consensus, **they cannot solve 3-thread consensus**. (pg. 107)
 
-## The solution
+## The Breakthrough
 
-Here I present a **minimum absolute** way to create a MRMW (multi-read/multi-write) circular queue, allowing input and output for multiple threads without locking. **Solving the 3-thread consensus with 2 atomic registers**.
+Here I show a **minimum/absolute** solution to the 3-thread consensus, implemented as a MRMW (multi-read/multi-write) circular queue. Using **2 atomic registers**.
 
-Bellow I made a detailed description of the finding. But If you like to put your hands dirt and dive right into de code, start at [test.cpp and queue.h][6]. We have implementations in C# and pascal too.
+If you like to put your hands dirt and dive right into de code, start at [test.cpp and queue.h][6]. (We have implementations in C# and pascal too.)
+
+Follow a detailed description of the algorithm. 
 
 # Under the hoods
 
-For the sake of simplicity in these docs I'm using simplified JavaScript like pseudocode, familiar for anyone using JS, Java, C, C++, C# or similar. For the real thing, refer to source code.
+The internals and a testcase.
+
+For the sake of simplicity, I used a simplified JavaScript pseudocode, familiar for anyone using C-like languages. Only the essential, for the real thing, refer to source code. Now the starting point of our quest:
 
 ## The Queue object 
-
-This is the interface for the Queue object and the starting point of our quest. 
 
 ```JavaScript
 class Queue(size) {
 
-  var tail = 0, head = 0 
-    , buffer = Array(size)
+  input = 0, output = 0  
+  buffer = Array(size)
 
-  push(item) // input an item and return an id.
+  push(item) // send the item & return an id.
 
-  pop() // remove & return the next item.
+  pop() // get the next item.
 }
 ```
 
 ## Properties
 
-`tail` Where we register the new elements. Holds a the ID of last inserted element. 
+`input` Holds a the ID of the last element. 
 
-`head` From where elements get out. Register the next element to be removed.
+`output` The ID of the next element. 
 
-These are **atomic registers** of simple integers. Topped by the ``size`` of the buffer. **At minimum, a single bit**.
+Both are **atomic registers**, always incremented. No boundary check is needed, because the way integer overflow happens.
 
-`buffer` A simple array capable of holding integers or data. Don't need any kind of locking to be read or written. This is ensured by `tail` & `head`. 
+`buffer` A common **Not atomic** array capable of holding integers or data.  Will be updated without any kind of locking. Ensured by the way that `input` & `output` are updated.
 
-`size` **must be a power of 2**. (minimum 1).
+The buffer `size` must be a power of 2 (1, 2, 4, 8, 16...)To be indexed by binary mask (`data[t & mask]`) and limit the memory access inside the buffer. **At minimum, a single bit**.
+
+## States
+
+If `input == output` the Queue is empty, 
+
+If `input-output == size` the Queue is full. 
 
 ## Methods
 
-Here is the heart of the solution. Where we solve the 3-thread consensus. (Its so small that is incredible that nobody had figured it yet).
-
-The most important elements are the 2 atomic registers `tail` & `head`, aka **input & output**. 
-
-When `head == tail` the Queue is empty, when `tail-head == size` the Queue is full. 
-
-These 2 integer numbers are always incremented and we dont need any boundary check because of the way the integer overflow happens. 
-
- The only condition is that the buffer size must be a power of 2. Note as we wrap the values using the `mask` variable.
+Here is the heart of the solution, where we solve the 3-thread consensus. (Its so small that is incredible that nobody had figured it yet).
 
 ### Inserting data into the queue. The `push()` method.
 
 ```JavaScript
 push(item) 
 {
-  assert(item, "Queue.push(item): Item can't be null");
-
-  var t
+  let i
   do {
+    i = in // get a local copy the next id
 
-    t = tail // get the current value of the register
-    while (t - head == size) sleep() // if full, wait for space
+    while (i - out == size) sleep() // if full, wait for space
+  
+  } while ( (data[i & mask]) || (CompareAndSwap(input, i+1, i) != i) )
+  // if the seat is lost or CAS failed, try again. 
 
-  } while ( (data[t & mask]) || (CompareExchange(tail, t+1, t) != t) )
-
-  data[t & mask] = item // now is safe to update the buffer
+  data[i & mask] = item // update the buffer using local i
+  return i // id of the job 
 }
 
-// Released under GNU 3.0 Licence 
+// released under GNU 3.0 Licence 
 ```
 
-### Removing data from the queue. The `pop()` method 
+### Removing data from the queue. The `pop()`
 
 ```JavaScript
 pop() 
 {
-  var h
+  let o
   do {
-    
-    h = head
-    while (h == tail) sleep() // if empty, wait for items
+    o = out // id of the next candidate
 
-  } while ( !(data[h & mask]) || CompareExchange(head, h+1, h) != h )
+    while (o == input) sleep() // if empty, wait for items
 
-  h &= mask
-  int r = data[h]
-  data[h] = 0 // release the seat
+  } while ( !(data[o & mask]) || CompareAndSwap(head, o+1, o) != o )
+  // if the candidate is gone or CAS failed, try again. 
+
+  h &= mask // round to fit the buffer
+  int r = data[h] // save the return
+  data[h] = 0 // set the seat free
   return r
 }
 
-// Released under GNU 3.0 Licence 
+// released under GNU 3.0 Licence 
 ```
-In these two methods is where the real action happens, and where lies the inovation.
 
-Basically we have 2 nested while loops. 
+In both methods, we have two nested `while()` loops. 
 
-When the first loop starts, we get a copy the atomic register on `h = head` and `t = tail`, then we check if the buffer is full or empty, in this case, we must `sleep()` until another thread remove or add data.
+* When the first loop starts, look to the next candidates with `i = input` and `o = output`
 
-In the last while condition, we check if the seat is empty or has data, and then we try to update the atomic register.
+* Then we check if the buffer is full or empty, `sleep()`ing until state change.
 
-If any of these operations fail, the loop just restarted getting a value for the next seat.
+* if the seat is ok, try increment the atomic register, using c.
 
-**Note that there is no locking here, just the update of the atomic registers.**
+If CAS failed, go to the next seat, restarting the loop. 
 
-Now, with the our Queue defined, its time to put it on fire... 
+## Some notes
+
+* The load operation used by `data[h] = 0` and `!(data[o & mask])` are naturaly atomic. 
+
+* The last thing done by pop() is release the seat. 
+
+* The flow continues without locks, at cost of a single CAS instruction.
+
+
+Now, with our Queue defined, its time to put it on fire... 
 
 ## Testing - The producer/consumer pattern
 
-Lets create two groups of threads, one group producing and another consuming data.
+Lets create two groups of threads, one producing and another consuming data.
 
-The first thread type is called the **producer**, it pushes a bunch of numbers into the queue `Q`. 
+The first is the **`producer`**, it just put a bunch of numbers into the queue `Q`. 
 
 ```JavaScript
 function producer() 
 {
-  for(int i=0; i < ITEMS; i++)
+  for(int i=0; i < N; i++)
     Q.push(1) 
     
   Q.push(-1)
 
-  Total += ITEMS
-  log("Produced:", ITEMS)
+  Total += N
+  log("Produced:", N)
 }
 ```
 
-To achieve mininum working example and maximum benchmarks, we allways pushed the number 1, but a positive `random()` or a pointer must work equally.
+To achieve mininum working example, we just push the number 1. But `random()` works equally.
 
-We signalize the termination of the job with a special constant (-1). Also can be implemented with external flags.
+We signal the termination of the job with a special constant (-1). Also can be implemented with external flags.
 
-Now, the work of our **consumer** is remove elements out of the queue, until receiving a termination value. At minimum:
+Now, the work of our **`consumer`** thread is to remove elements out of the queue, until receiving a termination.
 
 ```JavaScript
 function consumer()
 {
-  var value, sum = 0
+  let value, sum = 0
 
   do { 
     value = Q.pop()
     sum += value
-  } while( value > 0 ) 
+  } while( value != -1 ) 
 
   Total -= sum
   log("Consumed:", sum)
 }
 ```
 
-Lets start the threads and check if what we get out the queue its equal to what we pushed into. 
+Producers increment ``Total`` and consumers decrement it. At the end, **it must be zero**. This is the proof that there is no leaks.
+
+## Running the horses
+
+Lets start our threads and check if what we get out the queue its equal to what we pushed into. 
 
 ```JavaScript
-var producers = []
+let producers = []
   , consumers = []
 
 for(int i=0; i < 4; i++)
@@ -184,18 +195,14 @@ for(int i=0; i < 4; i++)
 
 wait(producers, consumers)
 
-log("Sum: %d", Total)
+log("Total: %d", Total)
 ```
 
-Here we create 8 threads to flow data (4 produceres & 4 consumers). 
+Here we create 8 threads to flow data. For sake of simplicity, the same number of producers and consumers, but it works equally in asymmetric conditions. 
 
-For sake of simplicity, we have the same number of the producers and consumers, but it works equally in asymmetric conditions. 
+After creating the Threads, we `wait` for termination.
 
-Producers increment the variable ``Total`` and consumers decrement. At the end, the ``Total`` value **must** be zero. This is the proof that there is no leaks.
-
-After creating the Threads, we `wait` for the termination.
-
-This is the output I get running [test.cpp][6], flowing 10M items:
+This is the output of the [C++ implementation][6], flowing 10M items:
 
 ```
 Creating 4 producers & 4 consumers
@@ -214,40 +221,42 @@ Total: 0
 
 real    0m0,581s
 ```
-Note that **producers** allways pushed the same amount of items (2.5M), but the **consumers** get different quantities, ranging from 1.3 to 3.8M. 
 
-This is the normal behaviour. The only condition we have, is the sum of items consumed must be equal the produced. This was checked by the variable `Total`.
+Note that **producers** always pushed the same amount of items (2.5M), but **consumers** get different quantities, ranging from 1.3 to 3.8M. This is the expected behaviour. 
 
-The last line is the time took by the operation: 581 ms to flow 10 million itens. A throughput of 17.2 M Items/s, wich is a pretty impressive for an old Dell M6300 Core duo.
+Follow the proof that all items produced was consumed. The expected `Total: 0`. 
 
-## Testing
-To get a fully functional C++, C# or pascal implementation just clone the repository:
+Then the time took by the operation: **581 ms**. A throughput of 17.2 M/s. (Enough for an old Dell M6300 Core duo).
+
+## Benchmarks - Measuring the flow
+
+![Throughput x Buffer Size](https://i.stack.imgur.com/TgkKs.png)
+
+Now, with default buffer size (64), varying the number of threads.
+ 
+![Throughput x Threads](https://i.stack.imgur.com/laMSX.png)
+
+The number of threads does not affect the overall performance of the system. **The flow for 2 threads is the same for 512**. 
+
+It's lock-free dude!
+
+## Downloading
+
+To get fully functional C++, C# and pascal implementations just clone the repository:
 
 ```
 git clone https://github.com/bittnkr/uniq
 cd uniq/cpp
-sh build.sh
+sh ./build.sh
 ```
 
-## Benchmarks
-
-Here we have the measurements varying the buffer size. 
-
-![Throughput x Buffer Size](https://i.stack.imgur.com/TgkKs.png)
-
-Now, fixing the buffer size 64 positions and varying the number of threads.
- 
-![Throughput x Threads](https://i.stack.imgur.com/laMSX.png)
-
-Note how the number of threads does not affect the overall performance of the system. The flow for 2 threads is almost the same for 512. It's lock-free dude!
-
-This is a work in progress. Your comments and benchmarks are welcome.
+This is a work in progress. Comments and benchmarks and use cases  are welcome.
 
 ---
 
-Code released under **GNU 3.0** and docs under Creative Commons License (CC BY-SA 3.0). 
+Code released under **GNU 3.0** License and docs under Creative Commons (CC BY-SA 3.0). 
 
-To use this invention in hardware or closed source application, a special permission is needed (bittnkr at gmail.com)
+To use this invention in a hardware or closed source software, a special permission is needed from the author. (bittnkr@gmail.com) 
 
 [1]: https://en.wikipedia.org/wiki/Queue_(abstract_data_type) 
 [2]: https://stackoverflow.com/a/890269/9464885
