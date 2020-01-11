@@ -122,9 +122,9 @@ In both methods, we have two nested `while()` loops.
 
 * Then we check if the buffer is full or empty, `sleep()`ing until state change.
 
-* if the seat is ok, try increment the atomic register, using c.
+* if the seat is ok, try increment the atomic register.
 
-If CAS failed, go to the next seat, restarting the loop. 
+If CompareAndSwap() fail, go to the next seat, restarting the loop. 
 
 ## Some notes
 
@@ -132,8 +132,7 @@ If CAS failed, go to the next seat, restarting the loop.
 
 * The last thing done by pop() is release the seat. 
 
-* The flow continues without locks, at cost of a single CAS instruction.
-
+* The flow continues without locks at cost of a single CAS instruction.
 
 Now, with our Queue defined, its time to put it on fire... 
 
@@ -156,9 +155,9 @@ function producer()
 }
 ```
 
-To achieve mininum working example, we just push the number 1. But `random()` works equally.
+To achieve a mininum working example, we pushed just the number 1. But `random()` works equally.
 
-We signal the termination of the job with a special constant (-1). Also can be implemented with external flags.
+The -1 signal the termination of the job. Also can be implemented with external flags.
 
 Now, the work of our **`consumer`** thread is to remove elements out of the queue, until receiving a termination.
 
