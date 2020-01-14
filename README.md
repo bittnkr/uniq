@@ -1,16 +1,10 @@
-# A Lock Free Queue
+# The Lock Free [Queue][1]
 
-The solution to the 3-thread consensus.  
-
-## The problem
-
-Lock free [Queue][1] is one those hard problems in computer science. 
-
-In a [question in Stackoverflow][2], the most upvoted answer is:
+In a [question about in Stackoverflow][2] , the most upvoted answer is:
 
 > I've made a particular study of lock-free data structures in the last couple of years. I've read most of the papers in the field (there's only about fourty or so - although only about ten or fifteen are any real use :-)
 
-> **AFAIK, a lock-free circular buffer has not been invented.**
+> AFAIK, a lock-free circular buffer has not been invented.
 
 In [another S.O. question][3] someone said: 
 
@@ -22,28 +16,54 @@ Searching the literature, we found no more encouraging words: The book [The Art 
 
 > Although FIFO queues solve two-thread consensus, **they cannot solve 3-thread consensus**. (pg. 107)
 
-## The Breakthrough
+## Not knowing that was impossible...
 
-Here I show a **minimum/absolute** solution to the 3-thread consensus, implemented as a MRMW (multi-read/multi-write) circular queue. Using **2 atomic registers**.
+Long story short, after years of investigation and lot of tests, I finally destiled a bare minimum solution to this problem, which I'm pretty sure that it is wait-free. (If you can refute, please do it.)
+  
+In this paper/repository, I did my best to bring only the essential to the compreension of the problem and its solution. Focusing on what really matters. 
+
+Don't let its simplicity fools you. This is the result of years of work, and I believe that is the smallest/simpler solution ever found. 
+
+After releasing the idea, I received some objections about the asuredness of my "claims". The most common is: 
+
+**How can you asure that it is really lock-free?**
+
+## The proof is in the puding
+
+The [Curry-Howard Correspondence][7] says: 
+> a proof is a program, and the formula it proves is the type for the program.
+
+A fancy way to say: **The program is the proof of itself**. 
+
+Here is some verified facts and features of this program/formula:
+
+* N threads
+* N buffer size (minimum 1)
+* 2 atomic variables
+* No locks or mutexes.
+* Freely preempted.
+* O(1): constant cost per operation.
+* zero checksum.
 
 If you like to put your hands dirt and dive right into de code, start at [test.cpp and queue.h][6]. (We have implementations in C# and pascal too.)
 
-Follow a detailed description of the algorithm. 
+Follow a compreensive description of the algorithm.
 
 # Under the hoods
 
-The internals and a testcase.
+A **bare minimum** solution to the 3-thread consensus, implemented as a MRMW (multi-read/multi-write) circular buffer. In the context of a multi-threaded producer/consumer testcase.
 
-For the sake of simplicity, I used a simplified JavaScript pseudocode, familiar for anyone using C-like languages. Only the essential, for the real thing, refer to source code. Now the starting point of our quest:
+For the sake of simplicity, I used a simplified JavaScript pseudocode, familiar for anyone using C-like languages. For the real thing, refer to source code.
 
 ## The Queue object 
 
-```JavaScript
+```cpp
 class Queue(size) {
 
-  input = 0, output = 0  
-  buffer = Array(size)
-
+  data = Array(size); 
+  in = 0, out = 0
+  mask = size-1
+   
   push(item) // send the item & return an id.
 
   pop() // get the next item.
@@ -52,29 +72,25 @@ class Queue(size) {
 
 ## Properties
 
-`input` Holds a the ID of the last element. 
+`data` Is a common array (non atomic). Updated without locking. Secured by `in` & `out`. 
 
-`output` The ID of the next element. 
+`size` must be a power of 2 (1, 2, 4, 8, 16...) The buffer will be indexed by binary mask (`data[t & mask]`) limiting the memory access inside. **At minimum, a single bit**.
 
-Both are **atomic registers**, always incremented. No boundary check is needed, because the way integer overflow happens.
+`in` Holds a the ID of the next element. Always ahead or equal `out`.
 
-`buffer` A common **Not atomic** array capable of holding integers or data.  Will be updated without any kind of locking. Ensured by the way that `input` & `output` are updated.
+`out` Is the ID of the last element (Next to be removed). Never greater than `in`
 
-The buffer `size` must be a power of 2 (1, 2, 4, 8, 16...)To be indexed by binary mask (`data[t & mask]`) and limit the memory access inside the buffer. **At minimum, a single bit**.
+Both are **atomic variables**, always incremented. 
 
-## States
-
-If `input == output` the Queue is empty, 
-
-If `input-output == size` the Queue is full. 
+No boundary check is needed, because `mask` and the way integer overflow happens. 
 
 ## Methods
 
-Here is the heart of the solution, where we solve the 3-thread consensus. (Its so small that is incredible that nobody had figured it yet).
+Here, the heart of the solution, where we solve the 3-thread consensus.
 
 ### Inserting data into the queue. The `push()` method.
 
-```JavaScript
+```cpp
 push(item) 
 {
   let i
@@ -83,86 +99,96 @@ push(item)
 
     while (i - out == size) sleep() // if full, wait for space
   
-  } while ( (data[i & mask]) || (CompareAndSwap(input, i+1, i) != i) )
+  } while ( (data[i & mask]) || (CompareAndSwap(in, i+1, i) != i) )
   // if the seat is lost or CAS failed, try again. 
 
-  data[i & mask] = item // update the buffer using local i
+  data[i & mask] = item // now is safe to update the buffer using local i
   return i // id of the job 
 }
 
 // released under GNU 3.0 Licence 
 ```
 
+*  If the thread is preempted at any point between `i = in` and `CompareAndSwap(input, i+1, i)`, on return the CAS will fail and the loop go to the next seat. Without any kind of locking.
+
+* I think `(data[i & mask]) ||` can be safely removed, but I got better benchmarks with it, preventing the use of the CAS instruction.
+
 ### Removing data from the queue. The `pop()`
 
-```JavaScript
+```cpp
 pop() 
 {
   let o
   do {
     o = out // id of the next candidate
 
-    while (o == input) sleep() // if empty, wait for items
+    while (o == in) sleep() // if empty, wait for items
 
-  } while ( !(data[o & mask]) || CompareAndSwap(head, o+1, o) != o )
+  } while ( !(data[o & mask]) || CompareAndSwap(output, o+1, o) != o )
   // if the candidate is gone or CAS failed, try again. 
 
-  h &= mask // round to fit the buffer
-  int r = data[h] // save the return
-  data[h] = 0 // set the seat free
+  o &= mask // round to fit the buffer
+  int r = data[o] // save the return
+  buffer[o] = 0 // release the seat
   return r
 }
 
 // released under GNU 3.0 Licence 
 ```
 
-In both methods, we have two nested `while()` loops. 
+Both methods have two nested `while()` loops: 
 
-* When the first loop starts, look to the next candidates with `i = input` and `o = output`
+* First we get the next seat/candidates with `i = in` and `o = out`
 
-* Then we check if the buffer is full or empty, `sleep()`ing until state change.
+* Then we check if the buffer is full or empty, `sleep()`ing until state change. 
 
-* if the seat is ok, try increment the atomic register.
+* If the seat/candidate is available, go increment the atomic register `CompareAndSwap(output, o+1, o)`. 
 
-If CompareAndSwap() fail, go to the next seat, restarting the loop. 
+* If the CAS fail `!=o`, go to the next seat. 
 
-## Some notes
+## Notes
 
 * The load operation used by `data[h] = 0` and `!(data[o & mask])` are naturaly atomic. 
 
 * The last thing done by pop() is release the seat. 
 
-* The flow continues without locks at cost of a single CAS instruction.
+* The flow happens without any kind of lock, at cost of a CAS instruction.
 
-Now, with our Queue defined, its time to put it on fire... 
+## States
+
+If `in == out` the Queue is empty, 
+
+If `in-out == size` the Queue is full. 
+
+In these cases the queue do not lock, but make a voluntary preemption calling the `sleep()` function.
 
 ## Testing - The producer/consumer pattern
 
-Lets create two groups of threads, one producing and another consuming data.
+Now, with our Queue defined, its time to put it on fire... 
 
-The first is the **`producer`**, it just put a bunch of numbers into the queue `Q`. 
+Lets create two groups of threads: one producing and another consuming data.
+
+The first is the **`producer`**, it put a bunch of numbers into the queue `Q`. 
 
 ```JavaScript
-function producer() 
+producer() 
 {
-  for(int i=0; i < N; i++)
-    Q.push(1) 
+  for(int i=1; i <= N; i++)
+    Q.push(1) // or i 
     
-  Q.push(-1)
+  Q.push(i)
 
   Total += N
   log("Produced:", N)
 }
 ```
 
-To achieve a mininum working example, we pushed just the number 1. But `random()` works equally.
+The (-1) signal the termination of the job. Also can be implemented with external flags.
 
-The -1 signal the termination of the job. Also can be implemented with external flags.
+Now, the work of our **`consumer`**: remove elements out of the queue, until receiving a termination.
 
-Now, the work of our **`consumer`** thread is to remove elements out of the queue, until receiving a termination.
-
-```JavaScript
-function consumer()
+```cpp
+consumer()
 {
   let value, sum = 0
 
@@ -176,7 +202,7 @@ function consumer()
 }
 ```
 
-Producers increment ``Total`` and consumers decrement it. At the end, **it must be zero**. This is the proof that there is no leaks.
+Producers increment ``Total`` and consumers decrement. At the end, **it must be zero**. The proof that there is no leaks.
 
 ## Running the horses
 
@@ -197,11 +223,9 @@ wait(producers, consumers)
 log("Total: %d", Total)
 ```
 
-Here we create 8 threads to flow data. For sake of simplicity, the same number of producers and consumers, but it works equally in asymmetric conditions. 
+* Here we create 8 threads to flow data. For sake of simplicity, the same number of producers and consumers, but it works equally in asymmetric conditions. 
 
-After creating the Threads, we `wait` for termination.
-
-This is the output of the [C++ implementation][6], flowing 10M items:
+This is the output I got from the [C++ implementation][6], flowing 10M items:
 
 ```
 Creating 4 producers & 4 consumers
@@ -223,42 +247,31 @@ real    0m0,581s
 
 Note that **producers** always pushed the same amount of items (2.5M), but **consumers** get different quantities, ranging from 1.3 to 3.8M. This is the expected behaviour. 
 
-Follow the proof that all items produced was consumed. The expected `Total: 0`. 
+Follow our expected `Total:0` proofing that all the produced was consumed. 
 
 Then the time took by the operation: **581 ms**. A throughput of 17.2 M/s. (Enough for an old Dell M6300 Core duo).
+
+I made a series of benchmarks, varying the buffer size and the number of threads. Follow the results.
 
 ## Benchmarks - Measuring the flow
 
 ![Throughput x Buffer Size](https://i.stack.imgur.com/TgkKs.png)
 
-Now, with default buffer size (64), varying the number of threads.
+With default buffer size, varying the number of threads.
  
 ![Throughput x Threads](https://i.stack.imgur.com/laMSX.png)
 
-The number of threads does not affect the overall performance of the system. **The flow for 2 threads is the same for 512**. 
+* **O(1)** The cost per operation for 2 threads is the same for 512
 
-It's lock-free dude!
-
-## Downloading
-
-To get fully functional C++, C# and pascal implementations just clone the repository:
-
-```
-git clone https://github.com/bittnkr/uniq
-cd uniq/cpp
-sh ./build.sh
-```
-
-This is a work in progress. Comments and benchmarks and use cases  are welcome.
+Comments, benchmarks and use cases are welcome.
 
 ---
 
-Code released under **GNU 3.0** License and docs under Creative Commons (CC BY-SA 3.0). 
-
-To use this invention in a hardware or closed source software, a special permission is needed from the author. (bittnkr@gmail.com) 
+Code released under GNU 3.0 License and docs under Creative Commons (CC BY-SA 3.0). 
 
 [1]: https://en.wikipedia.org/wiki/Queue_(abstract_data_type) 
 [2]: https://stackoverflow.com/a/890269/9464885
 [3]: https://stackoverflow.com/questions/6089029/lock-free-queue#comment7056198_6089029
 [4]: https://www.amazon.com.br/Art-Multiprocessor-Programming-Revised-Reprint/dp/0123973376
 [6]:https://github.com/bittnkr/uniq/blob/master/cpp
+[7]: https://en.wikipedia.org/wiki/Curry%E2%80%93Howard_correspondence
