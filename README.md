@@ -1,10 +1,10 @@
 # The Lock Free [Queue][1]
 
-In a [question about in Stackoverflow][2] , the most upvoted answer is:
+In a [question about in Stackoverflow][2], the most upvoted answer (jan/20) is:
 
 > I've made a particular study of lock-free data structures in the last couple of years. I've read most of the papers in the field (there's only about fourty or so - although only about ten or fifteen are any real use :-)
 
-> AFAIK, a lock-free circular buffer has not been invented.
+> **AFAIK, a lock-free circular buffer has not been invented.**
 
 In [another S.O. question][3] someone said: 
 
@@ -18,7 +18,7 @@ Searching the literature, we found no more encouraging words: The book [The Art 
 
 ## Not knowing that was impossible...
 
-Long story short, after years of investigation and lot of tests, I finally destiled a bare minimum solution to this problem, which I'm pretty sure that it is wait-free. (If you can refute, please do it.)
+Long story short, after years of investigation and lot of tests, I finally destiled a bare minimum solution to this problem, which I'm pretty sure that it is wait-free. (If you can refute, please do it).
   
 In this paper/repository, I did my best to bring only the essential to the compreension of the problem and its solution. Focusing on what really matters. 
 
@@ -28,7 +28,7 @@ After releasing the idea, I received some objections about the asuredness of my 
 
 **How can you asure that it is really lock-free?**
 
-## The proof is in the puding
+## The proof is in the pudding
 
 The [Curry-Howard Correspondence][7] says: 
 > a proof is a program, and the formula it proves is the type for the program.
@@ -53,19 +53,17 @@ Follow a compreensive description of the algorithm.
 
 A **bare minimum** solution to the 3-thread consensus, implemented as a MRMW (multi-read/multi-write) circular buffer. In the context of a multi-threaded producer/consumer testcase.
 
-For the sake of simplicity, I used a simplified JavaScript pseudocode, familiar for anyone using C-like languages. For the real thing, refer to source code.
+For the sake of simplicity, I use a simplified JavaScript pseudocode, familiar for anyone using C-like languages. For the real thing, refer to source code.
 
 ## The Queue object 
 
 ```cpp
 class Queue(size) {
-
   data = Array(size); 
   in = 0, out = 0
   mask = size-1
    
   push(item) // send the item & return an id.
-
   pop() // get the next item.
 }
 ```
@@ -142,17 +140,17 @@ Both methods have two nested `while()` loops:
 
 * Then we check if the buffer is full or empty, `sleep()`ing until state change. 
 
-* If the seat/candidate is available, go increment the atomic register `CompareAndSwap(output, o+1, o)`. 
+* If the seat/candidate is available, try increment the atomic register `CompareAndSwap(output, o+1, o)`. 
 
-* If the CAS fail `!=o`, go to the next seat. 
+* If the CAS fail (`!=o`), go to the next seat. 
 
 ## Notes
 
 * The load operation used by `data[h] = 0` and `!(data[o & mask])` are naturaly atomic. 
 
-* The last thing done by pop() is release the seat. 
+* The last thing done by `pop()` is release the seat. 
 
-* The flow happens without any kind of lock, at cost of a CAS instruction.
+* The flow happens without any kind of lock.
 
 ## States
 
@@ -247,9 +245,9 @@ real    0m0,581s
 
 Note that **producers** always pushed the same amount of items (2.5M), but **consumers** get different quantities, ranging from 1.3 to 3.8M. This is the expected behaviour. 
 
-Follow our expected `Total:0` proofing that all the produced was consumed. 
+Follow our expected `Total:0`, proofing that all the produced was consumed. 
 
-Then the time took by the operation: **581 ms**. A throughput of 17.2 M/s. (Enough for an old Dell M6300 Core duo).
+Then the time took by the operation: **581 ms**. A throughput of **17.2 M flow/s**. (Enough for an old Dell M6300 Core duo).
 
 I made a series of benchmarks, varying the buffer size and the number of threads. Follow the results.
 
@@ -257,17 +255,17 @@ I made a series of benchmarks, varying the buffer size and the number of threads
 
 ![Throughput x Buffer Size](https://i.stack.imgur.com/TgkKs.png)
 
-With default buffer size, varying the number of threads.
+With default buffer size, varying the number of threads:
  
 ![Throughput x Threads](https://i.stack.imgur.com/laMSX.png)
 
-* **O(1)** The cost per operation for 2 threads is the same for 512
+* **O(1)** The cost per operation with 2 threads is the same for 512.
 
 Comments, benchmarks and use cases are welcome.
 
 ---
 
-Code released under GNU 3.0 License and docs under Creative Commons (CC BY-SA 3.0). 
+Code released under GNU 3.0 and docs under Creative Commons (CC BY-SA 3.0) licenses. 
 
 [1]: https://en.wikipedia.org/wiki/Queue_(abstract_data_type) 
 [2]: https://stackoverflow.com/a/890269/9464885
