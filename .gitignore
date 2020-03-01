@@ -32,3 +32,5 @@
 *.app
 
 old/
+.vscode/
+try/

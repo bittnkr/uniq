@@ -27,22 +27,23 @@ Don't let its simplicity fools you. This is the result of years of work, and I b
 After releasing the idea, I received some objections about the asuredness of my "claims". The most common is: 
 
 **How can you asure that it is really lock-free?**
-This is somewhat hard to proof, because the problem its not well defined, and considered impossible, but the main point is the cost per operation is O(1) for any number of concurrent threads, I've tested with up to 512 threads reading and writing a single position buffer and get the same result.
 
-If you dont believe I can say
+This is somewhat hard to proof, because the problem its not well defined, and considered impossible, but the main point is the cost per operation is O(1) for any number of concurrent threads, I've tested with up to 512 threads reading and writing a single position buffer and got the same result.
+
+But...
 
 ## The proof is in the pudding
 
 The [Curry-Howard Correspondence][7] says: 
 > a proof is a program, and the formula it proves is the type for the program.
 
-A fancy way to say: **The program is the proof of itself**. 
+I think that's a fancy way to say: **The program is the proof of itself**. 
 
 Here is some verified facts and features of this program/formula:
 
-* N threads
+* N threads (tested up to 512)
 * N buffer size (minimum 1)
-* O(1): constant cost per operation.
+* *O(1): constant cost per operation.
 * 2 atomic variables
 * No locks or mutexes.
 * Freely preempted.

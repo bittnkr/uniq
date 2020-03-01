@@ -1,0 +1,2 @@
+csc *.cs 
+Test.exe

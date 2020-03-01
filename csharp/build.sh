@@ -1,0 +1,1 @@
+mcs Test.cs UniQ.cs && mono Test.exe

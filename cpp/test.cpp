@@ -17,7 +17,7 @@ int Threads = 8;           // 4 producers & 4 consumers
 int Items = 10*1000*1000;  // how many items will flow trough the queue 
 atomic<Int64> Total(0); // a checksum, to ensure that all count pushed are poped
 
-Queue<Int64> Q(64); // using the default 64 positions
+Queue<Int64> Q; // using the default 64 positions
 // Queue<Int64> Q(1); // stress test using a single position queue
 // Queue<Int64> Q(64*1024); // performance using a 64k queue
 
@@ -39,7 +39,7 @@ void consumer() // takes data from the queue
 {
   Int64 v, sum = 0;
 
-  while ((v = Q.pop()) > 0)
+  while ((v = Q.pop()) != -1)
     sum += v;
 
   Total -= sum;
@@ -54,7 +54,7 @@ int main() {
 
   setlocale(LC_NUMERIC, "");
   printf("Creating %d producers & %d consumers\n", pairs, pairs);
-  printf("to flow %'d items trough the queue.\n\n", Items);
+  printf("to flow %'d items through the queue.\n\n", Items);
 
   for (int i = 0; i < pairs; i++) {
     consumers[i] = thread(consumer);
