@@ -1,4 +1,4 @@
-﻿/**
+/**
 * A producer/consumer test for the UniQ library
 * Part of uniQ library released under GNU 3.0 
 */ 
@@ -12,7 +12,7 @@ namespace QueueTest
 {
   class Program
   {
-    public static Queue Q = new Queue();
+    public static Queue<int> Q = new Queue<int>();
     public static long Total;
 
     public static void producer () 

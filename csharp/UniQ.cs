@@ -8,9 +8,9 @@ using System.Diagnostics;
 
 namespace UniQ
 {
-  public class Queue
+  public class Queue<T>
   {
-    protected int[] data;
+    protected T[] data;
     protected int head, tail;
     protected int mask;
 
@@ -25,28 +25,28 @@ namespace UniQ
       Array.Resize(ref data, this.size);
     }
   
-    public virtual void push(int item)
+    public virtual void push(T item)
     {
-      Debug.Assert(item != 0, "Queue.push(item): item can't be null");
+      Debug.Assert(!Equals(item, default(T)), "Queue.push(item): item can't be null");
       int t;
       do {
         t = tail;
         while (t - head == size){ };// { Thread.Sleep(0); };
-      } while ( (data[t & mask]!=0) || (Interlocked.CompareExchange(ref tail, t+1, t) != t) );
+      } while (!Equals(data[t & mask], default(T)) || (Interlocked.CompareExchange(ref tail, t+1, t) != t) );
       data[t & mask] = item;
     }
 
-    public virtual int pop()
+    public virtual T pop()
     {
       int h;
       do {
         h = head;
         while (h == tail){ };// { Thread.Sleep(0); };
-      } while ( (data[h & mask]==0) || (Interlocked.CompareExchange(ref head, h+1, h) != h) );
+      } while (Equals(data[h & mask], default(T)) || (Interlocked.CompareExchange(ref head, h+1, h) != h) );
 
       h &= mask;
-      int r = data[h];
-      data[h] = 0;
+      T r = data[h];
+      data[h] = default(T);
       return r;
     }
   };
