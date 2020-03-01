@@ -1,6 +1,6 @@
 # The Lock Free [Queue][1]
 
-In a [question about in Stackoverflow][2], the most upvoted answer (jan/20) is:
+In a [question about in Stackoverflow][2] about lock-free queues, the most upvoted answer (jan/20) is:
 
 > I've made a particular study of lock-free data structures in the last couple of years. I've read most of the papers in the field (there's only about fourty or so - although only about ten or fifteen are any real use :-)
 
@@ -27,6 +27,9 @@ Don't let its simplicity fools you. This is the result of years of work, and I b
 After releasing the idea, I received some objections about the asuredness of my "claims". The most common is: 
 
 **How can you asure that it is really lock-free?**
+This is somewhat hard to proof, because the problem its not well defined, and considered impossible, but the main point is the cost per operation is O(1) for any number of concurrent threads, I've tested with up to 512 threads reading and writing a single position buffer and get the same result.
+
+If you dont believe I can say
 
 ## The proof is in the pudding
 
@@ -39,17 +42,17 @@ Here is some verified facts and features of this program/formula:
 
 * N threads
 * N buffer size (minimum 1)
+* O(1): constant cost per operation.
 * 2 atomic variables
 * No locks or mutexes.
 * Freely preempted.
-* O(1): constant cost per operation.
 * zero checksum.
 
 If you like to put your hands dirt and dive right into de code, start at [test.cpp and queue.h][6]. (We have implementations in C# and pascal too.)
 
 Follow a compreensive description of the algorithm.
 
-# Under the hoods
+# Under the Hood
 
 A **bare minimum** solution to the 3-thread consensus, implemented as a MRMW (multi-read/multi-write) circular buffer. In the context of a multi-threaded producer/consumer testcase.
 
@@ -103,8 +106,6 @@ push(item)
   data[i & mask] = item // now is safe to update the buffer using local i
   return i // id of the job 
 }
-
-// released under GNU 3.0 Licence 
 ```
 
 *  If the thread is preempted at any point between `i = in` and `CompareAndSwap(input, i+1, i)`, on return the CAS will fail and the loop go to the next seat. Without any kind of locking.
@@ -130,8 +131,6 @@ pop()
   buffer[o] = 0 // release the seat
   return r
 }
-
-// released under GNU 3.0 Licence 
 ```
 
 Both methods have two nested `while()` loops: 
@@ -174,7 +173,7 @@ producer()
   for(int i=1; i <= N; i++)
     Q.push(1) // or i 
     
-  Q.push(i)
+  Q.push(-1)
 
   Total += N
   log("Produced:", N)
@@ -260,6 +259,7 @@ With default buffer size, varying the number of threads:
 ![Throughput x Threads](https://i.stack.imgur.com/laMSX.png)
 
 * **O(1)** The cost per operation with 2 threads is the same for 512.
+I think this is de definitive proof lock-freedom.
 
 Comments, benchmarks and use cases are welcome.
 
