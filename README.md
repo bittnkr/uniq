@@ -18,17 +18,17 @@ Searching the literature, we found no more encouraging words: The book [The Art 
 
 ## Not knowing that was impossible...
 
-Long story short, after years of investigation and lot of tests, I finally destiled a bare minimum solution to this problem, which I'm pretty sure that it is wait-free. (If you can refute, please do it).
+After years of investigation and lot of tests, I finally destiled a bare minimum solution to this problem, which I'm pretty sure that it is wait-free. (If you can refute, please do it).
   
-In this paper/repository, I did my best to bring only the essential to the compreension of the problem and its solution. Focusing on what really matters. And yet giving something ready to be used.
+In this paper/repository, I did my best to bring only the essential to the compreension of the problem and its solution. Focusing on what really matters. And yet giving some code ready to be used.
 
-Don't let its simplicity fools you. This is the result of years of work, and I believe that is the smallest/simpler solution ever found. 
+Don't let its simplicity fools you. This is the result of years of work, and I believe that is the smallest/simplest solution ever found. 
 
 After releasing the idea, I received some objections about the asuredness of my "claims". The most common is: 
 
 **How can you asure that it is really lock-free?**
 
-This is somewhat hard to proof, because the problem its not well defined, and considered impossible by the academic luminars. But the main point is the cost per operation is O(1) for any number of concurrent threads, I've tested with up to 512 threads reading and writing a single position buffer and got the same result.
+This is somewhat hard to proof, because the problem its not well defined, and considered impossible by the academic luminars. But the main point is that the cost per operation is O(1) for any number of concurrent threads. I've tested with up to 512 threads reading and writing a single position buffer and got the same result.
 
 But...
 
@@ -41,25 +41,25 @@ I think that's a fancy way to say: **The program is the proof of itself**.
 
 Here is some verified facts and features of this program/formula:
 
-* N threads (tested up to 512)
-* N buffer size (minimum 1)
-* O(1): constant cost per operation.
-* 2 atomic variables
+* N threads (tested up to 512).
+* N buffer size (minimum 1).
+* Constant cost per operation O(1).
+* Only 2 atomic variables.
 * No locks or mutexes.
 * Freely preempted.
-* zero checksum.
-
-If you like to put your hands dirt and dive right into de code, start at [test.cpp and queue.h][6]. (We have implementations in C# and pascal too.)
+* Zero checksum.
 
 Follow a compreensive description of the algorithm.
+
+If you like to put your hands dirt and dive right into de code, start at [test.cpp and queue.h][6]. (We have implementations in C# and pascal too.)
 
 # Under the Hood
 
 A **bare minimum** solution to the 3-thread consensus, implemented as a MRMW (multi-read/multi-write) circular buffer. In the context of a multi-threaded producer/consumer testcase.
 
-For the sake of simplicity, in this docs, I used a simplified JavaScript pseudocode, familiar for anyone using C-like languages. For the real thing, refer to source code.
+For the sake of simplicity, in this docs I used a simplified JavaScript pseudocode, familiar for anyone using C-like languages. For the real thing, refer to source code.
 
-## The Queue object 
+## The Queue object
 
 ```cpp
 class Queue(size) {
@@ -80,7 +80,7 @@ class Queue(size) {
 
 `in` Holds a the ID of the next element. Always ahead or equal `out`.
 
-`out` Is the ID of the last element (Next to be removed). Never greater than `in`
+`out` Is the ID of the last element (next to be removed). Never greater than `in`
 
 Both are **atomic variables**, always incremented. 
 
@@ -90,7 +90,7 @@ No boundary check is needed, because `mask` and the way integer overflow happens
 
 Here, the heart of the solution, where we solve the 3-thread consensus.
 
-### Inserting data into the queue. The `push()` method.
+### Inserting data into the queue. The `push()` operation.
 
 ```cpp
 push(item) 
@@ -111,9 +111,11 @@ push(item)
 
 *  If the thread is preempted at any point between `i = in` and `CompareAndSwap(input, i+1, i)`, on return the CAS will fail and the loop go to the next seat. Without any kind of locking.
 
-* I think that `(data[i & mask]) ||` should not be real neeed, but my computer hangs without it. And it prevents the use of the expensive CAS instruction. Here I check for nullability of the content. But in the C++ implementationcan it was replaced by an isFree boolena array.
+* I think that `(data[i & mask]) ||` should not be really neeed, but my computer hangs without it. And it prevents the use of the expensive CAS instruction. 
 
-### Removing data from the queue. The `pop()`
+* Here I check for nullability of the content. But in the C++ implementation it was replaced by an isFree boolean array.
+
+### Removing data from the queue. The `pop()` operation
 
 ```cpp
 pop() 
@@ -124,7 +126,7 @@ pop()
 
     while (o == in) sleep() // if empty, wait for items
 
-  } while ( !(data[o & mask]) || CompareAndSwap(output, o+1, o) != o )
+  } while ( !(data[o & mask]) || CompareAndSwap(out, o+1, o) != o )
   // if the candidate is gone or CAS failed, try again. 
 
   o &= mask // round to fit the buffer
@@ -140,7 +142,7 @@ Both methods have two nested `while()` loops:
 
 * Then we check if the buffer is full or empty, `sleep()`ing until state change. 
 
-* If the seat/candidate is available, try increment the atomic register `CompareAndSwap(output, o+1, o)`. 
+* If the seat/candidate is available, try increment the atomic register `CompareAndSwap(out, o+1, o)`. 
 
 * If the CAS fail (`!=o`), go to the next seat. 
 
@@ -166,24 +168,24 @@ Now, with our Queue defined, its time to put it on fire...
 
 Lets create two groups of threads: one producing and another consuming data.
 
-The first is the **`producer`**, it will put a bunch of numbers into the queue `Q`. 
+The first type of thread is the **`producer`**, it will put a bunch of numbers into the queue `Q`. 
 
 ```JavaScript
 producer() 
 {
-  for(int i=1; i <= N; i++)
+  for(let i=1; i <= N; i++)
     Q.push(i) 
     
-  Q.push(-1)
+  Q.push(-1) // end of job
 
   Total += N
   log("Produced:", N)
 }
 ```
 
-Pushig -1 on the queue signal the termination of the job. Also can be implemented with external flags.
+Here we push -1 into the queue to signal the termination of the job. Also can be implemented with external flags.
 
-Now, the work of our **`consumer`**: is remove elements out of the queue, until receiving a termination.
+Now, the work of the **`consumer`** is remove elements out of the queue, until receiving a termination.
 
 ```cpp
 consumer()
@@ -200,7 +202,7 @@ consumer()
 }
 ```
 
-Producers increment ``Total`` and consumers decrement. At the end, **it must be zero**. The proof that there is no leaks.
+Producers increment ``Total`` and consumers decrement it. At the end, it must be zero, proofing that there is no leaks.
 
 ## Running the horses
 
@@ -221,7 +223,8 @@ wait(producers, consumers)
 log("Total: %d", Total)
 ```
 
-* Here we create 8 threads to flow data. For sake of simplicity, the same number of producers and consumers, but it works equally in asymmetric conditions. I tested with at most 512 threads on an old Windows XP machine, where I got the better performace. 
+* Here we create 8 threads to flow data. For sake of simplicity, with the same number of producers and consumers, but it works equally in asymmetric conditions. 
+* I've tested with at most 512 threads on an old Windows XP machine, (where I got the better performace). 
 
 This is the output I got from the [C++ implementation][6], flowing 10M items:
 
@@ -245,7 +248,7 @@ real    0m0,581s
 
 Note that **producers** always pushed the same amount of items (2.5M), but **consumers** get different quantities, ranging from 1.3 to 3.8M. This is the expected behaviour. 
 
-Follow our expected `Total:0`, proofing that all the produced was consumed. 
+Follow our expected `Total:0` proofing that all produced was consumed. 
 
 Then the time took by the operation: **581 ms**. A throughput of **17.2 M flow/s**. (Enough for an old Dell M6300 Core duo).
 
@@ -255,12 +258,12 @@ I made a series of benchmarks, varying the buffer size and the number of threads
 
 ![Throughput x Buffer Size](https://i.stack.imgur.com/TgkKs.png)
 
-With default buffer size, varying the number of threads:
+With default buffer size (64), varying the number of threads:
  
 ![Throughput x Threads](https://i.stack.imgur.com/laMSX.png)
 
-* **O(1)** The cost per operation with 2 threads is the same for 512.
-I think this is de definitive proof lock-freedom.
+* The cost per operation with 2 threads is the same for 512.
+I think this is the definitive proof lock-freedom.
 
 Comments, benchmarks and use cases are welcome.
 
