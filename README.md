@@ -1,6 +1,6 @@
 # The Lock Free [Queue][1]
 
-In a [question about in Stackoverflow][2] about lock-free queues, the most upvoted answer (jan/20) is:
+In a [question in Stackoverflow][2] about lock-free queues, the most upvoted answer (jan/20) is:
 
 > I've made a particular study of lock-free data structures in the last couple of years. I've read most of the papers in the field (there's only about fourty or so - although only about ten or fifteen are any real use :-)
 
@@ -20,7 +20,7 @@ Searching the literature, we found no more encouraging words: The book [The Art 
 
 Long story short, after years of investigation and lot of tests, I finally destiled a bare minimum solution to this problem, which I'm pretty sure that it is wait-free. (If you can refute, please do it).
   
-In this paper/repository, I did my best to bring only the essential to the compreension of the problem and its solution. Focusing on what really matters. 
+In this paper/repository, I did my best to bring only the essential to the compreension of the problem and its solution. Focusing on what really matters. And yet giving something ready to be used.
 
 Don't let its simplicity fools you. This is the result of years of work, and I believe that is the smallest/simpler solution ever found. 
 
@@ -28,7 +28,7 @@ After releasing the idea, I received some objections about the asuredness of my 
 
 **How can you asure that it is really lock-free?**
 
-This is somewhat hard to proof, because the problem its not well defined, and considered impossible, but the main point is the cost per operation is O(1) for any number of concurrent threads, I've tested with up to 512 threads reading and writing a single position buffer and got the same result.
+This is somewhat hard to proof, because the problem its not well defined, and considered impossible by the academic luminars. But the main point is the cost per operation is O(1) for any number of concurrent threads, I've tested with up to 512 threads reading and writing a single position buffer and got the same result.
 
 But...
 
@@ -43,7 +43,7 @@ Here is some verified facts and features of this program/formula:
 
 * N threads (tested up to 512)
 * N buffer size (minimum 1)
-* *O(1): constant cost per operation.
+* O(1): constant cost per operation.
 * 2 atomic variables
 * No locks or mutexes.
 * Freely preempted.
@@ -57,7 +57,7 @@ Follow a compreensive description of the algorithm.
 
 A **bare minimum** solution to the 3-thread consensus, implemented as a MRMW (multi-read/multi-write) circular buffer. In the context of a multi-threaded producer/consumer testcase.
 
-For the sake of simplicity, I use a simplified JavaScript pseudocode, familiar for anyone using C-like languages. For the real thing, refer to source code.
+For the sake of simplicity, in this docs, I used a simplified JavaScript pseudocode, familiar for anyone using C-like languages. For the real thing, refer to source code.
 
 ## The Queue object 
 
@@ -67,7 +67,7 @@ class Queue(size) {
   in = 0, out = 0
   mask = size-1
    
-  push(item) // send the item & return an id.
+  push(item) // send the item & return the id of the job 
   pop() // get the next item.
 }
 ```
@@ -111,7 +111,7 @@ push(item)
 
 *  If the thread is preempted at any point between `i = in` and `CompareAndSwap(input, i+1, i)`, on return the CAS will fail and the loop go to the next seat. Without any kind of locking.
 
-* I think `(data[i & mask]) ||` can be safely removed, but I got better benchmarks with it, preventing the use of the CAS instruction.
+* I think that `(data[i & mask]) ||` should not be real neeed, but my computer hangs without it. And it prevents the use of the expensive CAS instruction. Here I check for nullability of the content. But in the C++ implementationcan it was replaced by an isFree boolena array.
 
 ### Removing data from the queue. The `pop()`
 
@@ -166,13 +166,13 @@ Now, with our Queue defined, its time to put it on fire...
 
 Lets create two groups of threads: one producing and another consuming data.
 
-The first is the **`producer`**, it put a bunch of numbers into the queue `Q`. 
+The first is the **`producer`**, it will put a bunch of numbers into the queue `Q`. 
 
 ```JavaScript
 producer() 
 {
   for(int i=1; i <= N; i++)
-    Q.push(1) // or i 
+    Q.push(i) 
     
   Q.push(-1)
 
@@ -181,9 +181,9 @@ producer()
 }
 ```
 
-The (-1) signal the termination of the job. Also can be implemented with external flags.
+Pushig -1 on the queue signal the termination of the job. Also can be implemented with external flags.
 
-Now, the work of our **`consumer`**: remove elements out of the queue, until receiving a termination.
+Now, the work of our **`consumer`**: is remove elements out of the queue, until receiving a termination.
 
 ```cpp
 consumer()
@@ -195,7 +195,7 @@ consumer()
     sum += value
   } while( value != -1 ) 
 
-  Total -= sum
+  Total -= sum 
   log("Consumed:", sum)
 }
 ```
@@ -221,7 +221,7 @@ wait(producers, consumers)
 log("Total: %d", Total)
 ```
 
-* Here we create 8 threads to flow data. For sake of simplicity, the same number of producers and consumers, but it works equally in asymmetric conditions. 
+* Here we create 8 threads to flow data. For sake of simplicity, the same number of producers and consumers, but it works equally in asymmetric conditions. I tested with at most 512 threads on an old Windows XP machine, where I got the better performace. 
 
 This is the output I got from the [C++ implementation][6], flowing 10M items:
 
