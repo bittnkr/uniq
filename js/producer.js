@@ -10,8 +10,8 @@ function producer() // the producer thread pushes data into the queue
     let sum = 0
 
     for (let i = 1; i <= count; i++) {
-      await Q.push(1); // push the value 1 to the qeue
-      sum += 1
+      await Q.push(i)
+      sum += i
     }
 
     Q.push(-1); // signalize termination with a -1

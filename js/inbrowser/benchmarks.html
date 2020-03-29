@@ -1,0 +1,52 @@
+<script src="simpledom.js"></script>
+<script src="utils.js"></script>
+<script src="../uniq.js"></script>
+
+<script>
+  window.onload = async () => {
+    checkSharedArrayBufferEnabled()
+
+    const messageCount = 100 * 1000;
+
+    // postMessage Test =====================================================
+    add.button('Run postMessage tests', () => {
+      add.p(`sending ${messageCount} messages through postMessage`, { color: 'red' })
+
+      let w = new Worker("./postmessage.worker.js")
+        , timer = performance.now()
+
+      // listen the answer  
+      w.onmessage = (ev) => {
+        add.p(`result ${ev.data} time: ${performance.now() - timer | 0}`, { color: 'red' })
+      }
+
+      // start the flow
+      w.postMessage(messageCount);
+
+      for (let i = 1; i <= messageCount; i++)
+        w.postMessage(i)
+
+    })
+
+    // uniQ Test ============================================================
+    add.button('Run Uniq tests', async () => {
+
+      add.p(`sending ${messageCount} messages through Q.push()`, { color: 'green' })
+
+      let Q = new Queue(1024) // large buffer to avoid sleep()
+        , w = new Worker("./uniq.worker.js", { buffer: Q.buffer, messageCount })
+        , timer = performance.now() | 0
+
+      // listen the answer  
+      w.onmessage = (ev) => {
+        add.p(`result ${ev.data}, time: ${performance.now() - timer | 0}`, { color: 'green' })
+      }
+
+      // start the flow  
+      w.postMessage({ buffer: Q.buffer, messageCount })
+
+      for (var i = 1; i <= messageCount; i++)
+        await Q.push(i)
+    })
+  }
+</script>

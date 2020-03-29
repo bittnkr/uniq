@@ -2,6 +2,37 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "type": "chrome",
+      "request": "attach",
+      "name": "Attach to Chrome",
+      "port": 9222,
+      "webRoot": "${workspaceFolder}"
+    },
+    {
+      // https://blog.chromium.org/2011/05/remote-debugging-with-chrome-developer.html
+      "type": "chrome",
+      "request": "launch",
+      "name": "Launch Chrome",
+      "runtimeExecutable": "/usr/bin/brave-browser",
+      // "runtimeExecutable": "/usr/bin/chromium-browser",
+      "runtimeArgs": [
+        "--remote-debugging-port=9222",
+        "--user-data-dir=/a/.browser-debug",
+        "--allow-file-access-from-files",
+        "--disable-features=AutoplayIgnoreWebAudio",
+        "--enable-features=WebAssembly,SharedArrayBuffer"
+      ],
+      "url": "file://${file}", // without a server
+      // "url": "file://${workspaceFolder}/${fileBasename}", // without a server
+      // "url": "file://${workspaceFolder}/index.html", // without a server
+      // "url": "http://localhost:5500/index.html",
+      // "url": "http://localhost:5500/${fileBasename}",
+      "port": 9222,
+      // "trace":true,
+      "cwd": "${workspaceFolder}",
+      "webRoot": "${workspaceFolder}"
+    },
+    {
       "name": "g++ build and debug active file",
       "type": "cppdbg",
       "request": "launch",
@@ -35,7 +66,7 @@
       "runtimeExecutable": "node",
       "runtimeArgs": [], //["--prof"],
       "cwd": "${workspaceFolder}",
-      "env":{"DEBUG":"*"},
+      "env": {"DEBUG": "*"},
       "program": "${workspaceFolder}/js/test.js",
       // "args": ["help"],
       "console": "integratedTerminal",
