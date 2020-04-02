@@ -16,33 +16,18 @@ Searching the literature, we found no more encouraging words: The book [The Art 
 
 > Although FIFO queues solve two-thread consensus, **they cannot solve 3-thread consensus**. (pg. 107)
 
-## Not knowing that was impossible...
+## The Discovery
 
-After years of investigation and lot of tests, I finally destiled a bare minimum solution to this problem, which I'm pretty sure that it is wait-free. (If you can refute, please do it).
+After years of investigation and lot of tests, I finally destiled a bare minimum solution to this problem, which I'm pretty sure that it is wait-free.
+I believe that is the smallest/simplest solution ever found. 
   
 In this paper/repository, I did my best to bring only the essential to the compreension of the problem and its solution. Focusing on what really matters. And yet giving some code ready to be used.
 
-Don't let its simplicity fools you. This is the result of years of work, and I believe that is the smallest/simplest solution ever found. 
 
-After releasing the idea, I received some objections about the asuredness of my "claims". The most common is: 
-
-**How can you asure that it is really lock-free?**
-
-This is somewhat hard to proof, because the problem its not well defined, and considered impossible by the academic luminars. But the main point is that the cost per operation is O(1) for any number of concurrent threads. I've tested with up to 512 threads reading and writing a single position buffer and got the same result.
-
-But...
-
-## The proof is in the pudding
-
-The [Curry-Howard Correspondence][7] says: 
-> a proof is a program, and the formula it proves is the type for the program.
-
-I think that's a fancy way to say: **The program is the proof of itself**. 
-
-Here is some verified facts and features of this program/formula:
+Here is some verified facts and features:
 
 * N threads (tested up to 512).
-* N buffer size (minimum 1).
+* N buffer size (minimum 1 seat).
 * Constant cost per operation O(1).
 * Only 2 atomic variables.
 * No locks or mutexes.
@@ -51,7 +36,7 @@ Here is some verified facts and features of this program/formula:
 
 Follow a compreensive description of the algorithm.
 
-If you like to put your hands dirt and dive right into de code, start at [test.cpp and queue.h][6]. (We have implementations in C# and pascal too.)
+If you like to put your hands dirt and dive right into de code, start at [test.cpp and queue.h][6]. (We have implementations in **C#**, **JavaScript** and **Pascal** too.)
 
 # Under the Hood
 
