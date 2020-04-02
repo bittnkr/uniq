@@ -1,6 +1,7 @@
 if [ "$1" = "" ]; then
     echo "Missig parameter, use like ./build.sh test"
 else
+  mkdir -p ./bin
   g++ $1.cpp -lpthread -Wno-unused-result -O2 -o ./bin/$1
   if [ $? -eq 0 ]; then
       time ./bin/$1

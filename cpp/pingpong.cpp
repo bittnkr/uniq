@@ -1,3 +1,7 @@
+// pingpong test for uniQ Library
+// Each ping call 1000 pongs, the last pong call ping(N-1) until zero
+// compile using ./build pingpong
+
 #include <iostream>
 
 #include "pool.h"
