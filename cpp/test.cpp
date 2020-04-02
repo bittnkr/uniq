@@ -8,12 +8,13 @@
 #include <vector>
 #include <atomic>
 #include "uniq.h"
+// #include "pool.h"
 
 using namespace std;
 
 typedef long long Int64;
 
-int Threads = 8;           // 4 producers & 4 consumers
+int Threads = 4;           // 4 producers & 4 consumers
 int Items = 10*1000*1000;  // how many items will flow trough the queue 
 atomic<Int64> Total(0); // a checksum, to ensure that all count pushed are poped
 
@@ -26,9 +27,8 @@ void producer(int items) // pushes data into the queue
   Int64 v, sum = 0;
 
   for (int i = 1; i <= items; i++) {
-    v = rand(); // push a random value into the queue
-    Q.push(v); 
-    sum += v;
+    Q.push(i); 
+    sum += i;
   }
   Q.push(-1); // signal termination with -1
   Total += sum;
@@ -68,5 +68,6 @@ int main() {
   }
 
   printf("\nChecksum: %llu (it must be zero)\n", Int64(Total));
+  printf("\ntasks: %d", Q.taskId());
 }
 // Part of uniQ library released under GNU 3.0
