@@ -50,14 +50,17 @@ function Queue(buffer = 64) {
   return { buffer, push, pop }
 }
 
-function sleep(msg) {
-  if (inNodeJS)
-    return new Promise(resolve => setImmediate(resolve))
-  else
-  return new Promise(resolve => setTimeout(resolve, 0))
-  // return new Promise(resolve => resolve(true))
-  // return new Promise(resolve => requestAnimationFrame(resolve))
-}
-
 if (inNodeJS)
   module.exports = { Queue, sleep }
+else {
+  var channel = new MessageChannel();
+  function setImmediate(cb) {
+    channel.port1.onmessage = cb
+    channel.port2.postMessage(true);
+  }
+}
+
+function sleep(msg) {
+  return new Promise(resolve => setImmediate(resolve))
+  // return new Promise(resolve => setTimeout(resolve))
+}
