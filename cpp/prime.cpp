@@ -6,12 +6,12 @@
 #include <algorithm>
 #include <iostream>
 
-#include "math.h"
+// #include "./utils.h"
+#include "./color.h"
+#include "./pool.h"
 using namespace std;
 
-typedef unsigned long long u64;
-
-// basic algorithm 
+// basic algorithm
 u64 firstDivisor0(u64 n) {
   if ((n % 2) == 0) return 2;
   for (u64 i = 3; i <= sqrt(n); i += 2) {
@@ -38,7 +38,7 @@ u64 spiral(u64 n, u64 min, u64 max) {
 }
 
 // firstDivisor using spiral
-u64 firstDivisor1(u64 n, u64 limit = 0) {
+u64 spiralDivisor(u64 n, u64 limit = 0) {
   if (!(n % 2)) return 2;
   if (!(n % 3)) return 3;
   if (!(n % 5)) return 5;
@@ -47,31 +47,56 @@ u64 firstDivisor1(u64 n, u64 limit = 0) {
   return spiral(n, 7, limit);
 }
 
-/* paralel version using spiral * /
-#include "pool.h"
-u64 paralelDivisor(u64 n) {
-  u64 i = 3e6;
-  u64 result = firstDivisor1(n, i);
+/* paralel version using spiral */
+u64 result;
 
-  if (result < n) return result;
-
-  // // a batch restrict the amout of jobs to the number of cores
-  // pool.on(spiral, [&](u64 res) {
-  //   if (res < n) result = res;
-  // });
-
-  while (i < sqrt(n) && !result) {  //
-    run(spiral, n, i, i += 3e6);
-    // pool.wait(result, a, b, c, d);
-  }
+inline u64 mineBlock(u64 n, u64 min, u64 max) {
+  result = spiral(n, min, max);
   return result;
 }
-/**/
+
+u64 paralelDivisor(u64 n) {
+  u64 blockSize = 3e6;
+  atomic<u64> block(7);
+  atomic<int> freeWorkers(4);
+
+  // try a first block, before go wild
+  u64 result = spiralDivisor(n, block += blockSize);
+
+  for (u64 b = block; (result == n) && b < sqrt(n); b += blockSize) {
+    run(mineBlock, n, b, b + blockSize);
+    // call(spiral, n, b, b + blockSize);
+    // call(spiral, n, b, b + blockSize, [&](u64 res) {
+    //   if (res < n) result = res;
+    // });
+  }
+  // printf("done.");
+  // pool.wait(result, a, b, c, d);
+  return result;
+}
 
 int main() {
-  u64 bigPrime = 18446744073709551557U;  // biggest 64 bit prime
-  cout << "Calculating primality of: " << bigPrime << "\n";
-  cout << (firstDivisor1(bigPrime) == bigPrime ? "is prime" : "is not prime\n");
-  // pool.stop();
+  u32 bigPrime32 = 2147483647;             // 2^31-1
+  u64 bigPrime64 = 18446744073709551557U;  // biggest 64 bit prime
+
+  u64 maxU32 = 0xFFFFFFFF;
+  u64 maxU64 = 0xFFFFFFFFFFFFFFFF;
+  u64 bigSquare64 = bigPrime32 * bigPrime32;  // biggest 32 bit prime
+
+  // calc top 5 primes below a range
+  printf("Calculating some big primes... \nPress Ctrl+C to stop\n");
+
+  u64 candidate = bigSquare64;
+  int count = 1;
+  while (true) {
+    u64 divisor = paralelDivisor(candidate);
+    bool isPrime = (divisor == candidate);
+    if (isPrime) {
+      printf("%d. %llu\n", count, candidate);
+      if (count++ == 8) break;
+    };
+    candidate--;
+  }
+  pool.stop();  // todo: remove this
   return 0;
 }
