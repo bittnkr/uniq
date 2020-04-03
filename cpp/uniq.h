@@ -63,5 +63,6 @@ class Queue {
   int size() { return mask + 1; }
   inline bool full() { return (in - out) > mask; }
   inline bool empty() { return out == in; }
-  int taskId() { return out; };
+  int nextJobId() { return out; };
+  inline void wait(int id) { while(out < id) sched_yield(); }
 };
