@@ -7,19 +7,25 @@
 #include "uniq.h"
 using namespace std;
 
+typedef unsigned long long u64;
+typedef unsigned long u32;
+
 typedef int JobID;
 typedef function<JobID()> Job;
+
+Queue<Job> Q;
+
+void sleep(int ms) { this_thread::sleep_for(std::chrono::milliseconds(ms)); }
 
 // ThreadPool ================================================
 
 class ThreadPool {
  protected:
   vector<thread> workers;
-  Queue<Job> Q;
 
  public:
   ThreadPool(int count = 0) {
-    if (!count) count = maxThreads() / 2;
+    if (!count) count = maxThreads();
     for (int i = 0; i < count; i++)
       workers.push_back(thread(&ThreadPool::worker, this, i + 1));
   }
@@ -31,9 +37,12 @@ class ThreadPool {
 
   unsigned int maxThreads() { return thread::hardware_concurrency(); }
 
-  int stop() { return Q.stop = 1; };
+  int stop() {
+    sleep(100); // to alow stdout printing
+    return Q.stop = 1;
+  };
 
-  int taskId() { return Q.taskId(); }
+  int nextJobId() { return Q.nextJobId(); }
 
   void worker(int color) {
     // while (Q.pop(f)) f();
@@ -49,8 +58,8 @@ class ThreadPool {
       }
     };
 
-    cout << colorcode(color) + "thread" + to_string(color) + ": " +
-                to_string(count) + "\n";
+    // cout << colorcode(color) + "thread" + to_string(color) + ": " +
+    // to_string(count) + "\n";
   }
 
   // using task_t = function<T(Args...)>;
@@ -60,49 +69,33 @@ class ThreadPool {
   // void f(Functor functor) {
   //   cout << functor(10) << endl;
   // }
-
-  template <typename Func, typename... Args>
-  void run(Func &&f, Args &&... args) {
-    Job job = bind(forward<Func>(f), forward<Args>(args)...);
-    Q.push(job);
-  }
-
-  // template <typename Func, typename... Args>
-  // JobID wait(Func &&f, Args &&... args) {
-  //   Job job = bind(forward<Func>(f), forward<Args>(args)...);
-  //   return Q.push(job);
-  // }
 };
 
 ThreadPool pool;
 
+// run ================================================
+
 template <typename Func, typename... Args>
-inline void run(Func &&f, Args &&... args) {
-  pool.run(f, args...);
+inline JobID run(Func &&f, Args &&... args) {
+  Job job = bind(forward<Func>(f), forward<Args>(args)...);
+  return Q.push(job);
 }
 
-// Batch ================================================
-// class Batch {
-//  protected:
-//   vector<thread> workers;
-//   Queue<Job> Q;
+// call using combinator ===============================
 
-//  public:
-//   Batch(int size = 0) {
-//     if (!size) size = pool.maxThreads() / 2;
-//     for (int i = 0; i < size; i++)
-//       workers[i] = thread(&ThreadPool::worker, this, i + 1);
-//   }
+#include <cstddef>
+#include <tuple>
+#include <utility>
 
-//   template <typename Functor>
-//   void jobDone(Functor functor) {
-//     cout << functor(10) << endl;
-//   }
+template <typename TupT, size_t... Is>
+auto combine(TupT &&tup, index_sequence<Is...>) {
+  return std::get<sizeof...(Is)>(tup)(std::get<Is>(forward<TupT>(tup))...);
+}
 
-//   template <typename Func, typename... Args>
-//   void run(Func &&f, Args &&... args) {
-//     return pool.run(f, args...);
-//   }
-// }
+template <typename... Ts>
+auto call(Ts &&... ts) {
+  return combine(forward_as_tuple(forward<Ts>(ts)...),
+                 make_index_sequence<sizeof...(Ts) - 1>{});
+}
 
 // Released under GNU 3.0
