@@ -47,7 +47,7 @@ void consumer() // takes data from the queue
 }
 
 int main() {
-  int pairs = Threads / 2;
+  int pairs = 2;
 
   vector<thread> producers(pairs);
   vector<thread> consumers(pairs);
