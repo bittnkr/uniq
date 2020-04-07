@@ -76,12 +76,12 @@ inline void run(Func&& f, Args&&... args) {
 #include <utility>
 
 template <typename TupT, size_t... Is>
-auto combine(TupT &&tup, index_sequence<Is...>) {
+auto combine(TupT&& tup, index_sequence<Is...>) {
   return std::get<sizeof...(Is)>(tup)(std::get<Is>(forward<TupT>(tup))...);
 }
 
 template <typename... Ts>
-auto call(Ts &&... ts) {
+auto call(Ts&&... ts) {
   return combine(forward_as_tuple(forward<Ts>(ts)...),
                  make_index_sequence<sizeof...(Ts) - 1>{});
 }
