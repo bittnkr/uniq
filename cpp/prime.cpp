@@ -6,9 +6,9 @@
 #include <algorithm>
 #include <iostream>
 
-// #include "./utils.h"
 #include "./color.h"
 #include "./pool.h"
+#include "./timer.cpp"
 using namespace std;
 
 // basic algorithm
@@ -47,56 +47,66 @@ u64 spiralDivisor(u64 n, u64 limit = 0) {
   return spiral(n, 7, limit);
 }
 
-/* paralel version using spiral */
-u64 result;
-
-inline u64 mineBlock(u64 n, u64 min, u64 max) {
-  result = spiral(n, min, max);
-  return result;
-}
-
+/* paralel version using spiral,
+distribute work to cores using blocks
+and pushing each block into the queue
+until a worker find a divisor. */
 u64 paralelDivisor(u64 n) {
   u64 blockSize = 3e6;
   atomic<u64> block(7);
-  atomic<int> freeWorkers(4);
 
   // try a first block, before go wild
   u64 result = spiralDivisor(n, block += blockSize);
 
   for (u64 b = block; (result == n) && b < sqrt(n); b += blockSize) {
-    run(mineBlock, n, b, b + blockSize);
-    // call(spiral, n, b, b + blockSize);
-    // call(spiral, n, b, b + blockSize, [&](u64 res) {
+    run(
+        [&](u64 n, u64 min, u64 max) {
+          // this lambda runs in a worker thread
+          u64 res = spiral(n, min, max);
+          if (res < n) result = res;
+        },
+        n, b, b + blockSize);
+
+    // run([&]() { // smaller but slower
+    //   u64 res = spiral(n, b, b + blockSize);
     //   if (res < n) result = res;
     // });
   }
-  // printf("done.");
-  // pool.wait(result, a, b, c, d);
   return result;
 }
 
 int main() {
   u32 bigPrime32 = 2147483647;             // 2^31-1
   u64 bigPrime64 = 18446744073709551557U;  // biggest 64 bit prime
-
-  u64 maxU32 = 0xFFFFFFFF;
-  u64 maxU64 = 0xFFFFFFFFFFFFFFFF;
-  u64 bigSquare64 = bigPrime32 * bigPrime32;  // biggest 32 bit prime
+  u64 bigSquare64 = bigPrime32 * bigPrime32;
 
   // calc top 5 primes below a range
-  printf("Calculating some big primes... \nPress Ctrl+C to stop\n");
-
-  u64 candidate = bigSquare64;
+  u64 n = bigSquare64;  // bigSquare64;
   int count = 1;
-  while (true) {
-    u64 divisor = paralelDivisor(candidate);
-    bool isPrime = (divisor == candidate);
-    if (isPrime) {
-      printf("%d. %llu\n", count, candidate);
-      if (count++ == 8) break;
+  int sumtime = 0;
+
+  // single threaded
+  printf("Calculating some big primes... \nPress Ctrl+C to stop\n\n");
+  printf("Single Threaded for %llu: ", n);
+  cout << std::flush;
+
+  Timer timer;  // startTimer();
+  spiralDivisor(n);
+  int singleTimer = (int)timer.reset();
+  printf("%d ms\n", singleTimer);
+
+  // multi threaded
+  printf("\nNow using %d worker threads \n", pool.maxThreads());
+  while (count <= 8) {
+    u64 divisor = paralelDivisor(n);
+    if (divisor == n) {
+      printf("%d. %llu: %d ms\n", count++, n, (int)timer.round());
     };
-    candidate--;
+    n--;
   }
+  int avg = timer.roundAvg();
+  printf("\nAvg: %d Speedup %.1f x\n", avg, (double)singleTimer / avg);
+
   pool.stop();  // todo: remove this
   return 0;
 }
