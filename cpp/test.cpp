@@ -68,6 +68,6 @@ int main() {
   }
 
   printf("\nChecksum: %llu (it must be zero)\n", Int64(Total));
-  printf("\ntasks: %d", Q.taskId());
+  printf("\ntasks: %d", Q.nextJobId());
 }
 // Part of uniQ library released under GNU 3.0
