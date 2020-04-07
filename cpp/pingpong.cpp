@@ -19,11 +19,14 @@ int ping(int v) {
   for (size_t i = 1; i <= 1000; i++) {
     run(pong, v - i);  // each ping run 1000 pongs
   };
-  if (v == 0) pool.stop();
+  if (v % 1000000 == 0) printf("count: %d\n", v);
+  if (v == 0) {
+    pool.stop();
+    cout << "\ntasks: " << pool.nextJobId() << "\n";
+  };
   return v;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   run(ping, 10e6);  // start the flow
-  cout << "\ntasks: " << pool.nextJobId() << "\n";
 }
