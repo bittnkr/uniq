@@ -11,7 +11,7 @@ typedef unsigned long long u64;
 typedef unsigned long u32;
 
 typedef int JobID;
-typedef function<JobID()> Job;
+typedef function<void()> Job;
 
 Queue<Job> Q;
 
@@ -37,38 +37,26 @@ class ThreadPool {
 
   unsigned int maxThreads() { return thread::hardware_concurrency(); }
 
-  int stop() {
-    sleep(100); // to alow stdout printing
-    return Q.stop = 1;
+  void stop() {
+    Q.stop = 1;
+    sleep(100);  // alow stdout printing
   };
 
   int nextJobId() { return Q.nextJobId(); }
 
   void worker(int color) {
     // while (Q.pop(f)) f();
-    int res = 0, count = 0;
+    int count = 0;
     Job f;
     while (true) {
       f = Q.pop();
       if (Q.stop) break;
-      res = f();
+      f();
       count++;
-      if (res != 0 && res % (int)1e6 == 0) {
-        cout << colorcode(color) << res << "\n";
-      }
     };
-
     // cout << colorcode(color) + "thread" + to_string(color) + ": " +
     // to_string(count) + "\n";
-  }
-
-  // using task_t = function<T(Args...)>;
-  // auto bound = bind(forward<task_t>(task), forward<Args>(args)...);
-
-  // template <typename Functor>
-  // void f(Functor functor) {
-  //   cout << functor(10) << endl;
-  // }
+  };
 };
 
 ThreadPool pool;
@@ -76,9 +64,9 @@ ThreadPool pool;
 // run ================================================
 
 template <typename Func, typename... Args>
-inline JobID run(Func &&f, Args &&... args) {
+inline void run(Func&& f, Args&&... args) {
   Job job = bind(forward<Func>(f), forward<Args>(args)...);
-  return Q.push(job);
+  Q.push(job);
 }
 
 // call using combinator ===============================
