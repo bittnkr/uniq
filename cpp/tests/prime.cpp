@@ -6,9 +6,9 @@
 #include <algorithm>
 #include <iostream>
 
-#include "./color.h"
-#include "./pool.h"
-#include "./timer.cpp"
+#include "terminal.h"
+#include "pool.h"
+#include "timer.h"
 using namespace std;
 
 // basic algorithm
@@ -79,9 +79,11 @@ int main() {
   u32 bigPrime32 = 2147483647;             // 2^31-1
   u64 bigPrime64 = 18446744073709551557U;  // biggest 64 bit prime
   u64 bigSquare64 = bigPrime32 * bigPrime32;
-
+  // setlocale(LC_NUMERIC, "C");
+  
+  printf("%llu/%llu: %llux\n",bigPrime64, bigSquare64, bigPrime64%bigSquare64);
   // calc top 5 primes below a range
-  u64 n = bigSquare64;  // bigSquare64;
+  u64 n = bigPrime64;  // bigSquare64;
   int count = 1;
   int sumtime = 0;
 

@@ -1,10 +1,4 @@
-#include <stdio.h> /* printf */
-#include <unistd.h>
-
-#include <chrono>
-using namespace std;
-
-// #include <bits/stdc++.h>
+#include "std.h"
 
 typedef std::chrono::_V2::system_clock::time_point Time;
 typedef std::chrono::high_resolution_clock Clock;

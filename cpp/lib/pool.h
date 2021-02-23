@@ -1,23 +1,16 @@
 #pragma once
-#include <functional>
-#include <iostream>
-#include <thread>
-
-#include "color.h"
-#include "uniq.h"
-using namespace std;
-
-typedef unsigned long long u64;
-typedef unsigned long u32;
+#include "common.h"
+#include "queue.h"
 
 typedef int JobID;
 typedef function<void()> Job;
 
 Queue<Job> Q;
 
-void sleep(int ms) { this_thread::sleep_for(std::chrono::milliseconds(ms)); }
+#define wait(condition) while(!(condition)) { sched_yield(); }
+void sleep(int ms) { this_thread::sleep_for(chrono::milliseconds(ms)); }
 
-// ThreadPool ================================================
+// ThreadPool =================================================================
 
 class ThreadPool {
  protected:
@@ -26,13 +19,12 @@ class ThreadPool {
  public:
   ThreadPool(int count = 0) {
     if (!count) count = maxThreads();
-    for (int i = 0; i < count; i++)
+    for (auto i = 0; i < count; i++)
       workers.push_back(thread(&ThreadPool::worker, this, i + 1));
   }
 
   ~ThreadPool() {
-    // stop();
-    for (int i = 0; i < workers.capacity(); i++) workers[i].join();
+    for (auto i = 0; i < workers.capacity(); i++) workers[i].join();
   }
 
   unsigned int maxThreads() { return thread::hardware_concurrency(); }
@@ -54,22 +46,18 @@ class ThreadPool {
       f();
       count++;
     };
-    // cout << colorcode(color) + "thread" + to_string(color) + ": " +
-    // to_string(count) + "\n";
+    // cout << colorcode(color) + "thread" + to_string(color) + ": " + to_string(count) + "\n";
   };
 };
 
 ThreadPool pool;
 
-// run ================================================
-
+// run ========================================================================
 template <typename Func, typename... Args>
 inline void run(Func&& f, Args&&... args) {
   Job job = bind(forward<Func>(f), forward<Args>(args)...);
   Q.push(job);
 }
-
-// call using combinator ===============================
 
 #include <cstddef>
 #include <tuple>
@@ -86,4 +74,16 @@ auto call(Ts&&... ts) {
                  make_index_sequence<sizeof...(Ts) - 1>{});
 }
 
-// Released under GNU 3.0
+// tests =======================================================================
+atomic<int> rounds = 0;
+void test_ping(int v);
+
+void test_pong(int v) { if (v) run(test_ping, v - 1); else pool.stop(); }
+void test_ping(int v) { run(test_pong, v); rounds--; }
+
+void test_pool() {
+  run(test_ping, 999); // start the flow
+  wait(Q.stop);
+  CHECK(rounds = -1000);
+}
+// Part of the uniQ Libray - Released under GNU 3.0 =============================

@@ -1,0 +1,15 @@
+{
+  "debug.allowBreakpointsEverywhere": true,
+  "files.associations": {
+    "*.sass": "sass",
+    "*.algo": "javascript",
+    "**/RootDir/**/*": "javascript",
+    "*.json": "jsonc",
+  },
+  "typescript.validate.enable": false,
+  "javascript.validate.enable": false,
+  "C_Cpp.default.intelliSenseMode": "clang-x64",
+  // "C_Cpp.clang_format_style": "{ BasedOnStyle: Chromium, IndentWidth: 2, ColumnLimit: 0}",
+  // "C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: Chromium, IndentWidth: 2, ColumnLimit: 0}",
+  "C_Cpp.clang_format_fallbackStyle": "WebKit",
+}

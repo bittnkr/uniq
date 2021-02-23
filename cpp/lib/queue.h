@@ -1,14 +1,6 @@
-// uniQ The Lock free Queue.
-// See test.cpp for use case & README.md for details about the solution
-// Released under LGPL 3.0
-
+// uniQ - The Lock Free Queue.
 #pragma once
-#include <assert.h>
-
-#include <atomic>
-#include <thread>
-#include <vector>
-using namespace std;
+#include "common.h"
 
 template <class T>
 class Queue {
@@ -66,3 +58,38 @@ class Queue {
   int nextJobId() { return out; };
   inline void wait(int id) { while(out < id) sched_yield(); }
 };
+
+// ================================================== tests
+void test_queue(){
+
+  Queue<int> q(1024);
+  atomic<int> produced(0);
+  atomic<int> consumed(0);
+  vector<thread> threads;
+
+  for (int i = 0; i < 2; i++) { // 4 producers & 4 consumers
+
+    // producer
+    threads.push_back(thread([&](int items){
+      for (int i = 1; i <= items; i++) { 
+        q.push(i); 
+        produced++; 
+      };
+      q.push(-1);
+    }, random() % 100));
+
+    // consumer
+    threads.push_back(thread([&](){
+      int v, sum = 0;
+      while ((v = q.pop()) != -1) // while (q.pop(v) && v != -1) {
+        consumed ++;
+    }));
+  };
+
+  for (auto i = 0; i < threads.size(); i++)
+    threads[i].join();
+
+  CHECK(produced > 0);
+  CHECK(produced == consumed);
+}
+// Released under LGPL 3.0

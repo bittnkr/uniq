@@ -1,16 +1,9 @@
 // producer/consumer test for uniQ Library
-// See test.cpp for use case & README.md for details about the solution
-// compile using ./build test
+// compile using ./build mrmw
 
-#include <stdio.h>
-#include <locale.h>
-#include <thread>
-#include <vector>
-#include <atomic>
-#include "uniq.h"
+#include "common.h"
+#include "queue.h"
 // #include "pool.h"
-
-using namespace std;
 
 typedef long long Int64;
 
@@ -46,7 +39,7 @@ void consumer() // takes data from the queue
   printf("Consumed: %'llu\n", sum);
 }
 
-int main() {
+void test_mrmw() {
   int pairs = 2;
 
   vector<thread> producers(pairs);
@@ -67,7 +60,12 @@ int main() {
     consumers[i].join();
   }
 
+  CHECK(Total==0);
+
   printf("\nChecksum: %llu (it must be zero)\n", Int64(Total));
   printf("\ntasks: %d", Q.nextJobId());
 }
+
+int main(){ test_mrmw(); return 1; }
+
 // Part of uniQ library released under GNU 3.0

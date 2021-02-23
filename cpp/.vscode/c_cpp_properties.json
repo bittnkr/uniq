@@ -1,0 +1,41 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "linux-gcc-x64",
+            "compilerArgs": [
+                "${file}",
+                "-o",
+                "${workspaceFolder}/bin/${fileBasenameNoExtension}",
+                "-I",
+                "${workspaceFolder}/lib",
+                "-I",
+                "${workspaceFolder}/libs",
+                "-std=c++17",
+                "-g",
+                "-rdynamic",
+                "-fpermissive",
+                "-Wfatal-errors", // stop on first error
+                "-fcompare-debug-second", // no notes
+                "-lpthread",
+                // "-lOpenCL",
+                // "-lOpenGL",
+                // "-lglut",
+                // "-lglfw",
+                // "-lGL",
+                // "-lGLEW",
+                // "-lGLU",
+                // "-lGLAD",
+                // "-fopenmp",
+            ]
+        }
+    ],
+    "version": 4
+}

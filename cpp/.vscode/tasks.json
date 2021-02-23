@@ -1,0 +1,156 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "g++ build active file",
+      "command": "/usr/bin/g++",
+      "type": "shell",
+      "args": [
+        "${file}",
+        "-o",
+        "${workspaceFolder}/bin/${fileBasenameNoExtension}",
+        "-I",
+        "${workspaceFolder}/lib",
+        "-I",
+        "${workspaceFolder}/libs",
+        "-std=c++17",
+        "-g",
+        "-rdynamic",
+        "-fpermissive",
+        "-Wfatal-errors", // stop on first error
+        "-fcompare-debug-second", // no notes
+        "-lpthread",
+        // "-lOpenCL",
+        // "-lOpenGL",
+        // "-lglut",
+        // "-lglfw",
+        // "-lGL",
+        // "-lGLEW",
+        // "-lGLU",
+        // "-lGLAD",
+        // "-fopenmp",
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "g++ build test",
+      "command": "/usr/bin/g++",
+      "type": "shell",
+      "args": [
+        "${workspaceFolder}/tests/test.cpp",
+        "-o",
+        "${workspaceFolder}/bin/test",
+        "-I",
+        "${workspaceFolder}/lib",
+        "-I",
+        "${workspaceFolder}/libs",
+        "-std=c++17",
+        "-g",
+        "-rdynamic",
+        "-fpermissive",
+        "-Wfatal-errors", // stop on first error
+        "-fcompare-debug-second", // no notes
+        "-lpthread",
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "clang++ build active file",
+      "command": "/usr/bin/clang++",
+      "type": "shell",
+      "args": [
+        "${file}",
+        "-o",
+        "${workspaceFolder}/bin/${fileBasenameNoExtension}",
+        "-I",
+        "${workspaceFolder}/lib",
+        "-I",
+        "${workspaceFolder}/libs",
+        "-std=c++17",
+        "-g",
+        "-rdynamic",
+        "-fpermissive",
+        "-Wfatal-errors", // stop on first error
+        "-lpthread",
+        // "-lOpenCL",
+        // "-lOpenGL",
+        // "-lglut",
+        // "-lglfw",
+        // "-lGL",
+        // "-lGLEW",
+        // "-lGLU",
+        // "-lGLAD",
+        // "-fopenmp",
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "clang++ build test",
+      "command": "/usr/bin/clang++",
+      "type": "shell",
+      "args": [
+        "${file}",
+        "-o",
+        "${workspaceFolder}/bin/test",
+        "-I",
+        "${workspaceFolder}/lib",
+        "-I",
+        "${workspaceFolder}/libs",
+        "-std=c++17",
+        "-g",
+        "-rdynamic",
+        "-fpermissive",
+        "-Wfatal-errors", // stop on first error
+        "-lpthread",
+        // "-lOpenCL",
+        // "-lOpenGL",
+        // "-lglut",
+        // "-lglfw",
+        // "-lGL",
+        // "-lGLEW",
+        // "-lGLU",
+        // "-lGLAD",
+        // "-fopenmp",
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+  ]
+}

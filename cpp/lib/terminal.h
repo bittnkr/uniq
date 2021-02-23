@@ -8,12 +8,7 @@
 // [0m	Reset
 
 #pragma once
-#include <stdarg.h>
-#include <stdio.h>
-
-#include <memory>
-#include <string>
-using namespace std;
+#include "common.h"
 
 // template <typename... Args>
 // std::string format(const char* fmt, Args... args) {
