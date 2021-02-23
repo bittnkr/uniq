@@ -39,6 +39,5 @@
 *.o
 *.ii
 old/
-.vscode/
 try/
 debug/

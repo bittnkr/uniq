@@ -24,7 +24,7 @@
                 "-fpermissive",
                 "-Wfatal-errors", // stop on first error
                 "-fcompare-debug-second", // no notes
-                "-lpthread",
+                "-lpthread"
                 // "-lOpenCL",
                 // "-lOpenGL",
                 // "-lglut",

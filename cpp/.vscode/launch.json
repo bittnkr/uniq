@@ -1,0 +1,66 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "g++ test",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/bin/test",
+      // "stopAtEntry": true,
+      "cwd": "${workspaceFolder}",
+      "args": [],
+      "environment": [],
+      "externalConsole": false,
+      "preLaunchTask": "g++ build test",
+      "MIMode": "gdb",
+      "miDebuggerPath": "/usr/bin/gdb",
+      "sourceFileMap": { "/c/": "C:/"},
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ],
+    },
+    {
+      "name": "g++ active file",
+      "preLaunchTask": "g++ build active file",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/bin/${fileBasenameNoExtension}",
+      // "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "sourceFileMap": {
+        "/c/": "C:/"
+      },
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ],
+      "miDebuggerPath": "/usr/bin/gdb"
+    },
+    {
+      "name": "clang++ active file",
+      "preLaunchTask": "clang++ build active file",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${fileDirname}/bin/${fileBasenameNoExtension}",
+      "args": [],
+    },
+    {
+      "name": "clang++ test",
+      "preLaunchTask": "clang++ build test",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${fileDirname}/bin/test",
+      "args": [],
+    },
+  ]
+}
