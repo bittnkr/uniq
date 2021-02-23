@@ -17,17 +17,16 @@ class ThreadPool {
   vector<thread> workers;
 
  public:
-  ThreadPool(int count = 0) {
-    if (!count) count = maxThreads();
-    for (auto i = 0; i < count; i++)
+  ThreadPool(int size = 0) {
+    if (!size) size = thread::hardware_concurrency();
+    for (auto i = 0; i < size; i++) {
       workers.push_back(thread(&ThreadPool::worker, this, i + 1));
-  }
+   }
+  };
 
   ~ThreadPool() {
     for (auto i = 0; i < workers.capacity(); i++) workers[i].join();
   }
-
-  unsigned int maxThreads() { return thread::hardware_concurrency(); }
 
   void stop() {
     Q.stop = 1;
@@ -38,15 +37,15 @@ class ThreadPool {
 
   void worker(int color) {
     // while (Q.pop(f)) f();
-    int count = 0;
+    int size = 0;
     Job f;
     while (true) {
       f = Q.pop();
       if (Q.stop) break;
       f();
-      count++;
+      size++;
     };
-    // cout << colorcode(color) + "thread" + to_string(color) + ": " + to_string(count) + "\n";
+    // cout << colorcode(color) + "thread" + to_string(color) + ": " + to_string(size) + "\n";
   };
 };
 
@@ -57,21 +56,6 @@ template <typename Func, typename... Args>
 inline void run(Func&& f, Args&&... args) {
   Job job = bind(forward<Func>(f), forward<Args>(args)...);
   Q.push(job);
-}
-
-#include <cstddef>
-#include <tuple>
-#include <utility>
-
-template <typename TupT, size_t... Is>
-auto combine(TupT&& tup, index_sequence<Is...>) {
-  return std::get<sizeof...(Is)>(tup)(std::get<Is>(forward<TupT>(tup))...);
-}
-
-template <typename... Ts>
-auto call(Ts&&... ts) {
-  return combine(forward_as_tuple(forward<Ts>(ts)...),
-                 make_index_sequence<sizeof...(Ts) - 1>{});
 }
 
 // tests =======================================================================
