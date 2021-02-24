@@ -1,10 +1,15 @@
 #pragma once
-#include "std.h"
+namespace test{
+  #include "common.h"
 
-atomic<int> TEST_CHECKS = 0;
-#define CHECK(cond) assert(cond); TEST_CHECKS++
+  atomic<int> CHECKS = 0;
 
-void run_test(void (*f)(void), string name=""){
-  f();
-  cout << " " << name <<" \033[0;32mpassed\033[0m" << ""<< endl;
-};
+  void runtest(void (*f)(void), string name=""){
+    f();
+    cout << "\033[38;5;202m" << name <<" \033[0;32mpassed\033[0m" << endl;
+  };
+}// test
+
+#define CHECK(cond) assert(cond); test::CHECKS++
+
+// part of UniQ library - released under GPL 3.0

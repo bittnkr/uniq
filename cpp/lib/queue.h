@@ -1,5 +1,6 @@
 // uniQ - The Lock Free Queue.
 #pragma once
+namespace uniq {
 #include "common.h"
 
 template <class T>
@@ -58,38 +59,42 @@ class Queue {
   int nextJobId() { return out; };
   inline void wait(int id) { while(out < id) sched_yield(); }
 };
-
+};// uniq
 // ================================================== tests
-void test_queue(){
+namespace test {
+  #include "common.h"
+  using namespace std;
 
-  Queue<int> q(1024);
-  atomic<int> produced(0);
-  atomic<int> consumed(0);
-  vector<thread> threads;
+  void test_queue(){
 
-  for (int i = 0; i < 2; i++) { // 4 producers & 4 consumers
+    uniq::Queue<int> q(1);
+    atomic<int> produced(0);
+    atomic<int> consumed(0);
+    vector<thread> threads;
 
-    // producer
-    threads.push_back(thread([&](int items){
-      for (int i = 1; i <= items; i++) { 
-        q.push(i); 
-        produced++; 
-      };
-      q.push(-1);
-    }, random() % 100));
+    for (int i = 0; i < 3; i++) { // 4 producers & 4 consumers
 
-    // consumer
-    threads.push_back(thread([&](){
-      int v, sum = 0;
-      while ((v = q.pop()) != -1) // while (q.pop(v) && v != -1) {
-        consumed ++;
-    }));
-  };
+      // producer
+      threads.push_back(std::thread([&](int items){
+        for (int i = 1; i <= items; i++) { 
+          q.push(i); 
+          produced++; 
+        };
+        q.push(-1);
+      }, random() % 1000));
 
-  for (auto i = 0; i < threads.size(); i++)
-    threads[i].join();
+      // consumer
+      threads.push_back(std::thread([&](){
+        int v, sum = 0;
+        while ((v = q.pop()) != -1) // while (q.pop(v) && v != -1) {
+          consumed ++;
+      }));
+    };
 
-  CHECK(produced > 0);
-  CHECK(produced == consumed);
-}
-// Released under LGPL 3.0
+    for (auto i = 0; i < threads.size(); i++)
+      threads[i].join();
+
+    CHECK(produced > 0);
+    CHECK(produced == consumed);
+  }
+}// part of UniQ library - released under GPL 3.0

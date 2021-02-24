@@ -11,5 +11,6 @@
   "C_Cpp.default.intelliSenseMode": "clang-x64",
   // "C_Cpp.clang_format_style": "{ BasedOnStyle: Chromium, IndentWidth: 2, ColumnLimit: 0}",
   // "C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: Chromium, IndentWidth: 2, ColumnLimit: 0}",
+  "diffEditor.ignoreTrimWhitespace": true,
   "C_Cpp.clang_format_fallbackStyle": "WebKit"
 }

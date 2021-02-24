@@ -118,7 +118,7 @@
       "command": "/usr/bin/clang++",
       "type": "shell",
       "args": [
-        "${file}",
+        "${workspaceFolder}/tests/test.cpp",
         "-o",
         "${workspaceFolder}/bin/test",
         "-I",

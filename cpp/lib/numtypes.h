@@ -66,6 +66,9 @@ typedef union {f128 value; struct {u128 mantisa:112; u16 exponent:15; u8 s:1;} p
 
 // tests ======================================================================  
 #include "test.h"
-void test_numtypes(){
-  CHECK(sizeof(integer) == BITS/8);
+namespace test{
+  void test_numtypes(){ 
+    CHECK(sizeof(integer) == BITS/8);
+  };
 }
+// part of UniQ library - released under GPL 3.0

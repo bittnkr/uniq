@@ -1,20 +1,8 @@
 // delegation tests
-
 // https://stackoverflow.com/a/40701904/9464885
 
-#include <cstddef>
-#include <functional>
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <thread>
-#include <tuple>
-#include <utility>
-
-#include "color.h"
+#include "std.h"
 #include "pool.h"
-
-using namespace std;
 
 // passing a fuction call forward
 int spiral(int n, int min, int max) {
@@ -60,6 +48,17 @@ int run4(Func&& f, Args&&... args) {
 
   // return Q.push(job);
   return 0;
+}
+
+template <typename TupT, size_t... Is>
+auto combine(TupT&& tup, index_sequence<Is...>) {
+  return std::get<sizeof...(Is)>(tup)(std::get<Is>(forward<TupT>(tup))...);
+}
+
+template <typename... Ts>
+auto call(Ts&&... ts) {
+  return combine(forward_as_tuple(forward<Ts>(ts)...),
+                 make_index_sequence<sizeof...(Ts) - 1>{});
 }
 
 // Some different ways to delegate a function

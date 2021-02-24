@@ -1,15 +1,20 @@
 #include "common.h"
+#include "numtypes.h"
+#include "utils.h"
+#include "boilerplate.h"
 #include "queue.h"
 #include "pool.h"
-#include "numtypes.h"
 
 int main(){
+  using namespace test;
   cout << "Running tests ------------------------------" << endl;
 
-  run_test(test_queue, "queue"); 
-  run_test(test_pool, "pool"); 
-  run_test(test_numtypes, "numtypes");  
+  runtest(test_numtypes, "numtypes");  
+  runtest(test_utils, "utils");  
+  runtest(test_boilerplate, "boilerplate");  
+  runtest(test_queue, "queue"); 
+  runtest(test_pool, "pool"); 
 
-  cout << TEST_CHECKS << " tests passed" << "------------------------------"<< endl;
+  cout << CHECKS << " tests passed" << "------------------------------"<< endl;
   return 1;
 }

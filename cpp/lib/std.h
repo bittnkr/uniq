@@ -2,7 +2,7 @@
 #pragma once
 
 #if __cplusplus >= 199711L // ============================================ C++98 
-//*// Utilities
+// Utilities
 #include <bitset> // bitset class template
 #include <csetjmp> // Macro (and function) that saves (and jumps) to an execution context
 #include <csignal> // Functions and macro constants for signal management
@@ -14,29 +14,29 @@
 #include <typeinfo>   // Runtime type information utilities
 #include <utility>    // Various utility components */
 
-//*// Dynamic memory management
+// Dynamic memory management
 #include <memory> // High-level memory management utilities
 #include <new>    // Low-level memory management utilities */
 
-//*// Numeric limits
+// Numeric limits
 #include <cfloat>  // Limits of floating-point types
 #include <climits> // Limits of integral types
 #include <limits>  // Uniform way to query properties of arithmetic types */
 
-//*// Error handling
+// Error handling
 #include <cassert>   // Conditionally compiled macro that compares its argument to zero
 #include <cerrno>    // Macro containing the last error number
 #include <exception> // Exception handling utilities
 #include <stdexcept> // Standard exception objects */
 
-//*// Strings
+// Strings
 #include <cctype>  // Functions to determine the category of narrow characters
 #include <cstring> // Various narrow character string handling functions
 #include <cwchar>  // Various wide and multibyte string handling functions
 #include <cwctype> // Functions to determine the catagory of wide characters
 #include <string>  // basic_string class template */
 
-//*// Containers
+// Containers
 #include <deque>  // deque container
 #include <list>   // list container
 #include <map>    // map and multimap associative containers
@@ -45,23 +45,23 @@
 #include <stack>  // stack container adaptor
 #include <vector> // vector container */
 
-//*// Iterators
+// Iterators
 #include <iterator> // Range iterators */
 
-//*// Algorithms
+// Algorithms
 #include <algorithm> // Algorithms that operate on ranges */
 
-//*// Numerics
+// Numerics
 #include <cmath>    // Common mathematics functions
 #include <complex>  // Complex number type
 #include <numeric>  // Numeric operations on values in ranges
 #include <valarray> // Class for representing and manipulating arrays of values */
 
-//*// Localization
+// Localization
 #include <clocale> // C localization utilities
 #include <locale>  // Localization utilities */
 
-//*// Input/output
+// Input/output
 #include <cstdio>    // C-style input-output functions */
 #include <fstream>   // basic_fstream, basic_ifstream, basic_ofstream class templates and several typedefs
 #include <iomanip>   // Helper functions to control the format of input and output
@@ -81,31 +81,31 @@
 #include <tuple>            // tuple class template
 #include <type_traits>      // Compile-time type information
 #include <typeindex>        // type_index */
-//*// Dynamic memory management
+// Dynamic memory management
 #include <scoped_allocator> // Nested allocator class */
-//*// Numeric limits
+// Numeric limits
 #include <cinttypes> // Formatting macros, intmax_t and uintmax_t math and conversions
 #include <cstdint> // Fixed-width integer types and limits of other types */
-//*// Error handling
+// Error handling
 #include <system_error> // Defines error_code, a platform-dependent error code */
-//*// Strings
+// Strings
 #include <cuchar> // C-style Unicode character conversion functions */
-//*// Containers
+// Containers
 #include <array>        // array container
 #include <forward_list> // forward_list container
 #include <unordered_map> // unordered_map and unordered_multimap unordered associative containers
 #include <unordered_set> // unordered_set and unordered_multiset unordered associative containers */
-//*// Numerics
+// Numerics
 #include <cfenv>  // Floating-point environment access functions
 #include <random> // Random number generators and distributions
 #include <ratio>  // Compile-time rational arithmetic */
-//*// Localization
+// Localization
 #include <codecvt> // Unicode conversion facilities (deprecated in C++17) */
-//*// Regular Expressions
+// Regular Expressions
 #include <regex> // Classes, algorithms and iterators to support regular expression processing */
-//*// Atomic Operations
+// Atomic Operations
 #include <atomic> // Atomic operations */
-//*// Thread support
+// Thread support
 #include <condition_variable> // Thread waiting conditions
 #include <future>             // Primitives for asynchronous computations
 #include <mutex>              // Mutual exclusion primitives
@@ -113,7 +113,7 @@
 #endif
 
 #if __cplusplus >= 201402L // ============================================ C++14 
-//*// Thread support
+// Thread support
 #include <shared_mutex> // Shared mutual exclusion primitives */
 #endif
 
@@ -121,14 +121,14 @@
 #include <any>      // any class
 #include <optional> // optional class template
 #include <variant>  // variant class template */
-//*// Dynamic memory management
+// Dynamic memory management
 #include <memory_resource> // Polymorphic allocators and memory resources */
-//*// Strings
+// Strings
 #include <charconv>    // to_chars and from_chars
 #include <string_view> // basic_string_view class template */
-//*// Filesystem
+// Filesystem
 #include <filesystem> // path class and supporting functions */
-/*// Algorithms
+/*/ Algorithms
 #include <execution> // Predefined execution policies for parallel versions of the algorithms */
 #endif
 
@@ -138,18 +138,18 @@
 #include <coroutine>       // Coroutines library
 #include <source_location> // Supplies means to obtain source code location
 #include <version> // Supplies implementation-dependent library information */
-//*// Strings
+// Strings
 #include <format> // Formatting library including format */
-//*// Containers
+// Containers
 #include <span> // span view */
-//*// Ranges
+// Ranges
 #include <ranges> // Range access, primitives, requirements, utilities and adaptors */
-//*// Numerics
+// Numerics
 #include <bit>     // Bit manipulation functions
 #include <numbers> // Math constants */
-//*// Input/output
+// Input/output
 #include <syncstream> // basic_osyncstream, basic_syncbuf, and typedefs */
-//*// Thread support
+// Thread support
 #include <barrier>    // Barriers */
 #include <latch>      // Latches
 #include <semaphore>  // Semaphores
@@ -157,7 +157,7 @@
 #define C17
 #endif
 
-/*// =============================================================== deprecated
+/*/ =============================================================== deprecated
 #include <assert.h>   // sames as <cassert>
 #include <errno.h>    // sames as <cerrno>
 #include <float.h>    // sames as <cfloat>

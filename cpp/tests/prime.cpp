@@ -1,15 +1,8 @@
 // parallel primality test for uniQ Library
 // compile using ./build prime
-
-#include <bits/stdc++.h>
-
-#include <algorithm>
-#include <iostream>
-
-#include "terminal.h"
+#include "common.h"
 #include "pool.h"
 #include "timer.h"
-using namespace std;
 
 // basic algorithm
 u64 firstDivisor0(u64 n) {
@@ -81,7 +74,7 @@ int main() {
   u64 bigSquare64 = bigPrime32 * bigPrime32;
   // setlocale(LC_NUMERIC, "C");
   
-  printf("%llu/%llu: %llux\n",bigPrime64, bigSquare64, bigPrime64%bigSquare64);
+  // printf("%llu/%llu: %llux\n",bigPrime64, bigSquare64, bigPrime64%bigSquare64);
   // calc top 5 primes below a range
   u64 n = bigPrime64;  // bigSquare64;
   int count = 1;
@@ -98,7 +91,7 @@ int main() {
   printf("%d ms\n", singleTimer);
 
   // multi threaded
-  printf("\nNow using %d worker threads \n", pool.maxThreads());
+  printf("\nNow using %d worker threads \n", pool.size());
   while (count <= 8) {
     u64 divisor = paralelDivisor(n);
     if (divisor == n) {

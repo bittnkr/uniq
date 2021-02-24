@@ -1,11 +1,12 @@
 #pragma once
+// namespace uniq {
 #include "common.h"
 #include "queue.h"
 
 typedef int JobID;
 typedef function<void()> Job;
 
-Queue<Job> Q;
+uniq::Queue<Job> Q;
 
 #define wait(condition) while(!(condition)) { sched_yield(); }
 void sleep(int ms) { this_thread::sleep_for(chrono::milliseconds(ms)); }
@@ -33,6 +34,7 @@ class ThreadPool {
     sleep(100);  // alow stdout printing
   };
 
+  int size() { return workers.size(); }
   int nextJobId() { return Q.nextJobId(); }
 
   void worker(int color) {
@@ -57,17 +59,20 @@ inline void run(Func&& f, Args&&... args) {
   Job job = bind(forward<Func>(f), forward<Args>(args)...);
   Q.push(job);
 }
+// };// uniq
 
 // tests =======================================================================
-atomic<int> rounds = 0;
-void test_ping(int v);
+namespace test {
+  #include "common.h"
+  atomic<int> rounds = 0;
+  void test_ping(int v);
 
-void test_pong(int v) { if (v) run(test_ping, v - 1); else pool.stop(); }
-void test_ping(int v) { run(test_pong, v); rounds--; }
+  void test_pong(int v) { if (v) run(test_ping, v - 1); else pool.stop(); }
+  void test_ping(int v) { run(test_pong, v); rounds--; }
 
-void test_pool() {
-  run(test_ping, 999); // start the flow
-  wait(Q.stop);
-  CHECK(rounds = -1000);
-}
-// Part of the uniQ Libray - Released under GNU 3.0 =============================
+  void test_pool() {
+    run(test_ping, 999); // start the flow
+    wait(Q.stop);
+    CHECK(rounds == -1000);
+  }
+}// Part of the UniQ libray • Released under GNU 3.0

@@ -3,7 +3,6 @@
 
 #include "common.h"
 #include "queue.h"
-// #include "pool.h"
 
 typedef long long Int64;
 
@@ -11,7 +10,7 @@ int Threads = 4;           // 4 producers & 4 consumers
 int Items = 10*1000*1000;  // how many items will flow trough the queue 
 atomic<Int64> Total(0); // a checksum, to ensure that all count pushed are poped
 
-Queue<Int64> Q; // using the default 64 positions
+uniq::Queue<Int64> Q; // using the default 64 positions
 // Queue<Int64> Q(1); // stress test using a single position queue
 // Queue<Int64> Q(64*1024); // performance using a 64k queue
 
