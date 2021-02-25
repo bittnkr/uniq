@@ -51,7 +51,7 @@
       "preLaunchTask": "clang++ build active file",
       "type": "lldb",
       "request": "launch",
-      "program": "${fileDirname}/bin/${fileBasenameNoExtension}",
+      "program": "${workspaceFolder}/bin/${fileBasenameNoExtension}",
       "args": [],
     },
     {
@@ -59,7 +59,7 @@
       "preLaunchTask": "clang++ build test",
       "type": "lldb",
       "request": "launch",
-      "program": "${fileDirname}/bin/test",
+      "program": "${workspaceFolder}/bin/test",
       "args": [],
     },
   ]
