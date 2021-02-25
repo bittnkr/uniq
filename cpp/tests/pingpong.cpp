@@ -1,8 +1,8 @@
 // pingpong test for uniQ Library
 // Each ping call 1000 pongs, the last pong call ping(N-1) until zero
 // compile using ./build pingpong
-#include "common.h"
-#include "pool.h"
+#include "uniq.h"
+using namespace uniq;
 
 int ping(int v);
 

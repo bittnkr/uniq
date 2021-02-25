@@ -1,14 +1,13 @@
 #pragma once
-// namespace uniq {
-#include "common.h"
-#include "queue.h"
+namespace uniq {
+#include "uniq.h"
 
 typedef int JobID;
 typedef function<void()> Job;
 
-uniq::Queue<Job> Q;
+uniq::Queue<Job> todo;
 
-#define wait(condition) while(!(condition)) { sched_yield(); }
+#define WAIT(condition) while(!(condition)) { sched_yield(); }
 void sleep(int ms) { this_thread::sleep_for(chrono::milliseconds(ms)); }
 
 // ThreadPool =================================================================
@@ -30,20 +29,20 @@ class ThreadPool {
   }
 
   void stop() {
-    Q.stop = 1;
+    todo.stop = 1;
     sleep(100);  // alow stdout printing
   };
 
   int size() { return workers.size(); }
-  int nextJobId() { return Q.nextJobId(); }
+  int nextJobId() { return todo.nextJobId(); }
 
   void worker(int color) {
-    // while (Q.pop(f)) f();
+    // while (todo.pop(f)) f();
     int size = 0;
     Job f;
     while (true) {
-      f = Q.pop();
-      if (Q.stop) break;
+      f = todo.pop();
+      if (todo.stop) break;
       f();
       size++;
     };
@@ -57,22 +56,22 @@ ThreadPool pool;
 template <typename Func, typename... Args>
 inline void run(Func&& f, Args&&... args) {
   Job job = bind(forward<Func>(f), forward<Args>(args)...);
-  Q.push(job);
+  todo.push(job);
 }
-// };// uniq
+};// uniq
 
 // tests =======================================================================
 namespace test {
-  #include "common.h"
+  #include "uniq.h"
   atomic<int> rounds = 0;
   void test_ping(int v);
 
-  void test_pong(int v) { if (v) run(test_ping, v - 1); else pool.stop(); }
-  void test_ping(int v) { run(test_pong, v); rounds--; }
+  void test_pong(int v) { if (v) uniq::run(test_ping, v - 1); else uniq::pool.stop(); }
+  void test_ping(int v) { uniq::run(test_pong, v); rounds--; }
 
   void test_pool() {
-    run(test_ping, 999); // start the flow
-    wait(Q.stop);
+    uniq::run(test_ping, 999); // start the flow
+    WAIT(todo.stop);
     CHECK(rounds == -1000);
   }
 }// Part of the UniQ libray • Released under GNU 3.0

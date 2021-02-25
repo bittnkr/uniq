@@ -1,5 +1,5 @@
 #pragma once
-#include "common.h"
+#include "uniq.h"
 
 void red(int bold = 0) { printf("\033[%d;31m", bold); }
 void green(int bold = 0) { printf("\033[%d;32m", bold); }

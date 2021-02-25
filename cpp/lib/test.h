@@ -1,6 +1,6 @@
 #pragma once
 namespace test{
-  #include "common.h"
+  #include "uniq.h"
 
   atomic<int> CHECKS = 0;
 

@@ -2,7 +2,7 @@
 // Actor - A starting point for C++ classes 
 //==============================================================================
 #pragma once
-#include "common.h"
+#include "uniq.h"
 namespace test {
 
 atomic<int> Indent(0);

@@ -1,9 +1,6 @@
-#include "common.h"
-#include "numtypes.h"
-#include "utils.h"
-#include "boilerplate.h"
-#include "queue.h"
-#include "pool.h"
+#include "uniq.h"
+#include "boilerplate.cpp"
+// #include "mrmw.cpp"
 
 int main(){
   using namespace test;
@@ -13,8 +10,9 @@ int main(){
   runtest(test_utils, "utils");  
   runtest(test_boilerplate, "boilerplate");  
   runtest(test_queue, "queue"); 
+  // runtest(test_mrmw, "mrmw"); 
   runtest(test_pool, "pool"); 
 
   cout << CHECKS << " tests passed" << "------------------------------"<< endl;
-  return 1;
+  return 0; //quick_exit(0);
 }

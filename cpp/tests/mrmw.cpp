@@ -1,13 +1,10 @@
 // producer/consumer test for uniQ Library
 // compile using ./build mrmw
 
-#include "common.h"
-#include "queue.h"
+#include "uniq.h"
 
 typedef long long Int64;
 
-int Threads = 4;           // 4 producers & 4 consumers
-int Items = 10*1000*1000;  // how many items will flow trough the queue 
 atomic<Int64> Total(0); // a checksum, to ensure that all count pushed are poped
 
 uniq::Queue<Int64> Q; // using the default 64 positions
@@ -39,32 +36,30 @@ void consumer() // takes data from the queue
 }
 
 void test_mrmw() {
-  int pairs = 2;
-
-  vector<thread> producers(pairs);
-  vector<thread> consumers(pairs);
-
+  
+  int Items = 1000*1000;  // how many items each producer will push into the queue 
+  int pairs = thread::hardware_concurrency()/2;
+  
   setlocale(LC_NUMERIC, "");
   printf("Creating %d producers & %d consumers\n", pairs, pairs);
   printf("to flow %'d items through the queue.\n\n", Items);
 
-  for (int i = 0; i < pairs; i++) {
-    consumers[i] = thread(consumer);
-    producers[i] = thread(producer, Items / pairs);
+  vector<thread> pool;
+  for (auto i = 0; i < pairs; i++) {
+    pool.push_back(thread(consumer));
+    pool.push_back(thread(producer, Items));
   }
 
   // Wait consumers finish the job
-  for (int i = 0; i < pairs; i++) {
-    producers[i].join();
-    consumers[i].join();
-  }
+  for (auto i = 0; i < pool.size(); i++) pool[i].join(); // for (auto t : pool) t.join();
 
   CHECK(Total==0);
 
   printf("\nChecksum: %llu (it must be zero)\n", Int64(Total));
-  printf("\ntasks: %d", Q.nextJobId());
+  printf("\ntasks: %d\n", Q.nextJobId());
+
 }
 
-int main(){ test_mrmw(); return 1; }
+int main(){ test_mrmw(); quick_exit(0);}
 
 // Part of uniQ library released under GNU 3.0

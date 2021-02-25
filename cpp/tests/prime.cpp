@@ -1,8 +1,6 @@
 // parallel primality test for uniQ Library
 // compile using ./build prime
-#include "common.h"
-#include "pool.h"
-#include "timer.h"
+#include "uniq.h"
 
 // basic algorithm
 u64 firstDivisor0(u64 n) {
@@ -52,7 +50,7 @@ u64 paralelDivisor(u64 n) {
   u64 result = spiralDivisor(n, block += blockSize);
 
   for (u64 b = block; (result == n) && b < sqrt(n); b += blockSize) {
-    run(
+    uniq::run(
         [&](u64 n, u64 min, u64 max) {
           // this lambda runs in a worker thread
           u64 res = spiral(n, min, max);
@@ -91,17 +89,17 @@ int main() {
   printf("%d ms\n", singleTimer);
 
   // multi threaded
-  printf("\nNow using %d worker threads \n", pool.size());
-  while (count <= 8) {
+  printf("\nNow using %d worker threads \n", uniq::pool.size());
+  // while (count <= 8) {
     u64 divisor = paralelDivisor(n);
     if (divisor == n) {
       printf("%d. %llu: %d ms\n", count++, n, (int)timer.round());
     };
-    n--;
-  }
+  //   n--;
+  // }
   int avg = timer.roundAvg();
   printf("\nAvg: %d Speedup %.1f x\n", avg, (double)singleTimer / avg);
 
-  pool.stop();  // todo: remove this
+  uniq::pool.stop();  // todo: remove this
   return 0;
 }

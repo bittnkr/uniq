@@ -1,6 +1,6 @@
 #pragma once
 namespace uniq {
-#include "common.h"
+#include "uniq.h"
 
 // inline string format(const string fmt_str, ...) {  // https://stackoverflow.com/a/8098080/9464885
 //   int final_n, n = ((int)fmt_str.size()) * 2;      /* Reserve two times as much as the length of the fmt_str */

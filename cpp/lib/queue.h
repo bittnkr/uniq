@@ -1,7 +1,7 @@
 // uniQ - The Lock Free Queue.
 #pragma once
 namespace uniq {
-#include "common.h"
+#include "uniq.h"
 
 template <class T>
 class Queue {
@@ -62,7 +62,7 @@ class Queue {
 };// uniq
 // ================================================== tests
 namespace test {
-  #include "common.h"
+  #include "uniq.h"
   using namespace std;
 
   void test_queue(){
