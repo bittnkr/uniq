@@ -1,29 +1,29 @@
 //==============================================================================
-// Actor - A starting point for C++ classes 
+// Sayer - A starting point for C++ classes 
 //==============================================================================
 #pragma once
 #include "uniq.h"
 namespace test {
 
 atomic<int> Indent(0);
-//======================================================================= Actor
-struct Actor { // : public Parent {
+//======================================================================= Sayer
+struct Sayer { // : public Parent {
   string name;
   int indent=0;
 
-  Actor(string name_ = "somebody") { name=name_; indent = Indent++; };
-  ~Actor() { say("goodbye."); Indent--; };
+  Sayer(string name_ = "somebody") { name=name_; indent = Indent++; };
+  ~Sayer() { say("goodbye."); Indent--; };
 
   void say(string msg) { 
     // cout << string(indent, '|') << name << " say: " << msg << endl; 
   };
 };
 
-void say(string msg) { return Actor().say(msg); }
+void say(string msg) { return Sayer().say(msg); }
 
 //========================================================================= test
 void test_boilerplate(){
-  Actor alice("Alice"), bob("Bob");
+  Sayer alice("Alice"), bob("Bob");
 
   CHECK(bob.indent == alice.indent+1);
 

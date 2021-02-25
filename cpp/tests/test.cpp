@@ -13,6 +13,6 @@ int main(){
   // runtest(test_mrmw, "mrmw"); 
   runtest(test_pool, "pool"); 
 
-  cout << CHECKS << " tests passed" << "------------------------------"<< endl;
+  cout << TEST_CHECKS << " tests passed" << "------------------------------"<< endl;
   return 0; //quick_exit(0);
 }

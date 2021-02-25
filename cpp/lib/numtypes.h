@@ -63,7 +63,6 @@ typedef union {f128 value; struct {u128 mantisa:112; u16 exponent:15; u8 s:1;} p
   typedef u64 uoverflow;
 #endif
 
-
 // tests ======================================================================  
 #include "test.h"
 namespace test{

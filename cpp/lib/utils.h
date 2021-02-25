@@ -53,7 +53,7 @@ int sign(long v) { return v >= 0 ? 1 : -1; }
 int sign(double v) { return v >= 0 ? 1 : -1; }
 
 ////SSTR & sstr ===================================================================
-#define SSTR( x ) static_cast< ostringstream & >( ( ostringstream() << dec << x ) ).str()
+#define SSTR( x ) static_cast< ostringstream & >( ( ostringstream() << std::dec << x ) ).str()
 
 template < typename... Args >
 string sstr( Args &&... args )
@@ -123,5 +123,6 @@ namespace test{
     CHECK(trim(" a\t\n") == "a" );
     CHECK(tolower("ABC") == "abc" );
     CHECK(format("%d",1) == "1" );
+    CHECK(uniq::format("-%s-","A") == "-A-" );
   };
-} // Part of the UniQ libray • Released under GNU 3.0
+} // uniq • Released under GNU 3.0
