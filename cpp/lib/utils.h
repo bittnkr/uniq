@@ -59,7 +59,7 @@ template < typename... Args >
 string sstr( Args &&... args )
 {
     ostringstream ss;  
-    ( ss << std::dec << ... << args ); // fold expression
+    ( (ss << std::dec) << ... << args ); // fold expression
     return ss.str();
 }
 
