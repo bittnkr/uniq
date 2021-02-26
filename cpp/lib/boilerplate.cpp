@@ -1,9 +1,11 @@
 //==============================================================================
-// Sayer - A starting point for C++ classes 
+// A starting point for C++ classes
 //==============================================================================
-#pragma once
-#include "uniq.h"
-namespace test {
+// #pragma once
+#include "std.h"
+using namespace std;
+
+namespace uniq {
 
 atomic<int> Indent(0);
 //======================================================================= Sayer
@@ -14,15 +16,16 @@ struct Sayer { // : public Parent {
   Sayer(string name_ = "somebody") { name=name_; indent = Indent++; };
   ~Sayer() { say("goodbye."); Indent--; };
 
-  void say(string msg) { 
-    // cout << string(indent, '|') << name << " say: " << msg << endl; 
+  void say(string msg) {
+    cout << string(indent, '|') << name << " say: " << msg << endl;
   };
 };
 
 void say(string msg) { return Sayer().say(msg); }
 
 //========================================================================= test
-void test_boilerplate(){
+#include "test.h"
+void test_sayer(){
   Sayer alice("Alice"), bob("Bob");
 
   CHECK(bob.indent == alice.indent+1);
@@ -31,6 +34,6 @@ void test_boilerplate(){
   bob.say("Olá");
   say("To be or not?"); // somebody
 }
-}// namespace test
-// int main(int argc, const char *argv[]) { test::test_boilerplate(); }
-// part of UniQ library - released under GPL 3.0
+} // uniq
+
+int main() { uniq::test_sayer(); }

@@ -1,7 +1,7 @@
 // All C++ Standard Library headers - https://en.cppreference.com/w/cpp/header
 #pragma once
 
-#if __cplusplus >= 199711L // ============================================ C++98 
+#if __cplusplus >= 199711L // ============================================ C++98
 // Utilities
 #include <bitset> // bitset class template
 #include <csetjmp> // Macro (and function) that saves (and jumps) to an execution context
@@ -75,7 +75,7 @@
 // #include <strstream> // (deprecated in C++98) strstream, istrstream, ostrstream */
 #endif
 
-#if __cplusplus >= 201103L // ============================================ C++11 
+#if __cplusplus >= 201103L // ============================================ C++11
 #include <chrono>           // time utilites
 #include <initializer_list> // initializer_list class template
 #include <tuple>            // tuple class template
@@ -112,7 +112,7 @@
 #include <thread>             // thread class and supporting functions */
 #endif
 
-#if __cplusplus >= 201402L // ============================================ C++14 
+#if __cplusplus >= 201402L // ============================================ C++14
 // Thread support
 #include <shared_mutex> // Shared mutual exclusion primitives */
 #endif
@@ -132,7 +132,7 @@
 #include <execution> // Predefined execution policies for parallel versions of the algorithms */
 #endif
 
-#if __cplusplus >= 202002L // =========================================================== C++20
+#if __cplusplus >= 202002L // ============================================ C++20
 #include <compare>         // Three-way comparison operator support
 #include <concepts>        // Fundamental library concepts
 #include <coroutine>       // Coroutines library
@@ -157,7 +157,7 @@
 #define C17
 #endif
 
-/*/ =============================================================== deprecated
+/*/ ================================================================= deprecated
 #include <assert.h>   // sames as <cassert>
 #include <errno.h>    // sames as <cerrno>
 #include <float.h>    // sames as <cfloat>
@@ -177,5 +177,5 @@
 #include <string.h>   // sames as <cstring> in global namespace
 #include <time.h>     // sames as <ctime>   in global namespace
 #include <uchar.h>    // sames as <cuchar>  in global namespace
-#include <wchar.h>    // sames as <cwchar>  in global namespace 
+#include <wchar.h>    // sames as <cwchar>  in global namespace
 #include <wctype.h>   // sames as <cwctype> in global namespace */

@@ -43,7 +43,7 @@ typedef float        f32;
 typedef double       f64;
 typedef __float128  f128;
 
-// float unions 
+// float unions
 typedef union { f32 value; struct { u32 mantisa: 23;  u8 exponent: 8; u8 s:1;} parts;}  F32;
 typedef union { f64 value; struct { u64 mantisa: 52; u16 exponent:11; u8 s:1;} parts;}  F64;
 typedef union {f128 value; struct {u128 mantisa:112; u16 exponent:15; u8 s:1;} parts;} F128;
@@ -63,11 +63,9 @@ typedef union {f128 value; struct {u128 mantisa:112; u16 exponent:15; u8 s:1;} p
   typedef u64 uoverflow;
 #endif
 
-// tests ======================================================================  
+// tests ======================================================================
 #include "test.h"
-namespace test{
-  void test_numtypes(){ 
-    CHECK(sizeof(integer) == BITS/8);
-  };
+void test_numtypes(){
+  CHECK(sizeof(integer) == BITS/8);
 }
-// part of UniQ library - released under GPL 3.0
+// uniq • Released under GNU 3.0

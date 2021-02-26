@@ -80,7 +80,7 @@ int main() {
 
   // single threaded
   printf("Calculating some big primes... \nPress Ctrl+C to stop\n\n");
-  printf("Single Threaded for %llu: ", n);
+  printf("Single Threaded factoring for %llu: ", n);
   cout << std::flush;
 
   Timer timer;  // startTimer();
@@ -98,7 +98,7 @@ int main() {
   //   n--;
   // }
   int avg = timer.roundAvg();
-  printf("\nAvg: %d Speedup %.1f x\n", avg, (double)singleTimer / avg);
+  printf("\nSpeedup %.1f x\n", (double)singleTimer / avg);
 
   uniq::pool.stop();  // todo: remove this
   return 0;

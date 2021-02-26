@@ -1,6 +1,6 @@
 #pragma once
-namespace uniq {
-#include "uniq.h"
+#include "std.h"
+using namespace std;
 
 // inline string format(const string fmt_str, ...) {  // https://stackoverflow.com/a/8098080/9464885
 //   int final_n, n = ((int)fmt_str.size()) * 2;      /* Reserve two times as much as the length of the fmt_str */
@@ -58,7 +58,7 @@ int sign(double v) { return v >= 0 ? 1 : -1; }
 template < typename... Args >
 string sstr( Args &&... args )
 {
-    ostringstream ss;  
+    ostringstream ss;
     ( (ss << std::dec) << ... << args ); // fold expression
     return ss.str();
 }
@@ -66,7 +66,7 @@ string sstr( Args &&... args )
 // any ===================================================================
 
 // #include <cxxabi.h>
-// string demangle(const char *mangled) 
+// string demangle(const char *mangled)
 // { // returns the type description from typeid(v).name()
 //   int status;
 //   unique_ptr<char[], void (*)(void *)> result(
@@ -76,11 +76,11 @@ string sstr( Args &&... args )
 
 // template<typename T> inline T anyto(const any& v)
 // {
-//   if(v.type() == typeid(T)) 
+//   if(v.type() == typeid(T))
 //     return any_cast<T>(v);
 // }
 
-// string anyType(const any v, bool demangled = 0) 
+// string anyType(const any v, bool demangled = 0)
 // {
 //    return v.type().name();
 //   // string t = v.type().name();
@@ -88,7 +88,7 @@ string sstr( Args &&... args )
 //   // return demangled ? t2 : t;
 // }
 
-// string anyString(const any v) 
+// string anyString(const any v)
 // {
 //   string r = "unknown", t = anyType(v);
 //   if (t == typeid(const char *).name())
@@ -114,15 +114,12 @@ string tolower(const string s){
   for(auto &c : r){ c = std::tolower(c); }
   return r;
 }
-}// uniq
 
 // Tests =======================================================================
-namespace test{
-  using namespace uniq;
-  void test_utils() {
-    CHECK(trim(" a\t\n") == "a" );
-    CHECK(tolower("ABC") == "abc" );
-    CHECK(format("%d",1) == "1" );
-    CHECK(uniq::format("-%s-","A") == "-A-" );
-  };
-} // uniq • Released under GNU 3.0
+#include "test.h"
+void test_utils() {
+  CHECK(trim(" a\t\n") == "a" );
+  CHECK(tolower("ABC") == "abc" );
+  CHECK(format("%d",1) == "1" );
+  CHECK(format("-%s-","A") == "-A-" );
+};

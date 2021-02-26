@@ -29,12 +29,12 @@ class ThreadPool {
   }
 
   void stop() {
-    todo.stop = 1;
+    todo.running = false;
     sleep(100);  // alow stdout printing
   };
 
   int size() { return workers.size(); }
-  int nextJobId() { return todo.nextJobId(); }
+  int counter() { return todo.counter(); }
 
   void worker(int color) {
     // while (todo.pop(f)) f();
@@ -42,7 +42,7 @@ class ThreadPool {
     Job f;
     while (true) {
       f = todo.pop();
-      if (todo.stop) break;
+      if (!todo.running) break;
       f();
       size++;
     };
@@ -58,20 +58,17 @@ inline void run(Func&& f, Args&&... args) {
   Job job = bind(forward<Func>(f), forward<Args>(args)...);
   todo.push(job);
 }
-};// uniq
-
 // tests =======================================================================
-namespace test {
-  #include "uniq.h"
-  atomic<int> rounds = 0;
-  void test_ping(int v);
+#include "test.h"
+atomic<int> rounds = 0;
+void test_ping(int v);
 
-  void test_pong(int v) { if (v) uniq::run(test_ping, v - 1); else uniq::pool.stop(); }
-  void test_ping(int v) { uniq::run(test_pong, v); rounds--; }
+void test_pong(int v) { if (v) uniq::run(test_ping, v - 1); else uniq::pool.stop(); }
+void test_ping(int v) { uniq::run(test_pong, v); rounds--; }
 
-  void test_pool() {
-    uniq::run(test_ping, 999); // start the flow
-    WAIT(todo.stop);
-    CHECK(rounds == -1000);
-  }
-}// Part of the UniQ libray • Released under GNU 3.0
+void test_pool() {
+  uniq::run(test_ping, 999); // start the flow
+  WAIT(!todo.running);
+  CHECK(rounds == -1000);
+}
+}// uniq • Released under GPL 3.0
