@@ -10,7 +10,7 @@
       "cwd": "${workspaceFolder}",
       "args": [],
       "environment": [],
-      "externalConsole": false,
+      "externalConsole": true,
       "preLaunchTask": "g++ build test",
       "MIMode": "gdb",
       "miDebuggerPath": "/usr/bin/gdb",
@@ -32,7 +32,7 @@
       // "stopAtEntry": false,
       "cwd": "${workspaceFolder}",
       "environment": [],
-      "externalConsole": false,
+      "externalConsole": true,
       "MIMode": "gdb",
       "sourceFileMap": {
         "/c/": "C:/"

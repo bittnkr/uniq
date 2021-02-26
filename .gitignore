@@ -39,5 +39,6 @@
 *.o
 *.ii
 old/
+libs/
 try/
 debug/

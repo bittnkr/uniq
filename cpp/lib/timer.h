@@ -3,6 +3,8 @@
 typedef std::chrono::_V2::system_clock::time_point Time;
 typedef std::chrono::high_resolution_clock Clock;
 
+// inline u64 ticks() { return __rdtsc(); }
+
 class Timer {
  public:
   Time begin = Clock::now();
@@ -20,26 +22,26 @@ class Timer {
     return begin;
   };
 
-  int64_t elapsed() {
+  i64 elapsed() {
     Time now = Clock::now();
     return chrono::duration_cast<chrono::milliseconds>(now - begin).count();
   };
 
-  int64_t reset() {
+  i64 reset() {
     Time now = Clock::now();
-    int64_t r = elapsed();
+    i64 r = elapsed();
     start();
     return r;
   };
 
-  int64_t round() {
+  i64 round() {
     Time r = lastRound;
     lastRound = Clock::now();
     rounds++;
     return chrono::duration_cast<chrono::milliseconds>(lastRound - r).count();
   };
 
-  int64_t roundAvg() {
+  i64 roundAvg() {
     Time r = firstRound;
     return chrono::duration_cast<chrono::milliseconds>(Clock::now() - firstRound).count() / rounds;
   };
