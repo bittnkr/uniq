@@ -1,11 +1,8 @@
 #pragma once
-namespace uniq {
 #include "uniq.h"
+namespace uniq {
 
-typedef int JobID;
-typedef function<void()> Job;
-
-uniq::Queue<Job> todo;
+Queue<voidfunc> todo;
 
 #define WAIT(condition) while(!(condition)) { sched_yield(); }
 void sleep(int ms) { this_thread::sleep_for(chrono::milliseconds(ms)); }
@@ -28,18 +25,14 @@ class ThreadPool {
     for (auto i = 0; i < workers.capacity(); i++) workers[i].join();
   }
 
-  void stop() {
-    todo.running = false;
-    sleep(100);  // alow stdout printing
-  };
-
+  void stop() { todo.running = false; };
   int size() { return workers.size(); }
   int counter() { return todo.counter(); }
 
   void worker(int color) {
     // while (todo.pop(f)) f();
     int size = 0;
-    Job f;
+    voidfunc f;
     while (true) {
       f = todo.pop();
       if (!todo.running) break;
@@ -55,7 +48,7 @@ ThreadPool pool;
 // run ========================================================================
 template <typename Func, typename... Args>
 inline void run(Func&& f, Args&&... args) {
-  Job job = bind(forward<Func>(f), forward<Args>(args)...);
+  voidfunc job = bind(forward<Func>(f), forward<Args>(args)...);
   todo.push(job);
 }
 // tests =======================================================================
@@ -64,11 +57,11 @@ atomic<int> rounds = 0;
 void test_ping(int v);
 
 void test_pong(int v) { if (v) uniq::run(test_ping, v - 1); else uniq::pool.stop(); }
-void test_ping(int v) { uniq::run(test_pong, v); rounds--; }
+void test_ping(int v) { uniq::run(test_pong, v); rounds++; }
 
 void test_pool() {
   uniq::run(test_ping, 999); // start the flow
   WAIT(!todo.running);
-  CHECK(rounds == -1000);
+  CHECK(rounds == 1000);
 }
 }// uniq • Released under GPL 3.0

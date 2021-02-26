@@ -1,7 +1,9 @@
 #pragma once
 #include "std.h"
 using namespace std;
-
+namespace uniq {
+typedef function<void()> voidfunc;
+}
 #include "numtypes.h"
 #include "utils.h"
 #include "test.h"
@@ -10,8 +12,4 @@ using namespace std;
 // #include "worker.h"
 #include "pool.h"
 
-namespace uniq {
-
-typedef std::function<void()> voidfunc;
-
-}//uniq • Released under GPL 3.0
+//uniq • Released under GPL 3.0

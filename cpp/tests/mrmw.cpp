@@ -43,7 +43,7 @@ int main(){
 
   setlocale(LC_NUMERIC, "");
   printf("Creating %d producers & %d consumers\n", pairs, pairs);
-  printf("to flow %'d items through the queue.\n\n", Items);
+  printf("to flow %'d items through the queue.\n\n", Items*pairs);
 
   vector<thread> pool;
   for (auto i = 0; i < pairs; i++) {

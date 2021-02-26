@@ -8,18 +8,17 @@ template <class T>
 class Queue {
  protected:
   vector<T> buffer;
-  int mask = 1;
+  vector<int> isfree;
   atomic<int> in, out;
-  vector<int> isFree;
+  int mask = 1;
 
  public:
   Queue(int size_ = 64) {
     while (mask < size_) mask *= 2;
     buffer = vector<T>(mask, 0);
-    isFree = vector<int>(size_, 1);
-    mask--;
-
-    out = in = 0;
+    isfree = vector<int>(mask, 1); // bool produces UB
+    mask--;       // 01000000 => 00111111
+    out = in = 0; // SIZE_MAX; // force overflow
     running = true;
   }
 
@@ -27,12 +26,12 @@ class Queue {
     int i;
     do {
       i = in;
+      while (i - out > mask && running) sched_yield(); // if full, wait for space
       if (!running) return 0;
-      while (i - out > mask && running) sched_yield();  // if full, wait for space
-    } while (!isFree[i & mask] || !in.compare_exchange_weak(i, i + 1));
+    } while (!isfree[i & mask] || !in.compare_exchange_weak(i, i + 1));
 
     buffer[i & mask] = item;
-    isFree[i & mask] = 0;
+    isfree[i & mask] = 0;
     return i;
   }
 
@@ -42,10 +41,10 @@ class Queue {
       if (!running) return T{};
       o = out;
       while (o == in && running) sched_yield();  // if empty, wait for item
-    } while (isFree[o & mask] || !out.compare_exchange_weak(o, o + 1));
+    } while (isfree[o & mask] || !out.compare_exchange_weak(o, o + 1));
 
     T r = buffer[o &= mask];
-    isFree[o] = 1;
+    isfree[o] = 1;
     return r;
   }
 
