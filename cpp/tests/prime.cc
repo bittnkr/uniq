@@ -2,8 +2,8 @@
 // compile using ./build prime
 #include "uniq.h"
 
-// basic algorithm
-u64 firstDivisor0(u64 n) {
+// basic algorithm to get the first integer divisor of a number
+u64 firstDivisor0(u64 n) { // O(0.5 sqrt(n))
   if ((n % 2) == 0) return 2;
   for (u64 i = 3; i <= sqrt(n); i += 2) {
     if ((n % i) == 0) return i;
@@ -12,7 +12,7 @@ u64 firstDivisor0(u64 n) {
 }
 
 // spiral algorithm test fewer candidates
-u64 spiral(u64 n, u64 min, u64 max) {
+u64 spiral(u64 n, u64 min, u64 max) { // O(0.27 sqrt(n))
   for (u64 i = min; i <= max; i += 30) {
     u64 j = i;
     // if (j >= 6000000) asm("int3");
@@ -72,15 +72,15 @@ int main() {
   u64 bigSquare64 = bigPrime32 * bigPrime32;
   // setlocale(LC_NUMERIC, "C");
   
-  // printf("%llu/%llu: %llux\n",bigPrime64, bigSquare64, bigPrime64%bigSquare64);
+  // printf("%llu/%llu: %llux\n",bigPrime64, bigSquare64, bigPrime64/bigSquare64);
   // calc top 5 primes below a range
   u64 n = bigPrime64;  // bigSquare64;
   int count = 1;
   int sumtime = 0;
 
   // single threaded
-  printf("Calculating some big primes... \nPress Ctrl+C to stop\n\n");
-  printf("Single Threaded factoring for %llu: ", n);
+  printf("Calculating some big primes... Press ctrl+c to stop\n\n");
+  printf("Single Threaded factoring of %llu: ", n);
   cout << std::flush;
 
   Timer timer;  // startTimer();
@@ -88,8 +88,8 @@ int main() {
   int singleTimer = (int)timer.reset();
   printf("%d ms\n", singleTimer);
 
-  // multi threaded
   printf("\nNow using %d worker threads \n", uniq::pool.size());
+  uniq::pool.start(); // todo: remove this
   // while (count <= 8) {
     u64 divisor = paralelDivisor(n);
     if (divisor == n) {

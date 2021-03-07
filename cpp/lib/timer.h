@@ -1,4 +1,40 @@
+#pragma once
 #include "std.h"
+
+clock_t ticks(){ return clock(); }
+
+double timer(double prev=0) { 
+  double t = ((double)ticks()) / (CLOCKS_PER_SEC); 
+  return (prev>0) ? t-prev : t; 
+}
+
+double startTimer(string msg="") {
+  if (msg != "") cout << msg;
+  // Clock = clock();
+  return (double)ticks() / (CLOCKS_PER_SEC);
+}
+
+double printTimer(string msg = "") {
+  double r = timer();
+  printf("%s: %.3fs\n", msg.c_str(), r);
+  return r;
+}
+
+double roundsPerSec(double done) {
+  return round(done / timer());
+}
+
+// void timeTicker() {
+//   // clock_gettime(CLOCK_REALTIME) struct timespec {
+//   //   time_t tv_sec; /* seconds */
+//   //   long tv_nsec;  /* nanoseconds */
+//   // };
+//   run(timeTicker);
+// };
+  
+// void test_utils() {
+//   printf("clockSpeed():%lu", CLOCKS_PER_SEC);
+// }
 
 typedef std::chrono::_V2::system_clock::time_point Time;
 typedef std::chrono::high_resolution_clock Clock;

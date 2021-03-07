@@ -2,66 +2,75 @@
 #include "uniq.h"
 namespace uniq {
 
-Queue<voidfunc> todo;
+typedef function<void()> voidfunction;
 
-#define WAIT(condition) while(!(condition)) { sched_yield(); }
-void sleep(int ms) { this_thread::sleep_for(chrono::milliseconds(ms)); }
 
 // ThreadPool =================================================================
-
-class ThreadPool {
+class ThreadPool : Actor {
  protected:
   vector<thread> workers;
 
  public:
-  ThreadPool(int size = 0) {
+  ThreadPool(int size = 0) { /*start(size);*/ };
+
+  ~ThreadPool() { join(); }
+
+  Queue<voidfunction> todo;
+
+  void start(int size = 0) { 
     if (!size) size = thread::hardware_concurrency();
     for (auto i = 0; i < size; i++) {
       workers.push_back(thread(&ThreadPool::worker, this, i + 1));
-   }
-  };
-
-  ~ThreadPool() {
-    for (auto i = 0; i < workers.capacity(); i++) workers[i].join();
+    }
   }
+
+  void join() { 
+    for (auto &w : workers) w.join();
+    todo.running = false;
+  };
 
   void stop() { todo.running = false; };
   int size() { return workers.size(); }
-  int counter() { return todo.counter(); }
+  int done() { return todo.done(); }
 
-  void worker(int color) {
-    // while (todo.pop(f)) f();
-    int size = 0;
-    voidfunc f;
-    while (true) {
-      f = todo.pop();
-      if (!todo.running) break;
+  void worker(int id) {
+    int done = 0;
+    voidfunction f;
+    while (todo.pop(f)){
       f();
-      size++;
+      done++;
     };
-    // cout << colorcode(color) + "thread" + to_string(color) + ": " + to_string(size) + "\n";
+    // log(colorcode(id), sstr("worker[", id, "] ", done));
   };
+
+  template <typename Func, typename... Args>
+  inline int run(Func &&f, Args &&...args) {
+    // voidfunction vf = [this]()->void { f(args...); }
+    voidfunction vf = bind(forward<Func>(f), forward<Args>(args)...);
+    return todo.push(vf);
+  }
 };
 
 ThreadPool pool;
 
 // run ========================================================================
 template <typename Func, typename... Args>
-inline void run(Func&& f, Args&&... args) {
-  voidfunc job = bind(forward<Func>(f), forward<Args>(args)...);
-  todo.push(job);
+inline int run(Func&& f, Args&&... args) {
+  return pool.run(f, args...);
+  cout<<"done\n";
 }
 // tests =======================================================================
 #include "test.h"
 atomic<int> rounds = 0;
 void test_ping(int v);
 
-void test_pong(int v) { if (v) uniq::run(test_ping, v - 1); else uniq::pool.stop(); }
-void test_ping(int v) { uniq::run(test_pong, v); rounds++; }
+void test_pong(int v) { if (v) run(test_ping, v - 1); else pool.stop(); }
+void test_ping(int v) { run(test_pong, v); rounds++; }
 
 void test_pool() {
-  uniq::run(test_ping, 999); // start the flow
-  WAIT(!todo.running);
+  pool.start();
+  run(test_ping, 999); // start the flow
+  pool.join();
   CHECK(rounds == 1000);
 }
 }// uniq • Released under GPL 3.0

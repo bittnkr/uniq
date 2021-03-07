@@ -21,7 +21,7 @@ int ping(int v) {
   if (v % 100000 == 0) cout << "count:" << v <<"\n";
 
   if (v == 0) {
-    cout << "\ntasks: " << pool.counter() << "\n";
+    cout << "\ntasks: " << pool.done() << "\n";
     pool.stop();
   };
   return v;

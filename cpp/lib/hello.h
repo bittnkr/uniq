@@ -1,32 +1,30 @@
 //==============================================================================
-// A starting point for C++ classes
+// Hello • A starting point for C++ classes
 //==============================================================================
-// #pragma once
+#pragma once
 #include "std.h"
-using namespace std;
-
 namespace uniq {
 
 atomic<int> Indent(0);
-//======================================================================= Sayer
-struct Sayer { // : public Parent {
+//======================================================================= Hello
+struct Hello { // : public Parent {
   string name;
   int indent=0;
 
-  Sayer(string name_ = "somebody") { name=name_; indent = Indent++; };
-  ~Sayer() { say("goodbye."); Indent--; };
+  Hello(string name_ = "somebody") { name=name_; indent = Indent++; };
+  ~Hello() { say("goodbye."); Indent--; };
 
   void say(string msg) {
     cout << string(indent, '|') << name << " say: " << msg << endl;
   };
 };
 
-void say(string msg) { return Sayer().say(msg); }
+void say(string msg) { return Hello().say(msg); }
 
 //========================================================================= test
 #include "test.h"
-void test_sayer(){
-  Sayer alice("Alice"), bob("Bob");
+void test_hello(){
+  Hello alice("Alice"), bob("Bob");
 
   CHECK(bob.indent == alice.indent+1);
 
@@ -34,6 +32,6 @@ void test_sayer(){
   bob.say("Olá");
   say("To be or not?"); // somebody
 }
-} // uniq
+}// uniq • Released under GPL 3.0
 
-int main() { uniq::test_sayer(); }
+// int main() { uniq::test_hello(); }

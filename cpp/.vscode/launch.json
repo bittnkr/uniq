@@ -10,9 +10,10 @@
       "cwd": "${workspaceFolder}",
       "args": [],
       "environment": [],
-      "externalConsole": true,
+      //"externalConsole": true,
       "preLaunchTask": "g++ build test",
       "MIMode": "gdb",
+      "miDebuggerArgs": "-q -ex quit; wait() { fg >/dev/null; }; /bin/gdb -q --interpreter=mi",
       "miDebuggerPath": "/usr/bin/gdb",
       "sourceFileMap": { "/c/": "C:/"},
       "setupCommands": [
@@ -32,8 +33,9 @@
       // "stopAtEntry": false,
       "cwd": "${workspaceFolder}",
       "environment": [],
-      "externalConsole": true,
+      //"externalConsole": true,
       "MIMode": "gdb",
+      "miDebuggerArgs": "-q -ex quit; wait() { fg >/dev/null; }; /bin/gdb -q --interpreter=mi",
       "sourceFileMap": {
         "/c/": "C:/"
       },

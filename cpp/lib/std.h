@@ -179,3 +179,5 @@
 #include <uchar.h>    // sames as <cuchar>  in global namespace
 #include <wchar.h>    // sames as <cwchar>  in global namespace
 #include <wctype.h>   // sames as <cwctype> in global namespace */
+
+using namespace std;

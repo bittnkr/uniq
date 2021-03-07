@@ -12,11 +12,12 @@ void pong(int v) {
 }
 
 void ping(int v) {
-  if (v > 0) return run(pong, v);
+  if (v > 0) {run(pong, v); return;};
   pool.stop();
-  cout << "\ndone: " << pool.counter() << "\n";
+  cout << "\ndone: " << pool.done() << "\n";
 }
 
 int main(int argc, char* argv[]) {
+  pool.start();
   run(ping, 1e6);  // start the flow
 }

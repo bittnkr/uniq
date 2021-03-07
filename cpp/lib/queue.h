@@ -2,13 +2,13 @@
 #pragma once
 namespace uniq {
 #include "std.h"
-using namespace std;
 
-template <class T>
-class Queue {
+#define WAIT(condition) while(!(condition)) { sched_yield(); }
+
+template <typename T> class Queue {
  protected:
   vector<T> buffer;
-  vector<int> isfree;
+  vector<char> isfree;
   atomic<int> in, out;
   int mask = 1;
 
@@ -16,72 +16,73 @@ class Queue {
   Queue(int size_ = 64) {
     while (mask < size_) mask *= 2;
     buffer = vector<T>(mask, 0);
-    isfree = vector<int>(mask, 1); // bool produces UB
-    mask--;       // 01000000 => 00111111
-    out = in = 0; // SIZE_MAX; // force overflow
+    isfree = vector<char>(mask, 1); // bool produces UB
+    out = in = -1; // start in overflow
+    mask--; // 01000000 => 00111111
     running = true;
   }
 
   int push(T item) {
+    // assert(allow(item) && "uniq::queue::push(): Not allowed.");
     int i;
     do {
       i = in;
-      while (i - out > mask && running) sched_yield(); // if full, wait for space
+      WAIT(i - out <= mask || !running); // if full, wait for space
       if (!running) return 0;
-    } while (!isfree[i & mask] || !in.compare_exchange_weak(i, i + 1));
-
+    } while (!isfree[i & mask] || !in.compare_exchange_weak(i, i + 1) || !i);
+    // string s = sstr("i[",sched_getcpu(),"] ",i," p ",(i&mask)," item ",item,"\n"); cout<<s;
     buffer[i & mask] = item;
     isfree[i & mask] = 0;
     return i;
   }
 
-  T pop() {
+  int pop(T &item) {
     int o;
     do {
-      if (!running) return T{};
-      o = out;
-      while (o == in && running) sched_yield();  // if empty, wait for item
+      do { o = out; } while (!o && !out.compare_exchange_weak(o,1)); // skip zero
+      WAIT(o < in || !running); // if empty, wait for item
+      if (!running) return 0;
     } while (isfree[o & mask] || !out.compare_exchange_weak(o, o + 1));
-
-    T r = buffer[o &= mask];
-    isfree[o] = 1;
-    return r;
+    // string s = sstr("o[",sched_getcpu(),"] ",o," p ",(o&mask)," item ",item,"\n"); cout<<s;
+    item = buffer[o & mask];
+    isfree[o & mask] = 1;
+    return o;
   }
 
   bool running = false;
   int size() { return mask + 1; }
   inline bool full() { return (in - out) > mask; }
   inline bool empty() { return out == in; }
-  int counter() { return out - 1; }
-  inline void wait(int id) { while(out < id) sched_yield(); }
+  int done() { return out-1; }
+  inline void wait(int c) { while(out < c) sched_yield(); }
+  // virtual bool allow(T item) { return true; }
 };
 
-// ================================================== tests
+// ======================================================================== test
 #include "test.h"
 void test_queue(){
 
-  uniq::Queue<int> q(1);
-  atomic<int> produced(0);
-  atomic<int> consumed(0);
+  Queue<int> q(1);  
   vector<thread> threads;
 
-  for (int i = 0; i < 3; i++) { // 4 producers & 4 consumers
+  atomic<int> produced(0);
+  auto producer = [&produced, &q](int N){
+    int i = 0;
+    while( ++i <= N && q.push(i) ) 
+      produced += i;
+    q.push(-1);
+  };
 
-    // producer
-    threads.push_back(thread([&](int items){
-      for (int i = 1; i <= items; i++) {
-        q.push(i);
-        produced++;
-      };
-      q.push(-1);
-    }, random() % 1000));
+  atomic<int> consumed(0);
+  auto consumer = [&consumed, &q](){
+    int v;
+    while (q.pop(v) && v != -1)
+      consumed += v;
+  };
 
-    // consumer
-    threads.push_back(thread([&](){
-      int v;
-      while ((v = q.pop()) != -1) // while (q.pop(v) && v != -1) {
-        consumed ++;
-    }));
+  for (int i = 0; i < (random()%8); i++) { // random producers & consumers
+    threads.push_back(thread(consumer));
+    threads.push_back(thread(producer, random()%100000));
   };
 
   for (auto i = 0; i < threads.size(); i++)

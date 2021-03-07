@@ -11,7 +11,7 @@ set "${1%.*}"
 mkdir -p ../bin
 rm -f ../bin/$1
 
-c++ "${1}.cpp" -Wfatal-errors -lpthread -std=c++17 -w -I ../lib -I ../libs -o ../bin/$1
+c++ "${1}.cc" -Wfatal-errors -lpthread -std=c++17 -I ../lib -I ../libs -o ../bin/$1
 if [ $? -eq 0 ]; then
     time ../bin/$1
 else

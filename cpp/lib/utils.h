@@ -1,30 +1,12 @@
 #pragma once
 #include "std.h"
-using namespace std;
+namespace uniq {
 
-// inline string format(const string fmt_str, ...) {  // https://stackoverflow.com/a/8098080/9464885
-//   int final_n, n = ((int)fmt_str.size()) * 2;      /* Reserve two times as much as the length of the fmt_str */
-//   unique_ptr<char[]> formatted;
-//   va_list ap;
-//   while (1) {
-//     formatted.reset(new char[n]); /* Wrap the plain char array into the unique_ptr */
-//     strcpy(&formatted[0], fmt_str.c_str());
-//     va_start(ap, fmt_str);
-//     final_n = vsnprintf(&formatted[0], n, fmt_str.c_str(), ap);
-//     va_end(ap);
-//     if (final_n < 0 || final_n >= n)
-//       n += abs(final_n - n + 1);
-//     else
-//       break;
-//   }
-//   return string(formatted.get());
-// }
-
-string format(const string fmt_str, ...) {
+string format(const string s, ...) {
   va_list ap;
   char* fp = NULL;
-  va_start(ap, fmt_str);
-  vasprintf(&fp, fmt_str.c_str(), ap);
+  va_start(ap, s);
+  vasprintf(&fp, s.c_str(), ap);
   va_end(ap);
   unique_ptr<char[]> formatted(fp);
   return string(formatted.get());
@@ -41,26 +23,28 @@ inline string exception_message() // https://stackoverflow.com/a/3641809/9464885
   catch (...)                { return "unknown exception"; }
 }
 
-float rnd(){ // float random()
-  return rand() / (RAND_MAX + 1.);
-};
+// float random 0..1
+float rnd(){ return rand() / (RAND_MAX + 1.); };
 
-int rnd(int max = 0){ // int(max) random()
-  return max ? rand() % max : rand();
-}
+// int random(max)
+size_t rnd(size_t max = 0){ return max ? rand() % max : rand(); }
 
+// sign of a number -1 +1
 int sign(long v) { return v >= 0 ? 1 : -1; }
 int sign(double v) { return v >= 0 ? 1 : -1; }
 
-////SSTR & sstr ===================================================================
-#define SSTR( x ) static_cast< ostringstream & >( ( ostringstream() << std::dec << x ) ).str()
-
-template < typename... Args >
-string sstr( Args &&... args )
+template <typename... Args> 
+string sstr(Args &&... args )
 {
     ostringstream ss;
-    ( (ss << std::dec) << ... << args ); // fold expression
+    ( (ss << std::dec) << ... << args );
     return ss.str();
+}
+
+template <typename... Args> 
+void log(Args &&... args )
+{
+  cout << sstr(args...,"\n");
 }
 
 // any ===================================================================
@@ -115,11 +99,34 @@ string tolower(const string s){
   return r;
 }
 
+string join(const vector<string>& v, string delimiter=" ") {
+  if (v.size()==0) return "";
+  string r = v[0];
+  for (auto i = 1; i < v.size(); i++)
+    r += delimiter + v[i];
+  return r;
+}
+
+string repeat(string s, int n) {
+  ostringstream os;
+  for(int i = 0; i < n; i++) os << s;
+  return os.str();
+}
+
+string replace( string const & in, string const & from, string const & to )
+{
+  return regex_replace( in, regex(from), to);
+}
+
 // Tests =======================================================================
 #include "test.h"
 void test_utils() {
-  CHECK(trim(" a\t\n") == "a" );
+  CHECK(sstr("a",1) == "a1");
+  CHECK(trim(" a b\t\n") == "a b" );
   CHECK(tolower("ABC") == "abc" );
-  CHECK(format("%d",1) == "1" );
-  CHECK(format("-%s-","A") == "-A-" );
+  CHECK(format("%d-%s",1,"a") == "1-a" );
+  CHECK(join({"a","b","c"},"-") == "a-b-c" );
+  CHECK(repeat("12",3) == "121212");
+  CHECK(replace("a:=1",":=","=") == "a=1");
 };
+}// uniq • Released under GPL 3.0

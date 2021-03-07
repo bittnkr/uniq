@@ -22,6 +22,7 @@
         "-Wfatal-errors", // stop on first error
         "-fcompare-debug-second", // no notes
         "-lpthread",
+        "-fopenmp",
         // "-lOpenCL",
         // "-lOpenGL",
         // "-lglut",
@@ -30,7 +31,6 @@
         // "-lGLEW",
         // "-lGLU",
         // "-lGLAD",
-        // "-fopenmp",
       ],
       "options": {
         "cwd": "${workspaceFolder}"
@@ -48,7 +48,7 @@
       "command": "/usr/bin/g++",
       "type": "shell",
       "args": [
-        "${workspaceFolder}/tests/test.cpp",
+        "${workspaceFolder}/tests/test.cc",
         "-o",
         "${workspaceFolder}/bin/test",
         "-I",
@@ -92,6 +92,7 @@
         "-fpermissive",
         "-Wfatal-errors", // stop on first error
         "-lpthread",
+        "-fopenmp",
         // "-lOpenCL",
         // "-lOpenGL",
         // "-lglut",
@@ -100,7 +101,6 @@
         // "-lGLEW",
         // "-lGLU",
         // "-lGLAD",
-        // "-fopenmp",
       ],
       "options": {
         "cwd": "${workspaceFolder}"
@@ -118,7 +118,7 @@
       "command": "/usr/bin/clang++",
       "type": "shell",
       "args": [
-        "${workspaceFolder}/tests/test.cpp",
+        "${workspaceFolder}/tests/test.cc",
         "-o",
         "${workspaceFolder}/bin/test",
         "-I",
@@ -131,6 +131,7 @@
         "-fpermissive",
         "-Wfatal-errors", // stop on first error
         "-lpthread",
+        "-fopenmp",
         // "-lOpenCL",
         // "-lOpenGL",
         // "-lglut",
@@ -139,14 +140,11 @@
         // "-lGLEW",
         // "-lGLU",
         // "-lGLAD",
-        // "-fopenmp",
       ],
       "options": {
         "cwd": "${workspaceFolder}"
       },
-      "problemMatcher": [
-        "$gcc"
-      ],
+      "problemMatcher": "$gcc",
       "group": {
         "kind": "build",
         "isDefault": true
