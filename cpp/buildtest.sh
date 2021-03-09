@@ -1,3 +1,3 @@
 #!/bin/bash
 cd tests
-./build.sh test
+./build.sh tests

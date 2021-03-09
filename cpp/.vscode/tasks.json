@@ -44,13 +44,13 @@
       }
     },
     {
-      "label": "g++ build test",
+      "label": "g++ build tests",
       "command": "/usr/bin/g++",
       "type": "shell",
       "args": [
-        "${workspaceFolder}/tests/test.cc",
+        "${workspaceFolder}/tests/tests.cc",
         "-o",
-        "${workspaceFolder}/bin/test",
+        "${workspaceFolder}/bin/tests",
         "-I",
         "${workspaceFolder}/lib",
         "-I",
@@ -114,13 +114,13 @@
       }
     },
     {
-      "label": "clang++ build test",
+      "label": "clang++ build tests",
       "command": "/usr/bin/clang++",
       "type": "shell",
       "args": [
-        "${workspaceFolder}/tests/test.cc",
+        "${workspaceFolder}/tests/tests.cc",
         "-o",
-        "${workspaceFolder}/bin/test",
+        "${workspaceFolder}/bin/tests",
         "-I",
         "${workspaceFolder}/lib",
         "-I",
