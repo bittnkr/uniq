@@ -28,5 +28,6 @@ int ping(int v) {
 }
 
 int main(int argc, char* argv[]) {
+  pool.start();
   run(ping, 1e6); // start the flow
 }
