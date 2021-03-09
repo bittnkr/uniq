@@ -85,8 +85,7 @@ void test_queue(){
     threads.push_back(thread(producer, random()%100000));
   };
 
-  for (auto i = 0; i < threads.size(); i++)
-    threads[i].join();
+  for (auto &t : threads) t.join();
 
   CHECK(produced > 0);
   CHECK(produced == consumed);

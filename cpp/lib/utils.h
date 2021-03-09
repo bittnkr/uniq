@@ -42,9 +42,15 @@ string sstr(Args &&... args )
 }
 
 template <typename... Args> 
+void logn(Args &&... args )
+{
+  cout << sstr(args...) << std::flush;
+}
+
+template <typename... Args> 
 void log(Args &&... args )
 {
-  cout << sstr(args...,"\n");
+  logn(args...,"\n");
 }
 
 // any ===================================================================

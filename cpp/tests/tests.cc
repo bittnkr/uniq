@@ -2,7 +2,7 @@
 using namespace uniq;
 
 int main(){
-  cout << "Running tests ------------------------------" << endl;
+  log("Running tests ------------------------------");
 
   test(test_numtypes, "numtypes");
   test(test_atom, "atom");
@@ -11,8 +11,9 @@ int main(){
   test(test_actor, "actor");
   test(test_queue, "queue");
   test(test_pool, "pool");
+  // test(test_time, "time");
 
-  cout << TEST_CHECKS << " tests passed" << "------------------------------"<< endl;
-  // cout.flush();
+  log(TEST_CHECKS," tests passed------------------------------");
+
   quick_exit(0); // return 0;
 }

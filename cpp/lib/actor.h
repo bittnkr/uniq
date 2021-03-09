@@ -9,10 +9,10 @@ public:
   ~Actor(){ stop(); }
 
   bool running;
-
   virtual void start(){ running = true; } 
   virtual void stop(){ running = false; }
 
+  int cadence; // beat interval in microseconds : asap. -1: never
   virtual void beat(){ };
 };
 
