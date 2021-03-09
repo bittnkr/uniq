@@ -38,10 +38,6 @@
       "problemMatcher": [
         "$gcc"
       ],
-      "group": {
-        "kind": "build",
-        "isDefault": true
-      }
     },
     {
       "label": "g++ build tests",
@@ -69,10 +65,6 @@
       "problemMatcher": [
         "$gcc"
       ],
-      "group": {
-        "kind": "build",
-        "isDefault": true
-      }
     },
     {
       "label": "clang++ build active file",

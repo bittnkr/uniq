@@ -1,4 +1,7 @@
 {
+  "launches": {
+    "RunCLangCurrentFile": "clang++ active file",
+  },
   "debug.allowBreakpointsEverywhere": true,
    "files.associations": {
     "*.sass": "sass",
@@ -17,5 +20,5 @@
   "editor.tabSize": 2,
   "editor.insertSpaces": true,
   "[javascript]": { "editor.tabSize": 2 },
-  "[cpp]": { "editor.tabSize": 2 }  
+  "[cpp]": { "editor.tabSize": 2 }
 }
