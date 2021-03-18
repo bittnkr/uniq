@@ -8,7 +8,7 @@
 #include "atom.h"
 
 // atomic_long total;   
-uniq::atom<long> total=0; // a checksum, to ensure that all count pushed are poped
+uniq::atom<long> total(0); // a checksum, to ensure that all count pushed are poped
 
 uniq::Queue<int> Q; // using the default 64 positions
 // Q(1); // stress test using a single position queue

@@ -1,4 +1,5 @@
 #pragma once
+#include "uniq.h"
 namespace uniq {
 
 // Actor ======================================================================
@@ -6,21 +7,31 @@ class Actor { // : EventEmmiter {
 protected:
 public:
   Actor(){ start(); }
+  Actor(void (*beat_)()){ beat=beat_; Actor(); }
   ~Actor(){ stop(); }
 
   bool running;
   virtual void start(){ running = true; } 
   virtual void stop(){ running = false; }
 
-  int cadence; // beat interval in microseconds : asap. -1: never
-  virtual void beat(){ };
+  Time interval;
+  i64 counter;
+  Time taken; 
+  voidfunction beat = [this]{ }; 
+  inline void operator()(){ beat(); }
 };
 
 // Tests =======================================================================
 #include "test.h"
-void test_actor() { 
-  Actor a; CHECK(a.running);
+void test_Actor() { 
+  Actor a; 
+  CHECK(a.running);
   a.stop(); CHECK(!a.running);
-};
 
+  // int x = 1;
+  // auto adder = Actor([&x](int v){ x += v; }); 
+  // adder(1);
+  // CHECK(x==2);
+
+};
 }// uniq • Released under GPL 3.0

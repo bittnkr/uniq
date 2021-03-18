@@ -33,7 +33,7 @@ struct atom {
 
 //========================================================================= test
 #include "test.h"
-void test_atom(){
+void test_Atom(){
   atom<int> i(1); CHECK(i == 1);
 
   i = i+1; CHECK(i == 2);
@@ -51,5 +51,3 @@ void test_atom(){
 }
 
 }// uniq • Released under GPL 3.0
-// https://raw.githubusercontent.com/jasonzliang/scalableMLAssignments/7ac6b37d9c8044b57f0a43c146ea7a941928c9eb/hw5/Galois-2.2.1/include/Galois/c%2B%2B11-compat/atomic.h
-// int main() { uniq::test_hello(); }

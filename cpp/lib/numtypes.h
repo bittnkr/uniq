@@ -75,10 +75,12 @@ u64 rehash(u64 n){
   return r.n;
 };
 
+const u64 KILO = 1e3;  const double MILI = 1e-3; 
+const u64 MEGA = 1e6;  const double MICRO = 1e-6; 
+const u64 GIGA = 1e9;  const double NANO = 1e-9; 
 
 // tests ======================================================================
 #include "test.h"
-#include "utils.h"
 void test_numtypes(){
   CHECK(sizeof(integer) == __WORDSIZE/CHAR_BIT);
   CHECK(rehash(u64(1)) == 0xfffefffefffeffff);

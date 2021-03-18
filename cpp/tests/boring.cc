@@ -1,6 +1,5 @@
-// pingpong test for uniQ Library
-// Each ping call 1000 pongs, the last pong call ping(N-1) until zero
-// compile using ./build pingpong
+// boring ping-pong. ping call pong, pong call ping(-1) until zero
+// compile using ./build boring
 #include "uniq.h"
 using namespace uniq;
 
@@ -14,10 +13,15 @@ void pong(int v) {
 void ping(int v) {
   if (v > 0) {run(pong, v); return;};
   pool.stop();
-  cout << "\ndone: " << pool.done() << "\n";
 }
 
 int main(int argc, char* argv[]) {
-  pool.start();
+  pool.showstats = true;
+  Time t;
+
   run(ping, 1e6);  // start the flow
+  
+  pool.join();
+  log("\n\ntotal done: ", pool.todo.done(), " tasks in ", t());
+  quick_exit(0); // return 0;
 }

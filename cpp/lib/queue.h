@@ -5,7 +5,7 @@ namespace uniq {
 
 #define WAIT(condition) while(!(condition)) { sched_yield(); }
 
-template <typename T> class Queue {
+template <typename T> class Queue{//}: public Actor {
  protected:
   vector<T> buffer;
   vector<char> isfree;
@@ -22,37 +22,61 @@ template <typename T> class Queue {
     running = true;
   }
 
-  int push(T item) {
+  int push(T item, bool wait=true) {
     // assert(allow(item) && "uniq::queue::push(): Not allowed.");
     int i;
     do {
       i = in;
-      WAIT(i - out <= mask || !running); // if full, wait for space
+
+      if( full(i) && !wait) return false;
+      WAIT(!full(i)); // if full, wait for space
+
       if (!running) return 0;
     } while (!isfree[i & mask] || !in.compare_exchange_weak(i, i + 1) || !i);
+
     // string s = sstr("i[",sched_getcpu(),"] ",i," p ",(i&mask)," item ",item,"\n"); cout<<s;
     buffer[i & mask] = item;
     isfree[i & mask] = 0;
     return i;
   }
 
-  int pop(T &item) {
+  int pop(T &item, bool wait=true) {
     int o;
     do {
       do { o = out; } while (!o && !out.compare_exchange_weak(o,1)); // skip zero
-      WAIT(o < in || !running); // if empty, wait for item
+
+      if(empty(o) && !wait  ) return false;
+      WAIT(!empty(o)); // if empty, wait for item
+
       if (!running) return 0;
     } while (isfree[o & mask] || !out.compare_exchange_weak(o, o + 1));
+
     // string s = sstr("o[",sched_getcpu(),"] ",o," p ",(o&mask)," item ",item,"\n"); cout<<s;
     item = buffer[o & mask];
     isfree[o & mask] = 1;
     return o;
   }
 
+  inline bool full(int i = -1) { 
+    if (i<0) i = in; 
+    i = (i - out) > mask; 
+    if(!running) return false;
+    if(i) onfull(i);
+    return i;
+  }
+  virtual void onfull(int i){ } // WAIT(!full(i));
+
+  inline bool empty(int o = -1) { 
+    if (o<0) o = out; 
+    o = o == in;
+    if(o) onempty(o);
+    if(!running) return false;
+    return o; 
+  }
+  virtual void onempty(int o){ } // WAIT(!empty(o));
+
   bool running = false;
   int size() { return mask + 1; }
-  inline bool full() { return (in - out) > mask; }
-  inline bool empty() { return out == in; }
   int done() { return out-1; }
   inline void wait(int c) { while(out < c) sched_yield(); }
   // virtual bool allow(T item) { return true; }
@@ -60,7 +84,7 @@ template <typename T> class Queue {
 
 // ======================================================================== test
 #include "test.h"
-void test_queue(){
+void test_Queue(){
 
   Queue<int> q(1);  
   vector<thread> threads;

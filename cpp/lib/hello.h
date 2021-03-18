@@ -2,7 +2,7 @@
 // Hello • A starting point for C++ classes
 //==============================================================================
 #pragma once
-#include "std.h"
+#include "uniq.h"
 namespace uniq {
 
 atomic<int> Indent(0);

@@ -1,6 +1,7 @@
 // parallel primality test for uniQ Library
 // compile using ./build prime
 #include "uniq.h"
+using namespace uniq;
 
 // basic algorithm to get the first integer divisor of a number
 u64 firstDivisor0(u64 n) { // O(0.5 sqrt(n))
@@ -8,11 +9,12 @@ u64 firstDivisor0(u64 n) { // O(0.5 sqrt(n))
   for (u64 i = 3; i <= sqrt(n); i += 2) {
     if ((n % i) == 0) return i;
   }
-  return n;
+  return n; // is prime
 }
 
 // spiral algorithm test fewer candidates
 u64 spiral(u64 n, u64 min, u64 max) { // O(0.27 sqrt(n))
+  // log("block: ",min," ",max);
   for (u64 i = min; i <= max; i += 30) {
     u64 j = i;
     // if (j >= 6000000) asm("int3");
@@ -50,56 +52,52 @@ u64 paralelDivisor(u64 n) {
   u64 result = spiralDivisor(n, block += blockSize);
 
   for (u64 b = block; (result == n) && b < sqrt(n); b += blockSize) {
-    uniq::run(
-        [&](u64 n, u64 min, u64 max) {
-          // this lambda runs in a worker thread
-          u64 res = spiral(n, min, max);
-          if (res < n) result = res;
-        },
-        n, b, b + blockSize);
+
+    run([&](u64 n, u64 min, u64 max) { 
+        // this lambda runs in a worker thread
+        u64 res = spiral(n, min, max);
+        if (res < n) result = res;
+      },
+      n, b, b + blockSize
+    );
 
     // run([&]() { // smaller but slower
     //   u64 res = spiral(n, b, b + blockSize);
     //   if (res < n) result = res;
     // });
   }
+  // emit('prime',n);
   return result;
 }
 
 int main() {
-  u32 bigPrime32 = 2147483647;             // 2^31-1
   u64 bigPrime64 = 18446744073709551557U;  // biggest 64 bit prime
-  u64 bigSquare64 = bigPrime32 * bigPrime32;
-  // setlocale(LC_NUMERIC, "C");
-  
-  // printf("%llu/%llu: %llux\n",bigPrime64, bigSquare64, bigPrime64/bigSquare64);
-  // calc top 5 primes below a range
-  u64 n = bigPrime64;  // bigSquare64;
+
+  u64 d, n = bigPrime64;
   int count = 1;
   int sumtime = 0;
 
   // single threaded
-  printf("Calculating some big primes... Press ctrl+c to stop\n\n");
-  printf("Single Threaded factoring of %llu: ", n);
-  cout << std::flush;
+  logn("Single threaded brute force primality test of: \n", n);
+  Time t;
+  d = spiralDivisor(n);
+  log(" ", t=t());
 
-  Timer timer;  // startTimer();
-  spiralDivisor(n);
-  int singleTimer = (int)timer.reset();
-  printf("%d ms\n", singleTimer);
+  pool.showstats = true;
+  pool.start();
 
-  printf("\nNow using %d worker threads \n", uniq::pool.size());
-  uniq::pool.start(); // todo: remove this
-  // while (count <= 8) {
-    u64 divisor = paralelDivisor(n);
-    if (divisor == n) {
-      printf("%d. %llu: %d ms\n", count++, n, (int)timer.round());
-    };
-  //   n--;
-  // }
-  int avg = timer.roundAvg();
-  printf("\nSpeedup %.1f x\n", (double)singleTimer / avg);
+  log("\nNow using ", pool.size(), " worker threads");
 
-  uniq::pool.stop();  // todo: remove this
-  return 0;
+  Time tp;
+  d = paralelDivisor(n);
+  pool.stop();
+
+  // run( [&d,n](){ d = paralelDivisor(n); });
+  // WAIT(run( [&d,n](){ d = paralelDivisor(n); }));
+
+  if (d == n) log(count++,". ",n, " ", setprecision(2),  tp=tp());
+  
+  log("\nSpeedup ", setprecision(2), double(t/tp), "x");
+  pool.sleep(100); // allow std out printing
+  quick_exit(0); // return 0;
 }

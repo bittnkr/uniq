@@ -18,7 +18,8 @@ void producer(int items)  // pushes data into the queue
   Q.push(-1);
   // pool.atomic([&](){ total += sum; })
   total += sum;
-  printf("Produced: %lu\n", sum);
+  logn(GRN,"+");
+  // log("Produced: ", sum);
 }
 
 atomic<long> consumed(0);
@@ -28,19 +29,19 @@ void consumer()  // takes data from the queue
   while (Q.pop(v) && v != -1)
     sum += v;
   total -= sum; 
-  printf("Consumed: %lu\n", sum);
+  logn(RED,"-");
+  // log("Consumed: ", sum);
 
   if(Q.empty() && total==0) pool.stop();
 }
 
 int main() {
-  int Workers = 4; // 4 producers & 4 consumers
-  int Items = 1e6; // how many items will flow trough the queue
+  int Workers = 1000; // 100 producers & 1000 consumers
+  int Items = 10000; // each flowing 100k items trough the queue
 
-  printf("Creating %d producers & consumers\n", Workers);
-  printf("to flow %d items through the queue.\n\n", Items);
+  pool.showstats = true;
 
-  uniq::pool.start(); // todo: remove this
+  log("Creating ",Workers," producers & consumers to flow ",Items*Workers," items through the queue.");
 
   for (int i = 0; i < Workers; i++) {
     run(consumer);
@@ -48,10 +49,10 @@ int main() {
   }
 
   pool.join();
-  // uniq::pool.stop();  // todo: remove this
 
-  printf("\nChecksum: %ld (it must be zero)\n", total.value);
-  printf("\nmessages: %'d", pool.done());
+  log("\nChecksum: ",total," (it must be zero)");
+  log("tasks: ", pool.todo.done() );
+  log("messages: ", Q.done() );
   quick_exit(0); // return 0;
 }
 //uniq • Released under GPL 3.0
