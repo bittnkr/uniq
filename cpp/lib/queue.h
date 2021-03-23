@@ -5,7 +5,7 @@ namespace uniq {
 
 #define WAIT(condition) while(!(condition)) { sched_yield(); }
 
-template <typename T> class Queue{//}: public Actor {
+template <typename T> class Queue : public Actor {
  protected:
   vector<T> buffer;
   vector<char> isfree;
@@ -45,7 +45,7 @@ template <typename T> class Queue{//}: public Actor {
     do {
       do { o = out; } while (!o && !out.compare_exchange_weak(o,1)); // skip zero
 
-      if(empty(o) && !wait  ) return false;
+      if(empty(o) && !wait ) return false;
       WAIT(!empty(o)); // if empty, wait for item
 
       if (!running) return 0;

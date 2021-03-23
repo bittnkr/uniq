@@ -3,7 +3,7 @@
     "RunCLangCurrentFile": "clang++ active file",
   },
   "debug.allowBreakpointsEverywhere": true,
-   "files.associations": {
+  "files.associations": {
     "*.sass": "sass",
     "*.algo": "javascript",
     "**/RootDir/**/*": "javascript",
@@ -12,13 +12,111 @@
   "typescript.validate.enable": false,
   "javascript.validate.enable": false,
   "C_Cpp.autoAddFileAssociations": false,
+  "C_Cpp.intelliSenseEngine": "Default",
+  // "C_Cpp.intelliSenseEngine": "Tag Parser", // avoid unknown symbol to std::
   "C_Cpp.default.intelliSenseMode": "linux-clang-x64",
   "C_Cpp.clang_format_style": "{ BasedOnStyle: Chromium, IndentWidth: 2, ColumnLimit: 0}",
   "C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: Chromium, IndentWidth: 2, ColumnLimit: 0}",
   "diffEditor.ignoreTrimWhitespace": true,
-  "editor.find.autoFindInSelection":"multiline",
+  "editor.find.autoFindInSelection": "multiline",
   "editor.tabSize": 2,
   "editor.insertSpaces": true,
-  "[javascript]": { "editor.tabSize": 2 },
-  "[cpp]": { "editor.tabSize": 2 }
+  "editor.renderControlCharacters": true,
+  "editor.minimap.enabled": false,
+  "editor.autoIndent": "full",
+  "editor.suggestSelection": "first",
+  "breadcrumbs.enabled": true,
+  "explorer.confirmDragAndDrop": false,
+  "explorer.confirmDelete": false,
+  "html.format.wrapLineLength": 0,
+  "liveServer.settings.donotShowInfoMsg": true,
+  "debug.toolBarLocation": "docked",
+  // "workbench.editor.wrapTabs":true
+  "git.confirmSync": false,
+  "window.zoomLevel": 1,
+  "typescript.suggest.paths": false,
+  "[javascript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features",
+    "editor.tabSize": 2
+  },
+  "[jsonc]": {
+    "editor.tabSize": 2,
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[typescript]": {
+    "editor.tabSize": 2
+  },
+  "[pug]": {
+    "editor.stickyTabStops": true,
+    "editor.useTabStops": true,
+    "editor.insertSpaces": false,
+    "editor.tabSize": 2,
+    "editor.autoIndent": "advanced",
+    // "editor.renderWhitespace": "boundary",
+    "editor.defaultFormatter": "alexbabichev.formatter-pug"
+  },
+  "[html]": {
+    "editor.defaultFormatter": "vscode.html-language-features"
+  },
+  "debug.onTaskErrors": "showErrors",
+  "[cpp]": {
+    "editor.defaultFormatter": "ms-vscode.cpptools",
+    "editor.tabSize": 2
+  },
+  "[c]": {
+    "editor.defaultFormatter": "ms-vscode.cpptools"
+  },
+  "workbench.colorTheme": "Visual Studio Dark - C++",
+  "editor.semanticTokenColorCustomizations": {
+    //   "rules": {
+    //       "templateType": {"foreground": "#006eff", "fontStyle": "bold"}
+    //   },
+    // "[Visual Studio Dark - C++]": {
+    //   "rules": {
+    //     "function": {"foreground": "#f65b1d","fontStyle": ""}, // Function
+    //     "member.static": {"foreground": "#f65b1d", "fontStyle": ""},    // Static Member Function
+    //     "templateFunction": {"foreground": "#ff8888", "fontStyle": ""}, // Function Template
+    //     "method": {"foreground": "#ff8888", "fontStyle": ""},   // Member Function
+    //     // "enumMember": {"foreground": "#ff8888", "fontStyle": ""}, // Enumerator
+    //     "event": {"foreground": "#ff8888", "fontStyle": ""},    // Event (C++/CLI)
+    //     "macro": {"foreground": "#ff8888", "fontStyle": ""},    // Macro
+    //     "newOperator": {"foreground": "#ff8888", "fontStyle": ""},  // New / Delete
+    //     "operatorOverload": {"foreground": "#ff8888", "fontStyle": ""}, // Operator Overload Function
+    //     "memberOperatorOverload": {"foreground": "#ff8888", "fontStyle": ""},   // Operator Overload Member
+    //   }
+    // },
+    "[Visual Studio Dark]": { // experiments with semantic theme  
+      "rules": {
+        "templateType": {"foreground": "#ca9503", "fontStyle": "bold"}, // Class Template
+        "type": {"foreground": "#ca9503", "fontStyle":"bold" }, // Type
+        "valueType": {"foreground": "#ca9503", "fontStyle": "bold"},
+        "genericType": {"foreground": "#ca9503", "fontStyle": "bold"},  // Generic Type (C++/CLI)
+        "referenceType": {"foreground": "#ca9503", "fontStyle": "bold"},    // Reference Type (C++/CLI)
+ 
+        "numberLiteral": {"foreground": "#ca2103", "fontStyle": ""},    // User-Defined Literal - Number
+        "customLiteral": {"foreground": "#ca2103", "fontStyle": ""},    // User-Defined Literal - Raw
+        "stringLiteral": {"foreground": "#ca2103", "fontStyle": ""},    // User-Defined Literal - String
+
+        "parameter": {"foreground": "#909091", "fontStyle": ""},    // Parameter
+        "variable.local": {"foreground": "#909091", "fontStyle": ""},   // Local Variable
+        "variable.global": {"foreground": "#909091", "fontStyle": "bold"},  // Global Variable
+        "property": {"foreground": "#909091", "fontStyle": ""}, // Member Field
+        "property.static": {"foreground": "#909091", "fontStyle": "bold"},  // Static Member Field
+        "cliProperty": {"foreground": "#909091", "fontStyle": ""},  // Property (C++/CLI)
+        "label": {"foreground": "#909091", "fontStyle": ""},    // Label
+        "namespace": {"foreground": "#909091", "fontStyle": "bold"},    // Namespace
+
+        "member.static": {"foreground": "#ff8888", "fontStyle": ""},    // Static Member Function
+        "templateFunction": {"foreground": "#ff8888", "fontStyle": ""}, // Function Template
+        "method": {"foreground": "#ff8888", "fontStyle": ""},   // Member Function
+        // "enumMember": {"foreground": "#ff8888", "fontStyle": ""}, // Enumerator
+        "event": {"foreground": "#ff8888", "fontStyle": ""},    // Event (C++/CLI)
+        // "function": {"foreground": "#ff8888","fontStyle": ""}, // Function
+        "macro": {"foreground": "#ff8888", "fontStyle": ""},    // Macro
+        "newOperator": {"foreground": "#ff8888", "fontStyle": ""},  // New / Delete
+        "operatorOverload": {"foreground": "#ff8888", "fontStyle": ""}, // Operator Overload Function
+        "memberOperatorOverload": {"foreground": "#ff8888", "fontStyle": ""},   // Operator Overload Member
+      }
+    }
+  }
 }

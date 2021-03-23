@@ -15,10 +15,10 @@ public:
   virtual void stop(){ running = false; }
 
   Time interval;
-  i64 counter;
+  i64 counter=0;
   Time taken; 
   voidfunction beat = [this]{ }; 
-  inline void operator()(){ beat(); }
+  inline void operator()(){ beat(); counter++;}
 };
 
 // Tests =======================================================================

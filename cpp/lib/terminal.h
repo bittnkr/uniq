@@ -1,26 +1,23 @@
 #pragma once
-#include "uniq.h"
 namespace uniq {
 
-/* COLORS */
-const string RST("\033[0m");
+const string RST("\033[0m"); // reset
+const string BLD("\033[1m"); // bold/bright
+const string DIM("\033[2m"); // dimmed
+const string ITA("\033[3m"); // italic
+const string UND("\033[4m"); // underline
+const string BLI("\033[5m"); // blinking
 
-const string BLD("\033[1m");
-const string DIM("\033[2m");
-const string ITA("\033[3m");
-const string UND("\033[4m");
-const string BLI("\033[5m");
-
-const string BLK("\033[30m");
-const string RED("\033[31m");
-const string GRN("\033[32m");
-const string YEL("\033[33m");
-const string BLU("\033[34m");
-const string MAG("\033[35m");
-const string CYN("\033[36m");
-const string WHT("\033[37m");
-const string GRY("\033[90m");
-const string ORA("\033[38;5;202m");
+const string BLK("\033[30m"); // black
+const string RED("\033[31m"); // red
+const string GRN("\033[32m"); // green
+const string YEL("\033[33m"); // yellow
+const string BLU("\033[34m"); // blue
+const string MAG("\033[35m"); // magenta
+const string CYN("\033[36m"); // cyan
+const string WHT("\033[37m"); // white
+const string GRY("\033[90m"); // gray (bright black)
+const string ORA("\033[38;5;202m"); // a true color orange 
 
 const string BGBLK("\033[40m");
 const string BGRED("\033[41m");
@@ -30,9 +27,7 @@ const string BGBLU("\033[44m");
 const string BGMAG("\033[45m");
 const string BGCYN("\033[46m");
 const string BGWHT("\033[47m");
-
-const string BGGRY("\033[90m");
-const string BGORA("\033[38;5;202m");
+// const string BG(const string cl){ return replace(cl, "\033[3", "\033[4" });
 
 const string CLR("\033[2J"); //Clear the screen.
 const string HIDE("\033[?2"); // Hide the cursor.

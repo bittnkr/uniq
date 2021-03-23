@@ -1,5 +1,4 @@
 #pragma once
-#include "uniq.h"
 namespace uniq {
 
 typedef function<void()> voidfunction;
@@ -14,6 +13,7 @@ auto call(Func&& func, Args&&... args) {
   return r;
 }
 
+#include "test.h"
 void test_call() {
   auto echo = [](string s) { return s; };
   auto f = call(echo, "Hello");

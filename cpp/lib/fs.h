@@ -17,7 +17,6 @@ string readFile2(char const *filename) {
   return s.str();
 }
 
-// #define DOCTEST_CONFIG_DISABLE
 void test_fs() {
   string thisFile = readFile("fs.h");
   string thatFile = readFile2("fs.h");

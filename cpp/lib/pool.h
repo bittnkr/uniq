@@ -53,12 +53,12 @@ class ThreadPool : Actor {
     Time t, total(0);
     voidfunction f;
     while (todo.pop(f)){
-      t = procTime();
+      t = CpuTime();
       f();
-      total += t(procTime());
+      total += t(CpuTime());
       done++;
     };
-    if(showstats) logn("\n", colorcode(id), sstr("worker[", id, "] handled ", done, " messages in ", total));
+    if(showstats) out("\n", colorcode(id), sstr("worker[", id, "] handled ", done, " messages in ", total));
   };
 
   template <typename Func, typename... Args>

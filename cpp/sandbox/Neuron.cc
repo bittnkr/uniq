@@ -42,7 +42,7 @@ struct Terminate {
 //=============================================== test
 // void test_Neuron() {
 int main() {
-  Time t(procTime());
+  Time t(CpuTime());
 
   Neuron n1, n2, n3;
   Terminate ground;
@@ -63,7 +63,7 @@ int main() {
     n1.pulse(pulse);
   }
 
-  log(RED, "time: ", t(procTime()));
+  log(RED, "time: ", t(CpuTime()));
 
   Neuron n4;
   n4.fire = Neuron::Pulse{ground, &Terminate::term};
@@ -73,7 +73,7 @@ int main() {
     log(YEL,"\nPulse", i, ", ", pulse);
     n1.pulse(pulse);
   }
-  log(RED,"time: ", t(procTime()));
+  log(RED,"time: ", t(CpuTime()));
 
   // CHECK(bob.indent == alice.indent + 1);
   return 0;

@@ -85,5 +85,9 @@ void test_numtypes(){
   CHECK(sizeof(integer) == __WORDSIZE/CHAR_BIT);
   CHECK(rehash(u64(1)) == 0xfffefffefffeffff);
   CHECK(rehash(rehash(u64(1))) == 1);
+
+  CHECK(i32(-4) + u32(2) == 4294967294);
+  CHECK(i64(-4) + u32(2) == -2);
+  CHECK(i64(-4) + u32(2) == 18446744073709551614UL);
 }
 // uniq • Released under GNU 3.0

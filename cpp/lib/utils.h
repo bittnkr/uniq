@@ -35,7 +35,7 @@ int sign(long v) { return v >= 0 ? 1 : -1; }
 int sign(double v) { return v >= 0 ? 1 : -1; }
 
 double round(double v, int places) { 
-  i64 p = pow(10, places);
+  u64 p = pow(10, places);
   v = ::round(v * p); 
   return v/p; 
 } 
@@ -49,18 +49,25 @@ string sstr(Args &&... args )
 }
 
 template <typename... Args> 
-string logn(Args &&... args )
+string out(Args &&... args )
 {
   string r = sstr(args...);
   cout << r << "\033[0m" << std::flush;
   return r;
 }
-#undef function_name
+string out(double n) { return uniq::out(n); }
+string out(integer n) { return uniq::out(n); }
+string out(uinteger n) { return uniq::out(n); }
+
 template <typename... Args> 
 string log(Args &&... args )
 {
-  return logn(args...,"\n");
+  return out(args...,"\n");
 }
+string log(double n) { return uniq::log(n); }
+string log(integer n) { return uniq::log(n); }
+string log(uinteger n) { return uniq::log(n); }
+
 inline string trim(const string &s)
 {
    auto wsfront=find_if_not(s.begin(),s.end(),[](int c){return isspace(c);});
@@ -119,8 +126,8 @@ string anyType(const any v)
   t = replace(t,"__cxx11::","");
   t = replace(t,"basic_string<char, char_traits<char>, allocator<char> >","string");
   t = replace(t,"char const .*? ","char");
-  t = replace(t,"\\w+",  ORA+"$0"+GRY);  
-  t = GRY+t;
+  // t = replace(t,"\\w+",  ORA+"$0"+GRY);  
+  // t = GRY+t;
   return t;
 }
 

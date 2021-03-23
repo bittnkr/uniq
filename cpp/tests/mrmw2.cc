@@ -6,7 +6,7 @@
 using namespace uniq;
 
 Queue<int> Q;
-atom<long> total = 0;
+Atomic<long> total = 0;
 
 void producer(int items)  // pushes data into the queue
 {
@@ -18,7 +18,7 @@ void producer(int items)  // pushes data into the queue
   Q.push(-1);
   // pool.atomic([&](){ total += sum; })
   total += sum;
-  logn(GRN,"+");
+  out(GRN,"+");
   // log("Produced: ", sum);
 }
 
@@ -29,7 +29,7 @@ void consumer()  // takes data from the queue
   while (Q.pop(v) && v != -1)
     sum += v;
   total -= sum; 
-  logn(RED,"-");
+  out(RED,"-");
   // log("Consumed: ", sum);
 
   if(Q.empty() && total==0) pool.stop();

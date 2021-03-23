@@ -1,9 +1,9 @@
 #pragma once
 #include "std.h"
 
-atomic<int> TEST_CHECKS = 0;
+int TEST_CHECKS = 0;
 
-#define CHECK(cond) assert(cond); TEST_CHECKS++
+void CHECK(bool cond) { assert(cond); TEST_CHECKS++; }
 
 void test(function<void()> f, string name=""){
     f();

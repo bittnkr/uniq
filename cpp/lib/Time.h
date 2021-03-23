@@ -5,24 +5,16 @@
 #include "uniq.h"
 namespace uniq {
 
-typedef double (*TimeUpdate)(double);
-inline double systemTime(double source);
-TimeUpdate getTime = &systemTime;
-
 struct Time {
   double value;  // double seconds with fractional nanos
 
-  Time(double t) { value = t; }
-  Time operator=(double t) { return value = t; }
-  inline operator double() const { return value; }
-
-  Time(int secs_, int nanos_) { value = NANO * nanos_ + secs_; }
-
-  // copy constructor
+  Time();
   Time(Time &t) { value = t.value; }
   Time operator = (Time &t) { return value = t.value; }
 
-  Time() { value = getTime(CLOCK_MONOTONIC); }
+  Time(double t) { value = t; }
+  Time operator = (double t) { return value = t; }
+  inline operator double() const { return value; }
 
   const string fmt(string fmtString) { // as put_time
     time_t secs = value;
@@ -38,6 +30,8 @@ struct Time {
     else if (value < MILI) s = sstr(micros(), " µs");
     else if (value < 1) s = sstr(milis(), " ms");
     else if (value < 60) s = sstr(seconds(), " s");
+    else if (value < 60*60) s = fmt("M:%S");
+    else if (value < 60*60*24) s = fmt("%H:%M:%S");
     else s = fmt("%a %b %e %H:%M:%S %Y");
     return s;
   }
@@ -47,12 +41,19 @@ struct Time {
     return trim(::ctime(&t));
   }  // for reference
 
-  inline bool operator==(Time t) { return fabs(value - t.value) < NANO; }
-  inline bool operator!=(Time t) { return fabs(value - t.value) >= NANO; }
-  inline bool operator<(Time t) { return value < t.value; }
-  inline bool operator>(Time t) { return value > t.value; }
-  inline bool operator<=(Time t) { return value <= t.value; }
-  inline bool operator>=(Time t) { return value >= t.value; }
+  inline bool operator == (Time t) { return fabs(value - t.value) < NANO; }
+  inline bool operator != (Time t) { return fabs(value - t.value) >= NANO; }
+  inline bool operator  < (Time t) { return value < t.value; }
+  inline bool operator  > (Time t) { return value > t.value; }
+  inline bool operator <= (Time t) { return value <= t.value; }
+  inline bool operator >= (Time t) { return value >= t.value; }
+
+  inline bool operator == (double t) { return fabs(value - t) < NANO; }
+  inline bool operator != (double t) { return fabs(value - t) >= NANO; }
+  inline bool operator <  (double t) { return value < t; }
+  inline bool operator >  (double t) { return value > t; }
+  inline bool operator <= (double t) { return value <= t; }
+  inline bool operator >= (double t) { return value >= t; }
 
   void operator+=(Time t) { value += t.value; }
   void operator-=(Time t) { value -= t.value; }
@@ -64,19 +65,24 @@ struct Time {
   Time operator*(Time t) { return Time(value * t.value); }
   Time operator/(Time t) { return Time(value / t.value); }
 
+  Time operator+(double t) { return Time(value + t); }
+  Time operator-(double t) { return Time(value - t); }
+  Time operator*(double t) { return Time(value * t); }
+  Time operator/(double t) { return Time(value / t); }
+
   void operator--() { value = value - 1; }
   void operator++() { value = value + 1; }
 
-  double nanos(int places = 1) { return round(value * GIGA, places); }
-  double micros(int places = 1) { return round(value * MEGA, places); }
-  double milis(int places = 1) { return round(value * KILO, places); }
-  double seconds(int places = 1) { return round(value, places); }
-  double minutes(int places = 1) { return round(seconds() / 60, places); }
-  double hours(int places = 1) { return round(minutes() / 60, places); }
-  double days(int places = 1) { return round(hours() / 24, places); }
-  double weeks(int places = 1) { return round(days() / 7, places); }
-  double months(int places = 1) { return round(days() / 30, places); }
-  double years(int places = 1) { return round(months() / 12, places); }
+  double nanos(int places = 0) { return round(value * GIGA, places); }
+  double micros(int places = 0) { return round(value * MEGA, places); }
+  double milis(int places = 0) { return round(value * KILO, places); }
+  double seconds(int places = 0) { return round(value, places); }
+  double minutes(int places = 0) { return round(seconds() / 60, places); }
+  double hours(int places = 0) { return round(minutes() / 60, places); }
+  double days(int places = 0) { return round(hours() / 24, places); }
+  double weeks(int places = 0) { return round(days() / 7, places); }
+  double months(int places = 0) { return round(days() / 30, places); }
+  double years(int places = 0) { return round(months() / 12, places); }
 
   Time operator()() {
     Time v, r = v.value - value;
@@ -95,38 +101,41 @@ struct Time {
 
 ostream& operator<<(ostream& os, Time& t) { return os << t.str(); }
 
-// from clock_gettime
-inline double systemTime(double source = CLOCK_MONOTONIC) {
-  timespec ts;
-  clock_gettime(int(source), &ts);
-  double r = NANO * ts.tv_nsec + ts.tv_sec;
-  return r;
-}
+// SystemTime from clock_gettime
+Time SystemTime(int source=CLOCK_REALTIME){ 
+    timespec t;
+    clock_gettime(source, &t);
+    return NANO * t.tv_nsec + t.tv_sec;
+};
 
-// from ::clock();
-inline double clockTime(double dummy = 0) {
-  return double(::clock()) * MICRO;
-}
+Time::Time() { value = SystemTime(); }
 
-// from std::chrono
-inline double chronoTime(double dummy = 0) {
-  return NANO * chrono::duration_cast<chrono::nanoseconds>(chrono::system_clock::now().time_since_epoch()).count();
-}
+const Time START_TIME();
 
-// from rdtscp;
+// ClockTime from clock();
+Time ClockTime() { return MICRO * ::clock(); }
+
+// // ChronoTime from std::chrono
+// Time ChronoTime() { 
+//   return NANO * chrono::duration_cast<chrono::nanoseconds>(chrono::system_clock::now().time_since_epoch()).count();
+// };
+
+// CpuTime from rdtscp;
 #include <x86intrin.h>
-double CLOCK_CYCLE = NANO / 2.4;
-inline u64 ticks() { u32 i; return __rdtscp(&i);}  // 11ns
-inline double procTime() {return ticks() * CLOCK_CYCLE;} // 13ns (ticks()+2ns of double multiplication)
+inline u64 ticks(u64 prev=0) { u32 i; u64 r = __rdtscp(&i); return r-prev;}  // 11ns
 
+const u64 START_TICKS = ticks();
+
+const double CLOCK_CYCLE = NANO / 2.4;
+
+Time CpuTime() { return (ticks()-START_TICKS) * CLOCK_CYCLE; } // 13ns 
 
 // tests =======================================================================
 void test_Time() {
   CHECK(sizeof(Time) == sizeof(double));
-
   CHECK(u64(CLOCKS_PER_SEC) == MEGA);
 
-  auto t = Time();
+  Time t;
   CHECK(t.str() == t.ctime());
 }
 

@@ -78,7 +78,7 @@ int main() {
   int sumtime = 0;
 
   // single threaded
-  logn("Single threaded brute force primality test of: \n", n);
+  out("Single threaded brute force primality test of: \n", n);
   Time t;
   d = spiralDivisor(n);
   log(" ", t=t());

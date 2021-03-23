@@ -9,7 +9,9 @@ atomic<int> Indent(0);
 //======================================================================= Named
 struct Named {
   string name;
+  Named(){name="";};
   Named(string name_) : name(name_){};
+  Named operator = (Named o) { return name = o.name; }
   // used by std::set to compare event names
   bool operator<(const Named &other) const { return name < other.name; };
   bool operator>(const Named &other) const { return name > other.name; };
