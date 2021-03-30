@@ -1,9 +1,10 @@
 // #include "memwatch.h"
 #include "uniq.h"
+#include "ElasticQueue.h" // worker thread
 // #include "Any.h" // simpler std:any 
 // #include "Json.h" // Json primitive
 // #include "Worker.h" // worker thread
-// #include "Pool2.h" // thread pool
+// #include "Pool.h" // thread pool
 // #include "Digit.h" // big digit 
 // #include "Number.h" // big number
 // #include "Timer.h" // Time counting & benchmarks
@@ -24,14 +25,13 @@ int main(){
   test(test_Actor, "Actor");
   test(test_Queue, "Queue");
   test(test_Pool, "Pool");
+  test(test_ElasticQueue, "ElasticQueue");
 
   // test(test_Any, "Any");
-
-  // test(test_Pool2, "Pool2");
   // test(test_Worker, "Worker");
+  // test(test_Pool2, "Pool2");
   // test(test_Event, "Event");
   // test(test_Timer, "Timer");
-
   // test(test_Json, "Json");
   // test(test_Digit, "Digit");
   // test(test_Number, "Number");
