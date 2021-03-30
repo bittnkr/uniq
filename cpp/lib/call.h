@@ -1,6 +1,7 @@
 #pragma once
 namespace uniq {
 
+typedef void(*voidfunc)();
 typedef function<void()> voidfunction;
 typedef function<string()> stringfunction;
 

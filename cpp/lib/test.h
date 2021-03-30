@@ -3,7 +3,8 @@
 
 int TEST_CHECKS = 0;
 
-void CHECK(bool cond) { assert(cond); TEST_CHECKS++; }
+// void CHECK(bool cond) { assert(cond); TEST_CHECKS++; }
+#define CHECK(cond) { assert(cond); TEST_CHECKS++; }
 
 void test(function<void()> f, string name=""){
     f();

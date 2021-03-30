@@ -129,7 +129,8 @@ const u64 START_TICKS = ticks();
 
 const double CLOCK_CYCLE = NANO / 2.4; // todo: dynamic update
 
-Time CpuTime() { return (ticks()-START_TICKS) * CLOCK_CYCLE; } // 13ns 
+inline Time CpuTime() { return (ticks()-START_TICKS) * CLOCK_CYCLE; } // 13ns 
+inline Time CpuTime(Time prev) { return CpuTime()-prev;}
 
 // tests =======================================================================
 void test_Time() {

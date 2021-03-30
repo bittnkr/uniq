@@ -14,15 +14,14 @@ struct Hello { // : public Parent {
   Hello(string name_ = "somebody") { name=name_; indent = Indent++; };
   ~Hello() { say("goodbye."); Indent--; };
 
-  void say(string msg) {
-    cout << string(indent, '|') << name << " say: " << msg << endl;
-  };
+  void say(string msg) { cout << *this; };
 };
+
+ostream& operator<<(ostream& os, Hello& t) { return os << string(indent, '|') << name << " say: " << msg << endl; }
 
 void say(string msg) { return Hello().say(msg); }
 
 //========================================================================= test
-#include "test.h"
 void test_hello(){
   Hello alice("Alice"), bob("Bob");
 

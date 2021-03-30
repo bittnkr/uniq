@@ -6,7 +6,7 @@ namespace uniq {
 #define WAIT(condition) while(!(condition)) { sched_yield(); }
 
 template <typename T> class Queue : public Actor {
- protected:
+
   vector<T> buffer;
   vector<char> isfree;
   atomic<int> in, out;
@@ -21,6 +21,9 @@ template <typename T> class Queue : public Actor {
     mask--; // 01000000 => 00111111
     running = true;
   }
+  ~Queue(){ 
+    // log("~Queue()");
+  }
 
   int push(T item, bool wait=true) {
     // assert(allow(item) && "uniq::queue::push(): Not allowed.");
@@ -28,10 +31,9 @@ template <typename T> class Queue : public Actor {
     do {
       i = in;
 
-      if( full(i) && !wait) return false;
-      WAIT(!full(i)); // if full, wait for space
+      if((full(i) && !wait) || !running) return 0;
+      else WAIT(!full(i)); // if full, wait for space
 
-      if (!running) return 0;
     } while (!isfree[i & mask] || !in.compare_exchange_weak(i, i + 1) || !i);
 
     // string s = sstr("i[",sched_getcpu(),"] ",i," p ",(i&mask)," item ",item,"\n"); cout<<s;
@@ -45,10 +47,9 @@ template <typename T> class Queue : public Actor {
     do {
       do { o = out; } while (!o && !out.compare_exchange_weak(o,1)); // skip zero
 
-      if(empty(o) && !wait ) return false;
-      WAIT(!empty(o)); // if empty, wait for item
+      if((empty(o) && !wait) || !running) return 0;
+      else WAIT(!empty(o)); // if empty, wait for item
 
-      if (!running) return 0;
     } while (isfree[o & mask] || !out.compare_exchange_weak(o, o + 1));
 
     // string s = sstr("o[",sched_getcpu(),"] ",o," p ",(o&mask)," item ",item,"\n"); cout<<s;
@@ -85,8 +86,9 @@ template <typename T> class Queue : public Actor {
 // ======================================================================== test
 #include "test.h"
 void test_Queue(){
-
-  Queue<int> q(1);  
+  auto t = CpuTime();
+  
+  Queue<int> q;
   vector<thread> threads;
 
   atomic<int> produced(0);
@@ -104,14 +106,15 @@ void test_Queue(){
       consumed += v;
   };
 
-  for (int i = 0; i < (random()%8); i++) { // random producers & consumers
+  for (int i = 0; i < thread::hardware_concurrency()/2; i++) {
     threads.push_back(thread(consumer));
-    threads.push_back(thread(producer, random()%100000));
+    threads.push_back(thread(producer, 100'000));
   };
 
   for (auto &t : threads) t.join();
 
-  CHECK(produced > 0);
+  CHECK(produced != 0);
   CHECK(produced == consumed);
+  log("Queue:", double(t(CpuTime())));
 }
 }// uniq • Released under GPL 3.0

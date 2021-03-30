@@ -45,6 +45,7 @@ string colorcode(int i, vector<int> pallete = RAINBOW) {
 }
 
 // Tests =======================================================================
+#include "test.h"
 void test_terminal() {
   CHECK(RED+"X"+RST == "\033[31mX\033[0m");
  
