@@ -10,20 +10,20 @@ class Neuron {
  public:
   Neuron() { id = ++index; }
 
-  using Pulse = delegate<void(int)>;
-
   static constexpr int threshold = 100;
+
+  using Pulse = delegate<void(int)>;
 
   Pulse fire;
 
   void pulse(int i) {
     charge += i;
-    log("N", id, " charged to ", charge);
-    if (charge >= threshold && fire) {
-      // log("- fire!");
+    out("N", id, " charged to ", charge);
+    if (charge >= threshold && fire) { 
+      log(RED, " fire!");
       fire(charge - threshold / 2);
       charge = 0;
-    }
+    } else log("");
   };
 };
 
@@ -56,11 +56,11 @@ int main() {
   // auto f3 = bind(&Neuron::fire, &foo, _2);
   // f3(5);
 
-  constexpr auto pulse = Neuron::threshold;
+  constexpr auto threshold = Neuron::threshold;
 
   for (int i = 0; i < 8; i++) {
-    log(GRN, "\nPulse", i, ", ", pulse);
-    n1.pulse(pulse);
+    log(GRN, "\nPulse ", i, ", ", threshold);
+    n1.pulse(threshold);
   }
 
   log(RED, "time: ", t(CpuTime()));
@@ -70,10 +70,10 @@ int main() {
   n3.fire = Neuron::Pulse{n4, &Neuron::pulse};
 
   for (int i = 0; i < 8; i++) {
-    log(YEL,"\nPulse", i, ", ", pulse);
-    n1.pulse(pulse);
+    log(YEL,"\nPulse", i, ", ", threshold);
+    n1.pulse(threshold);
   }
-  log(RED,"time: ", t(CpuTime()));
+  log(GRN,"time: ", t(CpuTime()));
 
   // CHECK(bob.indent == alice.indent + 1);
   return 0;
