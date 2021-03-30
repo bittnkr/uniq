@@ -24,6 +24,7 @@
         "-lpthread",
         "-fopenmp",
         "-msse3",
+        "-lX11"
         // "-lOpenCL",
         // "-lOpenGL",
         // "-lglut",
