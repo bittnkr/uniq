@@ -122,11 +122,12 @@ Time ClockTime() { return MICRO * ::clock(); }
 
 // CpuTime from rdtscp;
 #include <x86intrin.h>
-inline u64 ticks(u64 prev=0) { u32 i; u64 r = __rdtscp(&i); return r-prev;}  // 11ns
+inline u64 ticks() { u32 i; return __rdtscp(&i);} // 11ns
+inline u64 ticks(u64 prev) { return ticks()-prev;}
 
 const u64 START_TICKS = ticks();
 
-const double CLOCK_CYCLE = NANO / 2.4;
+const double CLOCK_CYCLE = NANO / 2.4; // todo: dynamic update
 
 Time CpuTime() { return (ticks()-START_TICKS) * CLOCK_CYCLE; } // 13ns 
 

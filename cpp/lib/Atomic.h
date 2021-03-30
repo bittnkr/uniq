@@ -6,7 +6,7 @@ namespace uniq {
 template<class T>
 struct Atomic {
   T value;
-  Atomic() { }
+  Atomic() { value = T {}; }
   Atomic(const Atomic&);
   constexpr Atomic(T v){ value=v; }
 
@@ -42,8 +42,9 @@ struct Atomic {
 //========================================================================= test
 #include "test.h"
 void test_Atomic(){
-  Atomic<int> i(1); CHECK(i == 1);
+  Atomic<int> i; CHECK(i == 0);
 
+  i = 1;   CHECK(i == 1);
   i = i+1; CHECK(i == 2);
   i = i-1; CHECK(i == 1);
   i |= 3;  CHECK(i == 3);

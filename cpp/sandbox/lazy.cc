@@ -40,31 +40,34 @@ class Lazy {
   tuple<Args&&...> args;
   
   auto operator()(Args&&... moreargs) {
-    return func(args, moreargs...); 
+    return func(args..., moreargs...); 
     // return apply(func, args, moreargs...); 
     // return apply([&](Args&&... a, Args&&... b) { func(a..., b...); }, args, moreargs...);
   }
 };
 
-string echo(string s) { return s; }
+template<class T> // []<T>(T arg):T { return arg }
+T echo(T arg) {return arg;}
+
+string test_echo(string s) { return s; }
 
 int main() {
   auto s = say("say ", "hello\n"); // cout << s;
 
-  cout <<  run(echo, "run echo\n");
+  cout <<  run(test_echo, "run test_echo\n");
 
   // All lines bellow dont compile with error of 
   // no instance of ... matches the argument list 
 
-  // Lazy(echo)
-  auto f = Lazy(echo, "Lazy"); cout << f(" echo\n");
+  // Lazy(test_echo)
+  // auto f = Lazy(test_echo, "Lazy"); cout << f(" test_echo\n");
 
   // BANG! run(function with variadic params)
   // cout << run(say, "run", "say\n"); 
 
   // The dream: Lazy call of a variadic tempĺate
   // auto hello = Lazy(say, "Lazy "); 
-  // hello("say ", 123, "\n");
+  // hello("hello: ", 123, "\n"); // should printout Lazy hello: 123
 }
 
 // https://stackoverflow.com/questions/687490/how-do-i-expand-a-tuple-into-variadic-template-functions-arguments
