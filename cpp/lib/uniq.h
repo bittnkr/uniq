@@ -1,8 +1,9 @@
 #pragma once
+// namespace uniq{
 // #include <x86intrin.h>
-
 #include "std.h" // all std headers
 #include "unistd.h" 
+// };
 #include "test.h" // unit testing
 
 #include "numtypes.h" // basic numeric types
@@ -17,6 +18,7 @@
 #include "Atomic.h" // basic atomic types
 #include "Named.h" // class with name
 #include "Actor.h" // common parent for active classes
+#include "Benchmark.h" // execution time analisys
 #include "queue.h" // the queue
 #include "pool.h" // thread pool
 

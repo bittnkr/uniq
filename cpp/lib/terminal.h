@@ -44,6 +44,13 @@ string colorcode(int i, vector<int> pallete = RAINBOW) {
   return string("\033[")+(i<10? "01":"22")+";3"+to_string(i%10)+"m";
 }
 
+char getch(){ // read a character from stdin without waiting for enter
+  system("stty raw"); // Set the terminal to raw mode 
+  char input = getchar(); 
+  system("stty cooked"); 
+  return input;
+}
+
 // Tests =======================================================================
 #include "test.h"
 void test_terminal() {

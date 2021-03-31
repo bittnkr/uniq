@@ -22,16 +22,17 @@
         "-Wfatal-errors", // stop on first error
         "-fcompare-debug-second", // no notes
         "-lpthread",
-        "-fopenmp",
-        "-msse3",
-        "-lX11"
+        // "-fopenmp",
+        // "-msse3",
+        // "-lX11",
+        // "-lncurses",
         // "-lOpenCL",
         // "-lOpenGL",
         // "-lglut",
         // "-lglfw",
+        // "-lGLU",
         // "-lGL",
         // "-lGLEW",
-        // "-lGLU",
         // "-lGLAD",
       ],
       "options": {

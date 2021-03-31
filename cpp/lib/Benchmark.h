@@ -29,7 +29,9 @@ struct Benchmark : public Named {
       count *= 2;
       // log(log2(count), ":", r);
     };
-    result -= overhead;
+    
+    if(name != "overhead")
+      result -= overhead;
 
     if(print) log(*this);
   }
@@ -44,7 +46,7 @@ struct Benchmark : public Named {
   }
 };
 
-Time Benchmark::overhead = Benchmark("overhead",[]{}).result;
+Time Benchmark::overhead = Benchmark("overhead",[]{},0).result;
 
 ostream& operator<<(ostream& os, Benchmark& b) { 
   return os << sstr( ORA, b.name," ", GRN, b.result, YEL, DIM, " (", integer(1/(b.result*1e6)), " M op/s)");

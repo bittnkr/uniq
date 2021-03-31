@@ -26,6 +26,7 @@ int main(){
   test(test_Queue, "Queue");
   test(test_Pool, "Pool");
   test(test_ElasticQueue, "ElasticQueue");
+  test(test_Actor, "Benchmark");
 
   // test(test_Any, "Any");
   // test(test_Worker, "Worker");
