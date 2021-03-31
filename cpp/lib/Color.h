@@ -12,10 +12,11 @@ union Color {
   Color() { value = random(); }
   Color(u32 v) { value = v; }
   Color(u8 r, u8 g, u8 b, u8 a = 255) {
-    parts.r = r;
-    parts.g = g;
-    parts.b = b;
-    parts.a = a;
+    value = b + g<<8 + r<<16 + a << 24;
+    // parts.r = r;
+    // parts.g = g;
+    // parts.b = b;
+    // parts.a = a;
   };
 };
 
