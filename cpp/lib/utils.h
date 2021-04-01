@@ -59,9 +59,6 @@ string out(Args &&... args )
   cout << r << "\033[0m" << std::flush;
   return r;
 }
-string out(double n) { return uniq::out(n); }
-string out(integer n) { return uniq::out(n); }
-string out(uinteger n) { return uniq::out(n); }
 
 template <typename... Args> 
 string log(Args &&... args )
