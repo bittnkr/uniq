@@ -5,32 +5,36 @@
 #include "uniq.h"
 namespace uniq {
 
-atomic<int> Indent(0);
 //======================================================================= Hello
-struct Hello { // : public Parent {
-  string name;
-  int indent=0;
-
-  Hello(string name_ = "somebody") { name=name_; indent = Indent++; };
-  ~Hello() { say("goodbye."); Indent--; };
-
-  void say(string msg) { cout << *this; };
+struct Hello: public Named {
+  inline static Atomic<int> Id{0};
+  int id;
+  Hello(string name = "somebody") : Named(name) { id = ++Id; };
+  ~Hello() { say("goodbye."); };
+ 
+  string msg;
+  string say(string s);
+  string operator()(string s){ return say(s); } // functor
 };
 
-ostream& operator<<(ostream& os, Hello& t) { return os << string(indent, '|') << name << " say: " << msg << endl; }
-
-void say(string msg) { return Hello().say(msg); }
-
-//========================================================================= test
-void test_hello(){
-  Hello alice("Alice"), bob("Bob");
-
-  CHECK(bob.indent == alice.indent+1);
-
-  alice.say("Hola!");
-  bob.say("Olá");
-  say("To be or not?"); // somebody
+// streamable cout << Hello()
+ostream& operator<<(ostream& os, Hello& t) { 
+  return os << repeat("| ",t.id) << t.name << " say: " << t.msg << "\n"; 
 }
-}// uniq • Released under GPL 3.0
 
+// referencing streamable this
+string Hello::say(string s) { msg = s; cout << (*this); return s; }
+
+// utility function
+string hello(string msg) { return Hello()(msg); }
+
+/*/=================================================================== test_Hello
+void test_Hello(){
+  Hello alice("Alice"), bob("Bob");
+  alice("Hola!");
+  bob("Olá");
+  hello("Que tal?"); // somebody
+}//*/
+
+}// uniq • Released under GPL 3.0
 // int main() { uniq::test_hello(); }

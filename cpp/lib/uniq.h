@@ -14,6 +14,7 @@
 #include "fs.h" // filesystem utilities readFile, saveFile() ...
 #include "sha256.h" // sha256 cryptographic function
 
+// #include "hello.h" // A Boilerplate for classes
 #include "Time.h" // time primitive
 #include "Color.h" // color primitive
 #include "Atomic.h" // basic atomic types
