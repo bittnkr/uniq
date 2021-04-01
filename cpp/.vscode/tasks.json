@@ -61,7 +61,7 @@
         "-Wfatal-errors", // stop on first error
         "-fcompare-debug-second", // no notes
         "-lpthread",
-        "-msse3",
+        // "-msse3",
       ],
       "options": {
         "cwd": "${workspaceFolder}"
@@ -89,7 +89,7 @@
         "-Wfatal-errors", // stop on first error
         "-lpthread",
         "-fopenmp",
-        "-msse3",
+        // "-msse3",
         // "-save-temps"
         // "-lOpenCL",
         // "-lOpenGL",
@@ -130,7 +130,7 @@
         "-Wfatal-errors", // stop on first error
         "-lpthread",
         "-fopenmp",
-        "-msse3",
+        // "-msse3",
         // "-lOpenCL",
         // "-lOpenGL",
         // "-lglut",

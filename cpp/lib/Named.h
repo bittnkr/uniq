@@ -5,7 +5,6 @@
 #include "uniq.h"
 namespace uniq {
 
-atomic<int> Indent(0);
 //======================================================================= Named
 struct Named {
   string name;
@@ -15,9 +14,10 @@ struct Named {
   // used by std::set to compare event names
   bool operator<(const Named &other) const { return name < other.name; };
   bool operator>(const Named &other) const { return name > other.name; };
+  bool operator==(const Named &other) const { return name == other.name; };
 };
 
-//========================================================================= test
+//================================================================== test_Named
 void test_Named(){
   Named alice("Alice"), bob("Bob");
   CHECK(alice.name=="Alice");

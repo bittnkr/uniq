@@ -16,7 +16,26 @@ struct Atomic {
   inline T add(const T v) { return __atomic_fetch_add(&value, v, CST); }
   inline T sub(const T v) { return __atomic_fetch_sub(&value, v, CST); }
   inline T xch(T v) {  return __atomic_exchange(&value, v, CST); }
-  inline bool CAS(T old, T new_) {  return __atomic_compare_exchange(&value, &old, &new_, false, CST, CST); }
+
+  inline bool CAS(T old, T v) { return __atomic_compare_exchange(&value, &old, &v, false, CST, CST); }
+ 
+  inline bool swapLower(T v) {
+    int old;
+    do { 
+      old = value; 
+      if(old <= v) return 0;
+    } while (!CAS(old, v));
+    return 1;
+  }
+
+  inline bool swapGreater(T v) {
+    int old;
+    do { 
+      old = value; 
+      if(old >= v) return 0;
+    } while (!CAS(old, v));
+    return 1;
+  }
 
   void operator += (T v) { add(v); }
   void operator -= (T v) { sub(v); }
