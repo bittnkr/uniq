@@ -13,7 +13,6 @@ map<string, testFunc> TESTS = {};
 struct Test {
   Test(string name, testFunc func) {
     TESTS[name] = move(func);
-    cout << name << "\n";
   }
 };
 
