@@ -22,12 +22,12 @@
 #include "Profiler.h" // execution time recording
 #include "Benchmark.h" // speed tests
 #include "Log.h" // simple logger
-// #include "Json.h" // Json primitive
-// #include "Worker.h" // worker thread
+#include "Worker.h" // worker thread
 // #include "WorkerPool.h" // A Worker with helpers
+// #include "Json.h" // Json primitive
 // #include "Digit.h" // big digit 
 // #include "Number.h" // big number
-// #include "Timer.h" // Hi-precision timer
+// #include "Timer.h" // hi-precision timer
 // #include "Any.h" // simpler std:any 
 // #include "Event.h" // event emitter
 
