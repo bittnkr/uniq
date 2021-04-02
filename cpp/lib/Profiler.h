@@ -4,26 +4,26 @@ namespace uniq {
 
 struct Profiler;
 
-struct ProfilerTrace : Named { // trace record
+struct TimeTrace : Named { // trace record
   Profiler* session;
   u32 threadId;
-  Time time, duration=0;
-  ProfilerTrace (const string name, Profiler* session): Named(name), session(session){
+  Time start, duration=0;
+  TimeTrace (const string name, Profiler* session): Named(name), session(session){
     threadId = std::hash<thread::id>{}(this_thread::get_id()); 
   }
 };
 
-struct ProfilerProbe : Actor { // time probe
-  ProfilerTrace &trace;
-  ProfilerProbe(ProfilerTrace& trace) : trace(trace) { trace.time = CpuTime(); }
-  ~ProfilerProbe() { trace.duration = trace.time(CpuTime()); }
+struct TimeProbe { // update the trace on destruction
+  TimeTrace &trace;
+  TimeProbe(TimeTrace& trace) : trace(trace) { trace.start = CpuTime(); }
+  ~TimeProbe() { trace.duration = trace.start(CpuTime()); }
 };
 
 struct Profiler : Named { // Controler
 
   ~Profiler() { save(); }
 
-  vector<shared_ptr<ProfilerTrace>> traces; // todo: stats in a map with function names
+  vector<shared_ptr<TimeTrace>> traces; // todo: stats in a map with function names
   mutex vectorLock;
 
   void save() {
@@ -37,7 +37,7 @@ struct Profiler : Named { // Controler
       out(" {", 
         "\"cat\":\"", p->session->name,"\"",
         ", \"name\":\"", p->name,"\"",
-        ", \"ts\":", integer(p->time.micros()),
+        ", \"ts\":", integer(p->start.micros()),
         ", \"dur\":", integer(p->duration.micros()),
         ", \"ph\":", "\"X\"",
         ", \"pid\":", 0,
@@ -50,11 +50,11 @@ struct Profiler : Named { // Controler
     // log.close();
   }
 
-  ProfilerProbe probe(const string name) {
-    shared_ptr<ProfilerTrace> t(make_shared<ProfilerTrace>(name, this));
+  TimeProbe timeit(const string name) {
+    shared_ptr<TimeTrace> t(make_shared<TimeTrace>(name, this));
     lock_guard<mutex> lock(vectorLock);
     traces.push_back(t);
-    return ProfilerProbe (*t);
+    return TimeProbe (*t);
   };
 };
 
@@ -66,4 +66,24 @@ Profiler& profiler(const string session="main"){
   return *r;
 }
 
+#define timeit() auto _timeit = profiler().timeit(__FUNCTION__);
+
+void test_prof_a() { timeit() usleep(50); }
+void test_prof_b() { timeit() usleep(200); }
+void test_prof_f() { timeit() usleep(3000); test_prof_a(); }
+void test_prof_h() { timeit() usleep(2000); test_prof_a(); test_prof_b(); }
+void test_prof_g() { timeit() usleep(1000); test_prof_b(); test_prof_a(); };
+
+TEST(Profiler){
+  vector<thread> workers;
+  workers.push_back(thread(test_prof_f));
+  workers.push_back(thread(test_prof_h));
+  workers.push_back(thread(test_prof_g));
+  for (auto& w : workers) w.join();
+
+  // run(f); run(g); run(h);
+  // join();
+  // profiler().save();
+  CHECK(profiler().traces.size()==8);
+}
 }// uniq • Released under GPL 3.0

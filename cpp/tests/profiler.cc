@@ -2,7 +2,7 @@
 #include "unistd.h" // posix functions
 
 #include "Profiler.h"
-#define timeit() auto _p = profiler("test").probe(__FUNCTION__);
+#define timeit() auto _p = profiler().probe(__FUNCTION__);
 
 void a() { timeit() usleep(50'000); }
 void b() { timeit() usleep(80'000); }
@@ -22,6 +22,7 @@ int main()
 
     // run(f); run(g); run(h);
     // join();
-    return 0;
+
+    profiler().save();
 }
 // adapted from https://gist.github.com/maronsson/073840bf94e4d6df94c5f294a6e96e03

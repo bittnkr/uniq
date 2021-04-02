@@ -7,7 +7,7 @@
 namespace uniq {
 
 struct Benchmark : public Named {
-  inline static Time timeout = 0.2;
+  inline static Time timeout = 0.1;
   static Time overhead;
 
   Time result; 
@@ -16,7 +16,7 @@ struct Benchmark : public Named {
     Time t(CpuTime());
     i64 count = 1;
 
-    while(double(CpuTime(t) < timeout)){
+    while(double(CpuTime(t)) < timeout){
       Time r = CpuTime();
 
       i64 c = count;
@@ -61,8 +61,8 @@ ostream& operator<<(ostream& os, Benchmark& b) {
 //========================================================================= test
 inline i64 test_decr(i64& i) { return --i; }
 
-void test_Benchmark(){
-  CHECK(double(Benchmark("decr(n)", test_decr , 0).result) > 0);
+TEST(Benchmark){
+  CHECK(double(Benchmark("decr(n)", test_decr,1000,0).result) > 0);
 }
 
 }// uniq • Released under GPL 3.0
