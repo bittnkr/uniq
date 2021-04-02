@@ -81,7 +81,7 @@ const u64 GIGA = 1e9;  const double NANO = 1e-9;
 
 // tests ======================================================================
 #include "test.h"
-void test_numtypes(){
+TEST(numtypes){
   CHECK(sizeof(integer) == __WORDSIZE/CHAR_BIT);
   CHECK(rehash(u64(1)) == 0xfffefffefffeffff);
   CHECK(rehash(rehash(u64(1))) == 1);

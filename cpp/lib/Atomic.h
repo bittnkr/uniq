@@ -60,7 +60,7 @@ struct Atomic {
 
 //========================================================================= test
 #include "test.h"
-void test_Atomic(){
+TEST(Atomic){
   Atomic<int> i; CHECK(i == 0);
 
   i = 1;   CHECK(i == 1);

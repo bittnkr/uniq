@@ -15,7 +15,7 @@ auto call(Func&& func, Args&&... args) {
 }
 
 #include "test.h"
-void test_call() {
+TEST(call) {
   auto echo = [](string s) { return s; };
   auto f = call(echo, "Hello");
   CHECK(f() == "Hello");

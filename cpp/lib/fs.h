@@ -17,7 +17,7 @@ string readFile2(char const *filename) {
   return s.str();
 }
 
-void test_fs() {
+TEST(fs) {
   string thisFile = readFile("fs.h");
   string thatFile = readFile2("fs.h");
   CHECK(thisFile == thatFile);

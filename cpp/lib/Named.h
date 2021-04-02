@@ -2,7 +2,6 @@
 // Named • A class with name
 //==============================================================================
 #pragma once
-#include "uniq.h"
 namespace uniq {
 
 //======================================================================= Named
@@ -17,10 +16,11 @@ struct Named {
   bool operator==(const Named &other) const { return name == other.name; };
 };
 
-//================================================================== test_Named
-void test_Named(){
+/*/================================================================== test_Named
+#include "test.h"
+TEST(Named){
   Named alice("Alice"), bob("Bob");
   CHECK(alice.name=="Alice");
   CHECK(alice<bob);
-}
+}//*/
 }// uniq • Released under GPL 3.0

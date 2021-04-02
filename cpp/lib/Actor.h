@@ -7,23 +7,25 @@ class Actor { // : EventEmmiter {
 protected:
 public:
   Actor(){ start(); }
-  Actor(void (*beat_)()){ beat=beat_; Actor(); }
-  ~Actor(){ stop(); }
 
-  bool running;
+  Actor(void (*lambda_)()){ lambda=lambda_; start(); }
+    
+  ~Actor(){  stop(); }
+
+  bool running;  
   virtual void start(){ running = true; } 
   virtual void stop(){ running = false; }
 
-  Time interval;
-  i64 counter=0;
-  Time taken; 
-  voidfunction beat = [this]{ }; 
-  inline void operator()(){ beat(); counter++;}
+  int counter = 0;
+  voidfunction lambda = [this]{ counter++; }; 
+
+  virtual void beat(){ lambda(); };
+
+  inline void operator()(){ beat(); }
 };
 
 // Tests =======================================================================
-#include "test.h"
-void test_Actor() { 
+TEST(Actor) { 
   Actor a; 
   CHECK(a.running);
   a.stop(); CHECK(!a.running);

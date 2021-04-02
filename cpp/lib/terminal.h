@@ -53,7 +53,7 @@ char getch(){ // read a character from stdin without waiting for enter
 
 // Tests =======================================================================
 #include "test.h"
-void test_terminal() {
+TEST(terminal) {
   CHECK(RED+"X"+RST == "\033[31mX\033[0m");
  
   CHECK(colorcode(1)=="\033[22;31m");

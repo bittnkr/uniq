@@ -40,7 +40,7 @@ struct Terminate {
 // void say(string msg) { return Neuron().say(msg); }
 
 //=============================================== test
-// void test_Neuron() {
+// TEST(Neuron) {
 int main() {
   Time t(CpuTime());
 

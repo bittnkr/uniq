@@ -19,7 +19,7 @@
 #include "Color.h" // color primitive
 #include "Atomic.h" // basic atomic types
 #include "Named.h" // class with name
-#include "Id.h" // class with growing id
+#include "Id.h" // incremental id
 #include "Node.h" // parent/children node using shared_ptr
 #include "Actor.h" // common parent for active classes
 #include "queue.h" // the queue

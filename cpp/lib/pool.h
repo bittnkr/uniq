@@ -111,7 +111,7 @@ void test_ping(int v);
 void test_pong(int v) { if (v) run(test_ping, v - 1); else pool.stop(); }
 void test_ping(int v) { run(test_pong, v); rounds++; }
 
-void test_Pool() {
+TEST(Pool) {
   run(test_ping, 999); // start the flow
   WAIT(rounds==1000);
   CHECK(true);

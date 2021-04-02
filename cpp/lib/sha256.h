@@ -211,7 +211,7 @@ string sha256(string input) {
 }
 
 // #define DOCTEST_CONFIG_DISABLE
-void test_sha256(){
+TEST(sha256){
   CHECK(sha256("grape") ==
     "0f78fcc486f5315418fbf095e71c0675ee07d318e5ac4d150050cd8e57966496");
   CHECK(sha256("0") ==

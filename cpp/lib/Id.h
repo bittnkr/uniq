@@ -14,7 +14,6 @@ struct Id {
     lock_guard<mutex> lock(Id::mutexIds); // Mutex(Ids);
     auto r = &Ids[group];
     id = ++(*r);
-    log(group, id);
   };
 
   inline operator integer() const { return id; }
@@ -30,7 +29,7 @@ mutex Id::mutexIds = {};
 // #define ID(x) Id(#x);
 
 //========================================================================= test
-void test_Id(){
+TEST(Id){
   Id a("a"), b("a"), c;
   CHECK(b.id > 0);
   CHECK(b > 0);

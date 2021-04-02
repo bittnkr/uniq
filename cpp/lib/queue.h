@@ -83,7 +83,7 @@ template <typename T> class Queue : public Actor {
 
 // ======================================================================== test
 #include "test.h"
-void test_Queue(){
+TEST(Queue){
   auto t = CpuTime();
   
   Queue<int> q;

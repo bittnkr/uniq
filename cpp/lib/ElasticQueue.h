@@ -41,7 +41,7 @@ template <typename T> class ElasticQueue : public Actor {
 
 // ======================================================================== test
 #include "test.h"
-void test_ElasticQueue(){
+TEST(ElasticQueue){
   auto t = CpuTime();
 
   ElasticQueue<int> q;  

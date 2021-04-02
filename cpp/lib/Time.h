@@ -133,7 +133,7 @@ inline Time CpuTime() { return (ticks()-START_TICKS) * CLOCK_CYCLE; } // 13ns
 inline Time CpuTime(Time prev) { return CpuTime()-prev;}
 
 // tests =======================================================================
-void test_Time() {
+TEST(Time) {
   CHECK(sizeof(Time) == sizeof(double));
   CHECK(u64(CLOCKS_PER_SEC) == MEGA);
 

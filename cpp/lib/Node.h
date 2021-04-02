@@ -39,7 +39,7 @@ struct Node : public Named {
 // ostream& operator<<(ostream& os, Node& t) { return os << t.name; }
 
 //========================================================================= test
-void test_Node() {
+TEST(Node) {
   Node tree("root", 0);
   auto a = tree.addChild("a", 1);
   auto b = tree.addChild("b", 3.14);

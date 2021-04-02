@@ -154,7 +154,7 @@ string anyType(const any v)
 
 // Tests =======================================================================
 #include "test.h"
-void test_utils() {
+TEST(utils) {
   CHECK(sstr("a",1) == "a1");
   CHECK(trim(" a b\t\n") == "a b" );
   CHECK(tolower("ABC") == "abc" );

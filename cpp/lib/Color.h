@@ -28,7 +28,7 @@ Color rgb(u8 r, u8 g, u8 b) { return Color(r, g, b); };
 Color rgb(u32 v) { Color c = Color(v); c.parts.a = 255; return c; }
 Color rgb() { Color c = Color(); c.parts.a = 255; return c; };
 
-void test_Color() { // ================================================= tests 
+TEST(Color) { // ================================================= tests 
   Color c = rgb();
   CHECK(c.value > 0);
   CHECK(c.parts.r == c.array[0]);
