@@ -32,7 +32,7 @@ template <typename T> class ElasticQueue : public Actor<T> {
   }
 
   inline bool full() { return (in-out) >= maxsize; }
-  inline bool empty() { return q.empty; }
+  inline bool empty() { return q.empty(); }
   inline int size() { return in-out; }
   inline int done() { return out-1; }
 };
