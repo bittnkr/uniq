@@ -83,14 +83,14 @@ int main() {
   d = spiralDivisor(n);
   log(" ", t=t());
 
-  pool.showstats = true;
-  pool.start();
+  pool().showstats = true;
+  pool().start();
 
-  log("\nNow using ", pool.size(), " worker threads");
+  log("\nNow using ", pool().workers.size(), " worker threads");
 
   Time tp;
   d = paralelDivisor(n);
-  pool.stop();
+  pool().stop();
 
   // run( [&d,n](){ d = paralelDivisor(n); });
   // WAIT(run( [&d,n](){ d = paralelDivisor(n); }));
@@ -98,6 +98,7 @@ int main() {
   if (d == n) log(count++,". ",n, " ", setprecision(2),  tp=tp());
   
   log("\nSpeedup ", setprecision(2), double(t/tp), "x");
-  pool.sleep(100); // allow std out printing
+  sleep(100); // allow std out printing
+  log("");
   quick_exit(0); // return 0;
 }

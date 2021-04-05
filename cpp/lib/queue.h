@@ -1,42 +1,43 @@
 //==============================================================================
-// Queue • A lock free multi-reader multi-writer circular buffered queue.
+// uniq::Queue • A lock free multi-reader multi-writer circular buffered queue.
 //==============================================================================
 #pragma once
 namespace uniq {
 #include "std.h"
 
-void sleep() { sched_yield(); }
-void sleep(int ms) {this_thread::sleep_for(chrono::milliseconds(ms));}
+inline void sleep() { sched_yield(); }
+inline void sleep(int ms) { usleep(ms*1000); }
+inline const int coreCount() { return thread::hardware_concurrency(); }
+#define WAIT(condition) while(!(condition)) { sleep(); }
 
-#define WAIT(condition) while(!(condition)) { sched_yield(); }
-
-template <typename T> class Queue : public Actor {
-
+// ======================================================================= Queue
+template <typename T> struct Queue: Actor<T> {
+private:
   vector<T> buffer;
   vector<char> isfree;
   atomic<int> in, out;
   int mask = 1;
 
  public:
-  Queue(int size_ = 64) {
-    while (mask < size_) mask *= 2;
+  Queue(int size=1){
+    while (mask < size) mask *= 2;
     buffer = vector<T>(mask, 0);
     isfree = vector<char>(mask, 1);
     out = in = -1; // start in overflow
     mask--; // 01000000 => 00111111
-    running = true;
-  }
-  ~Queue(){ 
-    // log("~Queue()");
-  }
+  } 
+
+  // ~Queue(){  stop(); }
+  // void stop() override { 
+  //   running = false; }
 
   int push(const T &item, bool wait=true) {
     int i;
     do {
       i = in;
-
-      if((full(i) && !wait) || !running) return 0;
-      else WAIT(!full(i));
+// Base<std::vector<InterfaceType> >::myOption = 10;
+      if((full(i) && !wait) || !this->running) return 0;
+      else WAIT(!full(i) || !this->running);
 
     } while (!isfree[i & mask] || !in.compare_exchange_weak(i, i + 1) || !i);
 
@@ -50,8 +51,8 @@ template <typename T> class Queue : public Actor {
     do {
       do { o = out; } while (!o && !out.compare_exchange_weak(o,1)); // skip zero
 
-      if((empty(o) && !wait) || !running) return 0;
-      else WAIT(!empty(o));
+      if((empty(o) && !wait) || !this->running) return 0;
+      else WAIT(!empty(o) || !this->running);
 
     } while (isfree[o & mask] || !out.compare_exchange_weak(o, o + 1));
 
@@ -63,30 +64,30 @@ template <typename T> class Queue : public Actor {
   inline bool full(int i = -1) { 
     if (i<0) i = in; 
     i = (i - out) > mask; 
-    if(i) onfull();
+    if(i) this->onfull();
     return i;
   }
-  virtual void onfull(){ }
 
   inline bool empty(int o = -1) { 
     if (o<0) o = out; 
     o = o == in;
-    if(o) onempty();
+    if(o) this->onempty();
     return o; 
   }
-  virtual void onempty(){ }
 
-  int size() { return mask + 1; }
-  int done() { return out-1; }
-  inline void wait(int c) { while(out < c) sched_yield(); }
+  int size() { return in-out; }
+  int counter() { return out-1; }
+  // inline void wait(int c) { while(out < c) sched_yield(); }
+
+ protected:
+  const T& first() { return buffer[in & mask]; }
+  const T& last() { return buffer[out & mask]; }
 };
 
-// ======================================================================== test
+// ================================================================= TEST(Queue)
 #include "test.h"
 TEST(Queue){
-  auto t = CpuTime();
-  
-  Queue<int> q;
+  Queue<int> q(64);
   vector<thread> threads;
 
   atomic<int> produced(0);
@@ -104,9 +105,11 @@ TEST(Queue){
       consumed += v;
   };
 
+  auto t = CpuTime();
+
   for (int i = 0; i < thread::hardware_concurrency()/2; i++) {
     threads.push_back(thread(consumer));
-    threads.push_back(thread(producer, 1000));
+    threads.push_back(thread(producer, 100000));
   };
 
   for (auto &t : threads) t.join();

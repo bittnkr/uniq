@@ -5,14 +5,20 @@
 #include "uniq.h"
 namespace uniq {
 
-//======================================================================= Hello
+//======================================================================== Hello
 struct Hello: public Named, Id {
+  // fields
+  string msg;
+
+  // constructors & destructor
   Hello(string name = "somebody") : Named(name), Id("Hello") { };
   ~Hello() { say("goodbye."); };
- 
-  string msg;
+
+  // methods
   string say(string s);
-  string operator()(string s){ return say(s); } // functor
+
+  // functor
+  string operator()(string s){ return say(s); }
 };
 
 // streamable cout << Hello()
@@ -23,17 +29,15 @@ ostream& operator<<(ostream& os, Hello& t) {
 // referencing streamable this
 string Hello::say(string s) { msg = s; cout << (*this); return s; }
 
-// utility function
+// utility constructor
 string hello(string msg) { return Hello()(msg); }
 
-/*/=================================================================== test_Hello
+/*/================================================================= TEST(Hello)
 TEST(Hello){
-  CHECK(true);
-  // Hello alice("Alice"), bob("Bob");
+  Hello alice("Alice"), bob("Bob");
+  CHECK(alice.id < bob.id);
   // alice("Hola!");
   // bob("Olá");
-  // hello("Que tal?"); // somebody
+  // hello("Que tal?");
 }//*/
-
 }// uniq • Released under GPL 3.0
-// int main() { uniq::test_hello(); }

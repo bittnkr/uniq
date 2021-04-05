@@ -32,14 +32,14 @@ void consumer()  // takes data from the queue
   out(RED,"-");
   // log("Consumed: ", sum);
 
-  if(Q.empty() && total==0) pool.stop();
+  if(total=0) pool().stop();
 }
 
 int main() {
-  int Workers = 1000; // 100 producers & 1000 consumers
-  int Items = 10000; // each flowing 100k items trough the queue
+  int Workers = 100; // 100 producers & 100 consumers
+  int Items = 100'000; // each flowing 100k items trough the queue
 
-  pool.showstats = true;
+  pool().showstats = true;
 
   log("Creating ",Workers," producers & consumers to flow ",Items*Workers," items through the queue.");
 
@@ -48,11 +48,11 @@ int main() {
     run(producer, Items);
   }
 
-  pool.join();
+  pool().join();
 
   log("\nChecksum: ",total," (it must be zero)");
-  log("tasks: ", pool.todo.done() );
-  log("messages: ", Q.done() );
+  log("tasks: ", pool().counter() );
+  log("messages: ", Q.counter() );
   quick_exit(0); // return 0;
 }
 //uniq • Released under GPL 3.0

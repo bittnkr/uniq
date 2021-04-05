@@ -1,97 +1,108 @@
 #pragma once
 #include "std.h"
+#include "terminal.h"
+namespace uniq {
 
-string exception_message() // https://stackoverflow.com/a/3641809/9464885
-{
-  try { throw; }// rethrow_exception(eptr); }
-  catch (const exception &e) { return e.what()   ; }
-  catch (const string    &e) { return e          ; }
-  catch (const char      *e) { return e          ; }
-  catch (const int        i) { return to_string(i); }
-  catch (const long       l) { return to_string(l); }
-  catch (...)                { return "unknown exception"; }
-}
+#define ASSERT(expr) assert(expr);
+#define ASSERT_INVOCABLE(F,A) static_assert( __is_invocable<typename decay<F>::type, typename decay<A>::type...>::value, "Actor() arguments must be invocable after conversion to rvalues");
 
-void handle_exception(){
-  cerr << exception_message() << "\n";  
-}
+// #ifdef TESTING
+//========================================================================= Test
+struct Test;
 
-#ifdef TESTING
+map<string, Test*> TESTS = {};
 
-  struct Test {
-    string expr;
-    string file;
-    int line;
-    exception ex;
+typedef void (*testFunc)();
 
-    Test(const string expr, const string file, int line)
-        : expr(expr), file(file), line(line) {
-      cout << "CHECK(" << expr << ") failed " << file << ":" << line << "\n";
+struct Test {
+  string name;
+  testFunc func;
+  string file;
+  int line;
+
+  Test(string name, testFunc f, string file, int line) : name(name), func(f), file(file), line(line) {
+    uniq::TESTS[name] = this;
+  }
+};
+
+//=================================================================== TEST(name)
+#define TEST(name)                                                         \
+  void test_##name();                                                      \
+  static uniq::Test test__##name(#name, &test_##name, __FILE__, __LINE__); \
+  void test_##name()
+
+int TEST_PASSED = 0;
+int TEST_FAILED = 0;
+
+//========================================================================= Fail
+struct Fail : public exception {
+  string expr;
+  string func;
+  string file;
+  int line;
+
+  Fail(string expr, string func, string file, int line) : expr(expr), func(func), file(file), line(line) {
+    uniq::TEST_FAILED++;
+  };
+
+	const char * what () const throw (){
+    log("\n", BLD,RED, "  ✗ ", RST, func, "( ", expr, " )", BLD,RED, " failed", RST, " at ", file, ":", BLD, line);
+    return nullptr;
+  }
+};
+
+//=================================================================== runTests()
+void runTests() {
+  log("Running tests...");
+  for (auto [name, test] : TESTS) {
+    out(ORA, test->name, " ");
+    try {
+      test->func();
+      out("\n");
+    } catch (const exception& e) {
+      log(e.what());
     };
   };
+  log(TEST_PASSED, GRN," passed ", TEST_FAILED ? sstr(RST,TEST_FAILED, BLD,RED," failed.") : "");
+  TESTS.clear();
+};
 
-  typedef void (*testFunc)();
+//================================================================== CHECK(expr)
+#define CHECK(expr)                                      \
+  if (expr) {                                            \
+    out(GRN, "✓");                                       \
+    uniq::TEST_PASSED++;                                 \
+  } else {                                               \
+    throw uniq::Fail(#expr, __FUNCTION__, __FILE__, __LINE__); \
+  }//*/
 
-  struct TestCase;
+//======================================================== CHECK_EXCEPTION(expr)
+#define CHECK_EXCEPTION(expr)                            \
+  try {                                                  \
+    expr;                                                \
+    uniq::Fail(#expr, __FUNCTION__, __FILE__, __LINE__); \
+  } catch (std::exception & e) {                         \
+    out(GRN, "✓");                                       \
+    uniq::TEST_PASSED++;                                 \
+  }
 
-  map<string, TestCase*> TESTS = {};
-
-  struct TestCase {
-    string name;    // name of the test case
-    testFunc func;  // a function pointer to the test case
-    string file;    // the file in which the test was registered (using String - see #350)
-    unsigned line;  // the line where the test was registered
-
-    TestCase(string name, testFunc f, string file, unsigned line)
-        : name(name), func(f), file(file), line(line) {
-      TESTS[name] = this;
-    }
-  };
-
-  int TEST_PASSED = 0;
-  int TEST_FAILED = 0;
-
-  void runTests() {
-    cout << "Running tests ------------------------------\n";
-    for (auto [name, test] : TESTS) {
-      test->func();
-      cout << "\033[38;5;202m" << test->name << " \033[0;32mpassed\033[0m\n";
-    }
-    cout << TEST_PASSED << " passed ------------------------------\n";
-  };
-
-  #define CHECK(expr)               \
-    if (expr) {                     \
-      TEST_PASSED++;                \
-    } else {                        \
-      TEST_FAILED++;                \
-      Test(#expr, __FILE__, __LINE__); \
-    }
-
-  #define CHECK_EXCEPTION(expr)        \
-    try {                              \
-      expr;                            \
-      TEST_FAILED++;                   \
-      Test(#expr, __FILE__, __LINE__); \
-    } catch (std::exception & e) {     \
-      TEST_PASSED++;                   \
-    }
-    
-  #define TEST(name)                                                       \
-    void test_##name();                                                    \
-    static TestCase test__##name(#name, &test_##name, __FILE__, __LINE__); \
-    void test_##name()
-
-  #define TEST_CASE(name) TEST(name)
-
-#else
-  #define CHECK(x) ((void)sizeof(#x))
-  #define CHECK_EXCEPTION(x) ((void)sizeof(#x))
-  #define TEST(x) void test_##x()
-  void runTests(){}
-#endif
-
+//=================================================================== runTests()
 TEST(Test) {
+  CHECK_EXCEPTION(throw exception());
   CHECK(1 == 1);
-  CHECK_EXCEPTION(throw invalid_argument("no good"));
+  try{
+    CHECK(1 == 2);
+    throw exception();
+  } catch(...) { 
+    TEST_FAILED--;
+    CHECK(true); 
+  }
 }
+
+// #else
+//   #define CHECK(x) ((void)sizeof(#x))
+//   #define CHECK_EXCEPTION(x) ((void)sizeof(#x))
+//   #define TEST(x) void test_##x()
+//   void runTests(){}
+// #endif
+}// uniq • Released under GPL 3.0

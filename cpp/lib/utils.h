@@ -29,31 +29,6 @@ double round(double v, int places) {
   return v/p; 
 } 
 
-template <typename... Args> 
-string sstr(Args &&... args )
-{
-    ostringstream ss;
-    ( (ss << std::dec) << ... << args );
-    return ss.str();
-}
-
-template <typename... Args> 
-string out(Args &&... args )
-{
-  string r = sstr(args...);
-  cout << r << "\033[0m" << std::flush;
-  return r;
-}
-
-template <typename... Args> 
-string log(Args &&... args )
-{
-  return out(args...,"\n");
-}
-string log(double n) { return uniq::log(n); }
-string log(integer n) { return uniq::log(n); }
-string log(uinteger n) { return uniq::log(n); }
-
 inline string trim(const string &s)
 {
    auto wsfront=find_if_not(s.begin(),s.end(),[](int c){return isspace(c);});

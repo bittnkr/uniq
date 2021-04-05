@@ -54,6 +54,6 @@ int main(){
   for (auto &t : pool) t.join(); // Wait termination
 
   printf("\nChecksum: %ld (it must be zero)\n", total.value);
-  printf("\ntasks: %d\n", Q.done());
+  printf("\ntasks: %d\n", Q.counter());
   return 0; // quick_exit(0);
 }

@@ -12,16 +12,16 @@ void pong(int v) {
 
 void ping(int v) {
   if (v > 0) {run(pong, v); return;};
-  pool.stop();
+  pool().stop();
 }
 
 int main(int argc, char* argv[]) {
-  pool.showstats = true;
+  pool().showstats = true;
   Time t;
 
   run(ping, 1e6);  // start the flow
   
-  pool.join();
-  log("\n\ntotal done: ", pool.todo.done(), " tasks in ", t());
+  pool().join();
+  log("\n\ntotal done: ", pool().counter(), " tasks in ", t());
   quick_exit(0); // return 0;
 }

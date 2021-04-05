@@ -4,30 +4,28 @@
 namespace uniq {
 #include "uniq.h"
 
-template <typename T> class ElasticQueue : public Actor {
+template <typename T> class ElasticQueue : public Actor<T> {
   queue<T> q;
   mutable mutex m;
-  condition_variable c;
+  condition_variable notEmpty;
   atomic<int> in, out;
   int maxsize=0;
  public:
   
-  ElasticQueue(int maxsize = 64) : maxsize(maxsize) {
-    out = in = 1;
-    Actor();
-  }
+  ElasticQueue(int maxsize = 64) 
+    : maxsize(maxsize), Actor<T>() { out = in = 1; }
 
-  int push(T item, bool wait=true) {
-    WAIT(q.size() < maxsize); // 13% slower
+  int push(const T item, bool wait=true) {
+    if(maxsize) WAIT(q.size() < maxsize);
     lock_guard<mutex> lock(m);
     q.push(item);
-    c.notify_one();
+    notEmpty.notify_one();
     return in++;
   }
 
   int pop(T &item, bool wait=true) {
     unique_lock<mutex> lock(m);
-    c.wait(lock, [&]{ return !q.empty(); } );
+    notEmpty.wait(lock, [&]{ return !q.empty(); } );
     item = q.front();
     q.pop();
     return out++; 
@@ -42,7 +40,6 @@ template <typename T> class ElasticQueue : public Actor {
 // ======================================================================== test
 #include "test.h"
 TEST(ElasticQueue){
-  auto t = CpuTime();
 
   ElasticQueue<int> q;  
   vector<thread> threads;
@@ -61,6 +58,8 @@ TEST(ElasticQueue){
     while (q.pop(v) && v != -1)
       consumed++;
   };
+
+  auto t = CpuTime();
 
   for (int i = 0; i < thread::hardware_concurrency()/2; i++) {
     threads.push_back(thread(consumer));

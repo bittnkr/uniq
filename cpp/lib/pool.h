@@ -4,70 +4,52 @@ namespace uniq {
 
 // ThreadPool =================================================================
 // #include "worker.h"
-class ThreadPool : Actor {
- protected:
+struct ThreadPool : public Queue<voidfunction> {
   vector<thread> workers;
   // vector<uniq::Worker&> workers;
-
- public:
-  Queue<voidfunction> todo;
-
-  ThreadPool(int size = 0) { if(size) start(size); else running = 0; };
-
-  void start(int size = 0) { 
-    if (running) return;
-
+  ThreadPool(int size = 0): Queue<voidfunction>(64) {
     if (!size) size = thread::hardware_concurrency();
     for (auto i = 0; i < size; i++) {
-      // workers.push_back(new Worker(todo));
+      // workers.push_back(new Worker(this));
       workers.push_back(thread(&ThreadPool::worker, this, i + 1));
     };
-    Actor::start();
   }
 
-  ~ThreadPool() { stop(); }
+  void join() { for (auto &w : workers) w.join(); }
 
-  void stop() override { todo.running = 0; running = 0; }
+  bool showstats = false;
 
+  void worker(int id) {
+    if(showstats) uniq::out("\n", colorcode(id), sstr("worker[", id, "] started"));
+    int done = 0;
+    Time t, total(0);
+    voidfunction f;
+    while (this->running && pop(f)){
+      t = CpuTime();
+      f();
+      total += t(CpuTime());
+      done++;
+    };
+    if(showstats) uniq::out("\n", colorcode(id), sstr("worker[", id, "] handled ", done, " messages in ", total));
+  };
 
-  void join() { 
-    for (auto &w : workers) if(w.joinable()) w.join();
-    stop();
+  template <typename Func, typename... Args>
+  inline int run(Func &&f, Args &&...args) {
+    // if(!this->running && counter() <= 0) start();
+    // voidfunction vf = [this]()->void { f(args...); }
+    voidfunction vf = bind(forward<Func>(f), forward<Args>(args)...);
+    return push(vf);
   }
 
-  int size() { return workers.size(); }
-  void sleep(int ms=0) {if (ms==0) sched_yield(); else this_thread::sleep_for(chrono::milliseconds(ms)); }
-
-  inline void wait(int id) { while(todo.done() < id) sleep(); }
+  // int size() { return workers.size(); }
+  // void sleep(int ms=0) {if (ms==0) sched_yield(); else this_thread::sleep_for(chrono::milliseconds(ms)); }
+  // inline void wait(int id) { while(counter() < id) sleep(); }
 
   // void wait(int id) {
   //   for (auto &w : workers) {
   //     while (w.done() < id) sleep(1);
   //   };
   // }
-
-  bool showstats = false;
-  
-  void worker(int id) {
-    int done = 0;
-    Time t, total(0);
-    voidfunction f;
-    while (todo.pop(f)){
-      t = CpuTime();
-      f();
-      total += t(CpuTime());
-      done++;
-    };
-    if(showstats) out("\n", colorcode(id), sstr("worker[", id, "] handled ", done, " messages in ", total));
-  };
-
-  template <typename Func, typename... Args>
-  inline int run(Func &&f, Args &&...args) {
-    if(!running) start();
-    // voidfunction vf = [this]()->void { f(args...); }
-    voidfunction vf = bind(forward<Func>(f), forward<Args>(args)...);
-    return todo.push(vf);
-  }
 
   // template <typename Func>
   // map<string, Func> funcs;
@@ -96,24 +78,31 @@ class ThreadPool : Actor {
   // }
 };
 
-ThreadPool pool(0);
+// ====================================================================== pool()
+inline ThreadPool& pool(int size=0) {
+  static ThreadPool p(size);
+  return p;
+}
 
 // run ========================================================================
 template <typename Func, typename... Args>
 inline int run(Func&& f, Args&&... args) {
-  return pool.run(f, args...);
+  return pool().run(f, args...);
 }
 
 // tests =======================================================================
-atomic<int> rounds = 0;
+Atomic<int> rounds = 0;
 void test_ping(int v);
 
-void test_pong(int v) { if (v) run(test_ping, v - 1); else pool.stop(); }
+void test_pong(int v) { if (v) run(test_ping, v - 1); else pool().stop(); }
 void test_ping(int v) { run(test_pong, v); rounds++; }
 
 TEST(Pool) {
+  // CHECK(!pool().running);
+  pool().start();
   run(test_ping, 999); // start the flow
-  WAIT(rounds==1000);
-  CHECK(true);
+  pool().join();
+  CHECK(rounds==1000);
+  // CHECK(!pool().running);
 }
 }// uniq • Released under GPL 3.0

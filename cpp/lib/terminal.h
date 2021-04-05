@@ -1,4 +1,5 @@
 #pragma once
+#include "std.h"
 namespace uniq {
 
 const string RST("\033[0m"); // reset
@@ -51,14 +52,46 @@ char getch(){ // read a character from stdin without waiting for enter
   return input;
 }
 
-// Tests =======================================================================
-#include "test.h"
-TEST(terminal) {
-  CHECK(RED+"X"+RST == "\033[31mX\033[0m");
- 
-  CHECK(colorcode(1)=="\033[22;31m");
-  CHECK(colorcode(13)=="\033[22;37m");
-  // for (auto i = 0; i < 20; i++)
-  //   log(colorcode(i),i," ",replace(colorcode(i),"\033",""),RST);
+string exception_message() // https://stackoverflow.com/a/3641809/9464885
+{
+  try { throw; }// rethrow_exception(eptr); }
+  catch (const exception &e) { return e.what()   ; }
+  catch (const string    &e) { return e          ; }
+  catch (const char      *e) { return e          ; }
+  catch (const int        i) { return to_string(i); }
+  catch (const long       l) { return to_string(l); }
+  catch (...)                { return "unknown exception"; }
 }
+
+void handle_exception(){
+  cerr << exception_message() << "\n";  
+}
+
+template <typename... Args> 
+string sstr(Args &&... args )
+{
+    ostringstream ss;
+    ( (ss << std::dec) << ... << args );
+    return ss.str();
+}
+
+template <typename... Args> 
+string out(Args &&... args )
+{
+  string r = sstr(args...);
+  cout << r << "\033[0m" << std::flush;
+  return r;
+}
+
+template <typename... Args> 
+string log(Args &&... args )
+{
+  return out(args...,"\n");
+}
+
+template <typename... Args> 
+string log(double n, Args &&... args ){
+  return out(n, args...,"\n");
+}
+
 }// uniq • Released under GPL 3.0
