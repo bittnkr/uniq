@@ -6,11 +6,12 @@
 namespace uniq {
 
 //========================================================================== Log
-struct Log : public Actor, Named, Id {
+class Log : public Actor<string>, public Named{ //}, Id {
+public:
   bool hasColors = 1;
   ElasticQueue<string> Q; // Queue of strings waiting to be flushed
 
-  Log(string name="console") : Named(name), Id("Log") { };
+  Log(string name="console") : Named(name){};//, Id("Log") { };
 
   // ~Log() { flush(); };
   // virtual void beat(){ flush(); };
