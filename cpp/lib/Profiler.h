@@ -1,72 +1,75 @@
+//==============================================================================
+// Profiler • A collection of TimeTraces
+//==============================================================================
 #pragma once
 #include "uniq.h"
 namespace uniq {
 
-struct Profiler;
-
+//==================================================================== TimeTrace
 struct TimeTrace : Named { // trace record
-  Profiler* session;
   u32 threadId;
   Time start, duration=0;
-  TimeTrace (const string name, Profiler* session): Named(name), session(session){
-    threadId = std::hash<thread::id>{}(this_thread::get_id()); 
+  // TimeTrace (TimeTrace& t) { name=t.name; threadId=t.threadId; start=t.start, duration=t.duration; }
+  TimeTrace (const string name=""): Named(name){
+    start = CpuTime();
+    threadId = std::hash<thread::id>{}( this_thread::get_id() ); 
   }
 };
 
-struct TimeProbe { // update the trace on destruction
-  TimeTrace &trace;
-  TimeProbe(TimeTrace& trace) : trace(trace) { trace.start = CpuTime(); }
-  ~TimeProbe() { trace.duration = trace.start(CpuTime()); }
-};
+//===================================================================== Profiler
+struct Profiler : Named { 
 
-struct Profiler : Named { // Controler
+  ElasticQueue<shared_ptr<TimeTrace>> traces; 
 
-  ~Profiler() { save(); }
-
-  vector<shared_ptr<TimeTrace>> traces; // todo: stats in a map with function names
-  mutex vectorLock;
+  // ~Profiler() { save(); }
 
   void save() {
     // auto log = log.open(name + "-profiler.json");
 
     log("{\"otherData\": {}, \"traceEvents\":[");
 
-    for (auto it=traces.begin(); it != traces.end() ;)
-    {
-      auto p = *it;
+    shared_ptr<TimeTrace> t;
+    while(traces.pop(t)){
       out(" {", 
-        "\"cat\":\"", p->session->name,"\"",
-        ", \"name\":\"", p->name,"\"",
-        ", \"ts\":", integer(p->start.micros()),
-        ", \"dur\":", integer(p->duration.micros()),
+        "\"cat\":\"", name,"\"",
+        ", \"name\":\"", t->name,"\"",
+        ", \"ts\":", integer(t->start.micros()),
+        ", \"dur\":", integer(t->duration.micros()),
         ", \"ph\":", "\"X\"",
         ", \"pid\":", 0,
-        ", \"tid\":", p->threadId, "}"
+        ", \"tid\":", t->threadId, "}"
       );
-      if(++it == traces.end()) break;
-      log(",");
+      if(!traces.empty()) log(",");
     };
     log("\n]}");
     // log.close();
   }
-
-  TimeProbe timeit(const string name) {
-    shared_ptr<TimeTrace> t(make_shared<TimeTrace>(name, this));
-    lock_guard<mutex> lock(vectorLock);
-    traces.push_back(t);
-    return TimeProbe (*t);
-  };
 };
 
-// simple constructor & session manager
-Profiler& profiler(const string session="main"){
+//============================================================ profiler(session)
+Profiler& profiler(const string session=""){ // singleton session manager
   static map<string, Profiler> sessions;
   auto r =  &sessions[session];
   if (r->name != session){ r->name = session; }
   return *r;
 }
 
-#define timeit() auto _timeit = profiler().timeit(__FUNCTION__);
+//==================================================================== TimeProbe
+struct TimeProbe { // update the trace on release
+  TimeTrace &trace;
+
+  TimeProbe(TimeTrace &trace) : trace(trace) { }
+  ~TimeProbe() { trace.duration = CpuTime(trace.start); }
+};
+
+//====================================================================== probe()
+TimeProbe probe(const string name=__FUNCTION__, const string session="") {
+  shared_ptr<TimeTrace> trace(make_shared<TimeTrace>(name));
+  profiler(session).traces.push(trace);
+  return TimeProbe(*trace);
+};
+
+#define timeit() auto _probe = probe();
 
 void test_prof_a() { timeit() usleep(50); }
 void test_prof_b() { timeit() usleep(200); }
@@ -83,6 +86,7 @@ TEST(Profiler){
 
   // run(f); run(g); run(h);
   // join();
+
   // profiler().save();
   CHECK(profiler().traces.size()==8);
 }
