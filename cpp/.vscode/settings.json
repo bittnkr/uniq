@@ -118,5 +118,7 @@
         "memberOperatorOverload": {"foreground": "#ff8888", "fontStyle": ""},   // Operator Overload Member
       }
     }
-  }
+  },
+  "cmake.sourceDirectory": "${workspaceFolder}/tests",
+  "cmake.configureOnOpen": false
 }

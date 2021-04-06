@@ -25,18 +25,3 @@ int main() {
   return 0;
 }
 //uniq • Released under GPL 3.0
-
-// void hello(string s, int N) {
-//   for(auto i=0; i < N-1; i++)
-//     run(hello, s, i);
-//   if (N % 100 == 0)
-//     log(N, " Hello ", s);
-//   if(N==0){
-//     pool().showstats = true;
-//     pool().stop();
-//   }
-// }
-// int main() { 
-//   run(hello, "World", 1000);
-//   pool().join();
-// }

@@ -2,6 +2,35 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "cmake tests",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/bin/tests",
+      // "stopAtEntry": true,
+      "cwd": "${workspaceFolder}",
+      "args": [],
+      "environment": [],
+      //"externalConsole": true,
+      "preLaunchTask": "cmake build tests",
+      "MIMode": "gdb",
+      "miDebuggerArgs": "-q -ex quit; wait() { fg >/dev/null; }; /bin/gdb -q --interpreter=mi",
+      "miDebuggerPath": "/usr/bin/gdb",
+      "sourceFileMap": {
+        "/c/": "C:/"
+      },
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        },
+        {
+          "description": "Skip library files",
+          "text": "-interpreter-exec console \"skip -gfi **/bits/*.h\""
+        }
+      ],
+    },
+    {
       "name": "g++ tests",
       "type": "cppdbg",
       "request": "launch",
@@ -15,7 +44,9 @@
       "MIMode": "gdb",
       "miDebuggerArgs": "-q -ex quit; wait() { fg >/dev/null; }; /bin/gdb -q --interpreter=mi",
       "miDebuggerPath": "/usr/bin/gdb",
-      "sourceFileMap": { "/c/": "C:/"},
+      "sourceFileMap": {
+        "/c/": "C:/"
+      },
       "setupCommands": [
         {
           "description": "Enable pretty-printing for gdb",
@@ -25,7 +56,7 @@
         {
           "description": "Skip library files",
           "text": "-interpreter-exec console \"skip -gfi **/bits/*.h\""
-        }  
+        }
       ],
     },
     {
