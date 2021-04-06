@@ -46,9 +46,9 @@ string colorcode(int i, vector<int> pallete = RAINBOW) {
 }
 
 char getch(){ // read a character from stdin without waiting for enter
-  system("stty raw"); // Set the terminal to raw mode 
+  int r = system("stty raw"); // Set the terminal to raw mode 
   char input = getchar(); 
-  system("stty cooked"); 
+  r = system("stty cooked"); 
   return input;
 }
 

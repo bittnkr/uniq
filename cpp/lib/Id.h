@@ -11,7 +11,7 @@ struct Id {
 
   integer id;
   Id(string group = ""){ 
-    if(group == "") group = anyType(this);
+    if(group == "") group = anyType(*this);
     lock_guard<mutex> lock(Id::mutexIds); // Mutex(Ids);
     auto r = &Ids[group];
     id = ++(*r);

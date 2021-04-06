@@ -6,12 +6,13 @@
 namespace uniq {
 
 //======================================================================== Hello
-struct Hello: public Named, Id {
+struct Hello: public Named {
   // fields
   string msg;
+  integer id = Id("Hello");
 
   // constructors & destructor
-  Hello(string name = "somebody") : Named(name), Id("Hello") { };
+  Hello(string name = "somebody") : Named(name) { };
   ~Hello() { say("goodbye."); };
 
   // methods

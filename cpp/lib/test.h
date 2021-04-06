@@ -46,7 +46,7 @@ struct Fail : public exception {
   };
 
 	const char * what () const throw (){
-    log("\n", BLD,RED, "  ✗ ", RST, func, "( ", expr, " )", BLD,RED, " failed", RST, " at ", file, ":", BLD, line);
+    log("\n", BLD,RED," ✗ ", RST,GRN,func, RST,"{", MAG,"CHECK",RST,"(",expr, ")} ", BLD,RED,"failed", RST," at ",file,":", line);
     return nullptr;
   }
 };
