@@ -107,6 +107,7 @@
         "-Wfatal-errors", // stop on first error
         "-lpthread",
         "-ldw", // libunwid for backward.hpp
+        "-fstandalone-debug",
         // "-fopenmp",
         // "-msse3",
         // "-save-temps"
@@ -148,6 +149,7 @@
         "-fpermissive",
         "-Wfatal-errors", // stop on first error
         "-lpthread",
+        "-fstandalone-debug",
         "-ldw", // libunwid for backward.hpp
         // "-fopenmp",
         // "-msse3",

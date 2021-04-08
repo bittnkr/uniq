@@ -3,106 +3,135 @@
 #include "terminal.h"
 namespace uniq {
 
-#define ASSERT(expr) assert(expr);
-#define ASSERT_INVOCABLE(F,A) static_assert( __is_invocable<typename decay<F>::type, typename decay<A>::type...>::value, "Actor() arguments must be invocable after conversion to rvalues");
+#ifdef TESTING
+//========================================================================= TestCase
+bool MUTE_TESTS = 0;
+bool SILENT_TESTS = 0;
 
-// #ifdef TESTING
+#define OUT(...) if(!(SILENT_TESTS||MUTE_TESTS)) { out(__VA_ARGS__); }
+#define FAIL(...) if(!MUTE_TESTS) { out(__VA_ARGS__); }
+
+int TEST_PASSED = 0;
+int TEST_FAILED = 0;
+int TEST_EXCEPTION = 0;
+
+const string TEST_OK =  BLD+GRN+"✓"+RST;
+const string TEST_FAIL = BLD+RED+"✘"+RST;
+const string TEST_EXCEPT = "💥";
+
+class Fail : public exception{
+	const char * what () const throw (){
+    return "uniq::Fail"; 
+  }
+};
+
 //========================================================================= Test
-struct Test;
+struct Test : public Named {
+  bool passed;
+  string expr;
+  string file;
+  int line;
+  exception ex;
 
-map<string, Test*> TESTS = {};
+  Test(bool passed, string expr, string func, string file, int line) : Named(func), passed(passed), expr(expr), file(file), line(line) {
+    if (passed) {
+      uniq::TEST_PASSED++;
+      OUT(TEST_OK);
+    } else {
+      uniq::TEST_FAILED++;
+      if(SILENT_TESTS) FAIL(ORA, split(name,'_').back(), " ");
+      FAIL(TEST_FAIL, GRY,"(", BLD, RED, expr, GRY, ")", RST, "(", file, ":", line, ")\n");
+      throw Fail();
+    }
+  };
+
+  Test(const exception& ex, string func, string file, int line) : Named(func), ex(ex), file(file), line(line) {
+    if (ex.what() == string("uniq::Fail")) return;
+    uniq::TEST_EXCEPTION++;
+    if(SILENT_TESTS) FAIL(ORA, split(func,'_').back());
+    FAIL(TEST_EXCEPT, GRY,"(", RED,BLD,ex.what(), GRY,")", RST,"(",file,":",line,")\n");
+  };
+};
+
+//================================================================== CHECK(expr)
+#define CHECK(expr) uniq::Test((expr), #expr, __FUNCTION__, __FILE__, __LINE__)
+
+//======================================================== CHECK_EXCEPTION(expr)
+#define CHECK_EXCEPTION(expr)                                   \
+  try {                                                         \
+    (expr);                                                     \
+    uniq::Test(false, #expr, __FUNCTION__, __FILE__, __LINE__); \
+  } catch (std::exception & e) {                                \
+    uniq::Test(true, #expr, __FUNCTION__, __FILE__, __LINE__);  \
+  }
+
+// #define TESTLOG(name)                                                      \
+//   void test_##name(Log log=Log(name));                                     \
+//   static uniq::TestCase test__##name(#name, &test_##name, __FILE__, __LINE__); \
+//   void test_##name(Log log=Log(name))
+
+struct TestCase;
+vector<pair<string, TestCase*>> TESTS = {};
 
 typedef void (*testFunc)();
 
-struct Test {
-  string name;
+struct TestCase: Named {
   testFunc func;
   string file;
   int line;
 
-  Test(string name, testFunc f, string file, int line) : name(name), func(f), file(file), line(line) {
-    uniq::TESTS[name] = this;
+  TestCase(string name, testFunc f, string file, int line) : Named(name), func(f), file(file), line(line) {
+    uniq::TESTS.push_back(make_pair(name, this));
   }
+
+  void run(){
+    OUT(ORA, name, " ");
+    try {
+      auto t = CpuTime();
+      func();
+      t = t(CpuTime());
+      if (t > MILI) OUT(GRN, " ", t); // show time if took > 1ms
+      OUT(GRY, " (", GRY, split(file, '/').back(), ":", line, ")\n");
+    } catch (const exception& e) {
+      Test(e, name, file, line);
+    };
+  }
+};
+
+//=================================================================== runTests()
+int runTests() {
+  string line = GRY +  repeat("=", 80);
+  OUT("Running tests...\n", line, "\n");
+
+  for (auto [name, test] : TESTS)
+    test->run();
+
+  OUT(line,"\n");
+  FAIL(TEST_OK," ", TEST_PASSED
+    , TEST_FAILED ? sstr("  ",TEST_FAIL," ", TEST_FAILED) : ""
+    , TEST_EXCEPTION ? sstr("  ", TEST_EXCEPT," ",TEST_EXCEPTION) : "", "\n" );
+
+  TESTS.clear();
+  return TEST_FAILED + TEST_EXCEPTION;
 };
 
 //=================================================================== TEST(name)
-#define TEST(name)                                                         \
-  void test_##name();                                                      \
-  static uniq::Test test__##name(#name, &test_##name, __FILE__, __LINE__); \
+#define TEST(name)                                                             \
+  void test_##name();                                                          \
+  static uniq::TestCase test__##name(#name, &test_##name, __FILE__, __LINE__); \
   void test_##name()
 
-int TEST_PASSED = 0;
-int TEST_FAILED = 0;
-
-//========================================================================= Fail
-struct Fail : public exception {
-  string expr;
-  string func;
-  string file;
-  int line;
-
-  Fail(string expr, string func, string file, int line) : expr(expr), func(func), file(file), line(line) {
-    uniq::TEST_FAILED++;
-  };
-
-	const char * what () const throw (){
-    log("\n", BLD,RED," ✗ ", RST,GRN,func, RST,"{", MAG,"CHECK",RST,"(",expr, ")} ", BLD,RED,"failed", RST," at ",file,":", line);
-    return nullptr;
-  }
-};
-
-//=================================================================== runTests()
-void runTests() {
-  log("Running tests...");
-  for (auto [name, test] : TESTS) {
-    out(ORA, test->name, " ");
-    try {
-      test->func();
-      out("\n");
-    } catch (const exception& e) {
-      log(e.what());
-    };
-  };
-  log(TEST_PASSED, GRN," passed ", TEST_FAILED ? sstr(RST,TEST_FAILED, BLD,RED," failed.") : "");
-  TESTS.clear();
-};
-
-//================================================================== CHECK(expr)
-#define CHECK(expr)                                      \
-  if (expr) {                                            \
-    out(GRN, "✓");                                       \
-    uniq::TEST_PASSED++;                                 \
-  } else {                                               \
-    throw uniq::Fail(#expr, __FUNCTION__, __FILE__, __LINE__); \
-  }//*/
-
-//======================================================== CHECK_EXCEPTION(expr)
-#define CHECK_EXCEPTION(expr)                            \
-  try {                                                  \
-    expr;                                                \
-    uniq::Fail(#expr, __FUNCTION__, __FILE__, __LINE__); \
-  } catch (std::exception & e) {                         \
-    out(GRN, "✓");                                       \
-    uniq::TEST_PASSED++;                                 \
-  }
-
-//=================================================================== runTests()
+//=================================================================== TEST(TestCase)
 TEST(Test) {
-  CHECK_EXCEPTION(throw exception());
   CHECK(1 == 1);
-  try{
-    CHECK(1 == 2);
-    throw exception();
-  } catch(...) { 
-    TEST_FAILED--;
-    CHECK(true); 
-  }
+  CHECK_EXCEPTION(throw exception());
+  // CHECK(false); // to see a failure
+  // throw exception(); // to see an exception
 }
-
-// #else
-//   #define CHECK(x) ((void)sizeof(#x))
-//   #define CHECK_EXCEPTION(x) ((void)sizeof(#x))
-//   #define TEST(x) void test_##x()
-//   void runTests(){}
-// #endif
-}// uniq • Released under GPL 3.0
+#else
+  #define CHECK(x) ((void)sizeof(#x))
+  #define CHECK_EXCEPTION(x) ((void)sizeof(#x))
+  #define TEST(x) void test_##x()
+  int runTests(){ return 0; }
+#endif
+}  // namespace uniq

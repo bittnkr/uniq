@@ -24,7 +24,7 @@ struct ThreadPool : public Queue<voidfunction> {
     int done = 0;
     Time t, total(0);
     voidfunction f;
-    while (this->running && pop(f)){
+    while (this->running() && pop(f)){
       t = CpuTime();
       f();
       total += t(CpuTime());
@@ -35,7 +35,8 @@ struct ThreadPool : public Queue<voidfunction> {
 
   template <typename Func, typename... Args>
   inline int run(Func &&f, Args &&...args) {
-    // if(!this->running && counter() <= 0) start();
+    if(!this->running() && counter() < 0) 
+      start();
     // voidfunction vf = [this]()->void { f(args...); }
     voidfunction vf = bind(forward<Func>(f), forward<Args>(args)...);
     return push(vf);
@@ -98,11 +99,9 @@ void test_pong(int v) { if (v) run(test_ping, v - 1); else pool().stop(); }
 void test_ping(int v) { run(test_pong, v); rounds++; }
 
 TEST(Pool) {
-  // CHECK(!pool().running);
   pool().start();
   run(test_ping, 999); // start the flow
   pool().join();
   CHECK(rounds==1000);
-  // CHECK(!pool().running);
 }
 }// uniq • Released under GPL 3.0

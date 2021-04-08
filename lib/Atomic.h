@@ -58,24 +58,4 @@ struct Atomic {
   operator T() const { T v; __atomic_load(&value, &v, CST); return v; }
 };
 
-//========================================================================= test
-#include "test.h"
-TEST(Atomic){
-  Atomic<int> i; CHECK(i == 0);
-
-  i = 1;   CHECK(i == 1);
-  i = i+1; CHECK(i == 2);
-  i = i-1; CHECK(i == 1);
-  i |= 3;  CHECK(i == 3);
-  i &= 1;  CHECK(i == 1);
-
-  CHECK(i.CAS(1,2) && i == 2);
-  CHECK(!i.CAS(3,1) && i == 2);
-
-  CHECK(i++ == 2 && i == 3);
-  CHECK(i-- == 3 && i == 2);
-  CHECK(++i == 3);
-  CHECK(--i == 2);
-}
-
 }// uniq • Released under GPL 3.0

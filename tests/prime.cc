@@ -12,10 +12,10 @@ u64 firstDivisor0(u64 n) { // O(0.5 sqrt(n))
   return n; // is prime
 }
 
-// spiral algorithm test fewer candidates
+// spiral algorithm test fewer candidates. www.primesdemystified.com
 u64 spiral(u64 n, u64 min, u64 max) { // O(0.27 sqrt(n))
   // log("block: ",min," ",max);
-  for (u64 i = min; i <= max; i += 30) {
+  for (u64 i = min; i <= max; i += 30) { // todo: use SIMD
     u64 j = i;
     // if (j >= 6000000) asm("int3");
     if (!(n % j)) return j;
@@ -53,18 +53,11 @@ u64 paralelDivisor(u64 n) {
 
   for (u64 b = block; (result == n) && b < sqrt(n); b += blockSize) {
 
-    run([&](u64 n, u64 min, u64 max) { 
-        // this lambda runs in a worker thread
-        u64 res = spiral(n, min, max);
-        if (res < n) result = res;
-      },
-      n, b, b + blockSize
-    );
+    run([&]{ // this lambda runs in a worker thread
+      u64 res = spiral(n, b, b + blockSize);
+      if (res < n) result = res;
+    });
 
-    // run([&]() { // smaller but slower
-    //   u64 res = spiral(n, b, b + blockSize);
-    //   if (res < n) result = res;
-    // });
   }
   // emit('prime',n);
   return result;
@@ -77,7 +70,6 @@ int main() {
   int count = 1;
   int sumtime = 0;
 
-  // single threaded
   out("Single threaded brute force primality test of: \n", n);
   Time t;
   d = spiralDivisor(n);
@@ -92,8 +84,7 @@ int main() {
   d = paralelDivisor(n);
   pool().stop();
 
-  // run( [&d,n](){ d = paralelDivisor(n); });
-  // WAIT(run( [&d,n](){ d = paralelDivisor(n); }));
+  // WAIT( run( [&d,n]{ d = paralelDivisor(n); }) );
 
   if (d == n) log(count++,". ",n, " ", setprecision(2),  tp=tp());
   

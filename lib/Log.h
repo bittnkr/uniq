@@ -2,26 +2,22 @@
 // Log • A Logging utility
 //==============================================================================
 #pragma once
-#include "uniq.h"
 namespace uniq {
-
 //========================================================================== Log
-class Log : public Actor<string>, public Named{ 
+class Log : public uniq::OpenQueue<string>, public Named{ 
 public:
   bool hasColors = 1;
-  ElasticQueue<string> Q; // Queue of strings waiting to be flushed
+  OpenQueue<string> Q; // Queue of strings waiting to be flushed
 
   Log(string name="console") : Named(name){ };
 
-  // ~Log() { flush(); };
-  // virtual void beat(){ flush(); };
-
-  virtual void flush() { 
+  virtual void flush(ostream &stream) { 
     string s;
-    while(Q.pop(s,0)){ 
-      cout << s << "\033[0m" << std::flush;
-    }
+    while(Q.pop(s,0)) stream << s;
+    stream << RST << std::flush;
   };
+
+  void flush() { flush(cout); }
   
   template <typename... Args> 
   string operator()(Args &&... args ){
@@ -29,6 +25,11 @@ public:
     Q.push(r);
     return r;
   };
+
+  inline int ready(){ return Q.size(); }
+
+  ~Log() { flush(); };
+  virtual void beat(){ flush(); };
 };
 
 // ostream& operator<<(ostream& os, Log& t) { return os << string(id, '|') << name << " log: " << msg << endl; }
@@ -44,11 +45,4 @@ string logn(Args &&... args ){
 // string log(integer n) { return uniq::log(n); }
 // string log(uinteger n) { return uniq::log(n); }
 
-//===================================================================== test_Log
-TEST(Log){
-  Log say, err("cerr");
-  say("Hola!");
-  err("Olá");
-  // log("To be or not?");
-}
 }// uniq • Released under GPL 3.0

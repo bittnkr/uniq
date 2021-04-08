@@ -14,7 +14,8 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 target_link_libraries(${PROJECT_NAME} Threads::Threads)
 
-set(CMAKE_CXX_FLAGS_INIT "-Werror -Wall -Wextra -Wpedantic")
+# -Wall -Wextra -Wpedantic
+set(CMAKE_CXX_FLAGS_INIT "-Werror -c -g -rdynamic -fpermissive -Wfatal-errors -fcompare-debug-second" )
 
 add_definitions(-std=c++17 -O3) # -m64)
 

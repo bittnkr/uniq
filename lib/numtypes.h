@@ -78,16 +78,4 @@ u64 rehash(u64 n){
 const u64 KILO = 1e3;  const double MILI = 1e-3; 
 const u64 MEGA = 1e6;  const double MICRO = 1e-6; 
 const u64 GIGA = 1e9;  const double NANO = 1e-9; 
-
-// tests ======================================================================
-#include "test.h"
-TEST(numtypes){
-  CHECK(sizeof(integer) == __WORDSIZE/CHAR_BIT);
-  CHECK(rehash(u64(1)) == 0xfffefffefffeffff);
-  CHECK(rehash(rehash(u64(1))) == 1);
-
-  CHECK(i32(-4) + u32(2) == 4294967294);
-  CHECK(i64(-4) + u32(2) == -2);
-  CHECK(i64(-4) + u32(2) == 18446744073709551614UL);
-}
 // uniq • Released under GNU 3.0

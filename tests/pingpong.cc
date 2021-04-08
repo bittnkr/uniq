@@ -29,7 +29,7 @@ int main() {
   pool().start();
   pool().showstats = true;
   
-  run(ping, 1e6); // start the flow
+  run(ping, 10e6); // start the flow
 
   pool().join();
   

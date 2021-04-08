@@ -19,7 +19,7 @@ struct TimeTrace : Named { // trace record
 //===================================================================== Profiler
 struct Profiler : Named { 
 
-  ElasticQueue<shared_ptr<TimeTrace>> traces; 
+  OpenQueue<shared_ptr<TimeTrace>> traces; 
 
   // ~Profiler() { save(); }
 

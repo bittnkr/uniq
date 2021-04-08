@@ -1,7 +1,35 @@
 #pragma once
-#include "uniq.h"
-#include "terminal.h"
+#include "std.h"
+#include "numtypes.h"
 namespace uniq {
+
+string exception_message() // https://stackoverflow.com/a/3641809/9464885
+{
+  try { throw; }// rethrow_exception(eptr); }
+  catch (const exception &e) { return e.what()   ; }
+  catch (const string    &e) { return e          ; }
+  catch (const char      *e) { return e          ; }
+  catch (const int        i) { return to_string(i); }
+  catch (const long       l) { return to_string(l); }
+  catch (...)                { return "unknown exception"; }
+}
+
+void handle_exception(){
+  cerr << exception_message() << "\n";  
+}
+
+template <typename... Args> 
+string sstr(Args &&... args )
+{
+    ostringstream ss;
+    ( (ss << std::dec) << ... << args );
+    return ss.str();
+}
+
+template <typename... Args> 
+void check(bool expr, Args &&... args ){
+  if(!expr) throw invalid_argument(sstr(args...));
+}
 
 string format(const string s, ...) {
   va_list ap;
@@ -38,7 +66,7 @@ inline string trim(const string &s)
 
 string tolower(const string s){
   string r = s;
-  for(auto &c : r){ c = std::tolower(c); }
+  for(auto &c : r){ c = ::tolower(c); }
   return r;
 }
 
@@ -48,6 +76,16 @@ string join(const vector<string>& v, string delimiter=" ") {
   for (auto i = 1; i < v.size(); i++)
     r += delimiter + v[i];
   return r;
+}
+
+vector<string> split(string text, char delim) {
+    string line;
+    vector<string> vec;
+    stringstream ss(text);
+    while(getline(ss, line, delim)) {
+        vec.push_back(line);
+    }
+    return vec;
 }
 
 string repeat(string s, int n) {
@@ -83,7 +121,7 @@ string anyType(const any v)
 {
   string t = v.type().name();
   t = demangle(t.c_str());
-  t = replace(t,"std::","");
+  t = replace(t,"","");
   t = replace(t,"__cxx11::","");
   t = replace(t,"basic_string<char, char_traits<char>, allocator<char> >","string");
   t = replace(t,"char const .*? ","char");
@@ -112,15 +150,4 @@ string anyType(const any v)
 //   return r;
 // }
 
-// Tests =======================================================================
-#include "test.h"
-TEST(utils) {
-  CHECK(sstr("a",1) == "a1");
-  CHECK(trim(" a b\t\n") == "a b" );
-  CHECK(tolower("ABC") == "abc" );
-  CHECK(format("%d-%s",1,"a") == "1-a" );
-  CHECK(join({"a","b","c"},"-") == "a-b-c" );
-  CHECK(repeat("12",3) == "121212");
-  CHECK(replace("a:=1",":=","=") == "a=1");
-};
 }// uniq • Released under GPL 3.0

@@ -32,12 +32,13 @@ void consumer()  // takes data from the queue
   out(RED,"-");
   // log("Consumed: ", sum);
 
-  if(total=0) pool().stop();
+  if(total<=0 && pool().empty()) 
+    pool().stop();
 }
 
 int main() {
-  int Workers = 100; // 100 producers & 100 consumers
-  int Items = 100'000; // each flowing 100k items trough the queue
+  int Workers = 1000; // 1000 producers & 1000 consumers
+  int Items = 1000; // each flowing 1000 items trough the queue
 
   pool().showstats = true;
 

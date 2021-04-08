@@ -1,6 +1,7 @@
 // Hello world for uniq library
 // compile using ./build hello
 #include "uniq.h"
+using namespace uniq;
 
 void hello(string s, int N) { 
 
@@ -21,7 +22,7 @@ int main() {
   run(hello, "World", 1e6); // say hello in paralel a million times
   
   pool().join();
-  
+  log("");
   return 0;
 }
 //uniq • Released under GPL 3.0
