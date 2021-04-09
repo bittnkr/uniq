@@ -1,16 +1,14 @@
 #pragma once
-#include "std.h"
-#include "terminal.h"
 namespace uniq {
 
-#ifdef TESTING
-//========================================================================= TestCase
-bool MUTE_TESTS = 0;
-bool SILENT_TESTS = 0;
+// #ifdef TESTING
+bool SILENT_TESTS = 0; // omit successul tests
+bool MUTE_TESTS = 0; // omit even failures, just return success or failure
 
 #define OUT(...) if(!(SILENT_TESTS||MUTE_TESTS)) { out(__VA_ARGS__); }
 #define FAIL(...) if(!MUTE_TESTS) { out(__VA_ARGS__); }
 
+int TEST_COUNT = 0;
 int TEST_PASSED = 0;
 int TEST_FAILED = 0;
 int TEST_EXCEPTION = 0;
@@ -70,18 +68,19 @@ struct Test : public Named {
 //   static uniq::TestCase test__##name(#name, &test_##name, __FILE__, __LINE__); \
 //   void test_##name(Log log=Log(name))
 
+//========================================================================= TestCase
 struct TestCase;
 vector<pair<string, TestCase*>> TESTS = {};
 
 typedef void (*testFunc)();
 
-struct TestCase: Named {
+struct TestCase: public Named {
   testFunc func;
   string file;
   int line;
 
   TestCase(string name, testFunc f, string file, int line) : Named(name), func(f), file(file), line(line) {
-    uniq::TESTS.push_back(make_pair(name, this));
+    TESTS.push_back(make_pair(name, this));
   }
 
   void run(){
@@ -115,11 +114,18 @@ int runTests() {
   return TEST_FAILED + TEST_EXCEPTION;
 };
 
-//=================================================================== TEST(name)
+//======================================================================= TEST()
 #define TEST(name)                                                             \
   void test_##name();                                                          \
   static uniq::TestCase test__##name(#name, &test_##name, __FILE__, __LINE__); \
   void test_##name()
+
+// #else
+//   #define CHECK(x) ((void)sizeof(#x))
+//   #define CHECK_EXCEPTION(x) ((void)sizeof(#x))
+//   #define TEST(x) void test_##x()
+//   int runTests(){ return 0; }
+// #endif
 
 //=================================================================== TEST(TestCase)
 TEST(Test) {
@@ -128,10 +134,4 @@ TEST(Test) {
   // CHECK(false); // to see a failure
   // throw exception(); // to see an exception
 }
-#else
-  #define CHECK(x) ((void)sizeof(#x))
-  #define CHECK_EXCEPTION(x) ((void)sizeof(#x))
-  #define TEST(x) void test_##x()
-  int runTests(){ return 0; }
-#endif
 }  // namespace uniq

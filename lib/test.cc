@@ -1,5 +1,6 @@
 // Dependable tests, that cannot be with original code because dependencies 
 //==============================================================================
+#include "test.h"
 namespace uniq {
 
 TEST(Queue){ // ========================================================== Queue
@@ -68,7 +69,7 @@ TEST(OpenQueue){ // ================================================== OpenQueue
 }
 
 TEST(Log){ //=============================================================== Log
-  // throw exception(); // to see an exception
+  throw exception(); // to see an exception
   // Log say, err("cerr");
   // say("Hola!");
   // err("Olá");
@@ -136,20 +137,53 @@ TEST(Actor){
   auto L = [&]{ X++; }; L(); CHECK(X==1);
 
   // increment X with the actor, using the same lambda
-  Actor<int>A(L); CHECK(A.running());
+  Actor A(L); CHECK(A.running());
   A(); CHECK(X==2);
 
   // increment X with another actor and lambda
-  Actor<int>B([&]{ X=X+1; }); 
+  Actor B([&]{ X=X+1; }); 
   B(); CHECK(X==3);
 
   // Actor<int>C(B); // passing a functor as the callable param copy constructor??
   // C(); CHECK(X==4);
 
-  CHECK(!A.push(1));
-  CHECK(!A.pop(X));
-
   A.stop(); CHECK(!A.running());
 };
+
+//================================================================= TEST(State)
+TEST(State) {
+  State S;
+
+  int ON = 0, OFF = 0, NONE = 0;
+  S.on("off", [&] { OFF++; /*out(CYN,"off");*/ }, [&] { /*out(ORA, "off");*/ });
+  S.on("on",  [&] { ON++; /*out(CYN,"on");*/ }, [&] { /*out(ORA, "on");*/ });
+  S.on("none",[&] { NONE++; /*out(CYN,"none");*/ }, [&] { /*out(ORA, "none");*/ });
+
+  CHECK(S["off"] && !S["on"] && !S["none"]);
+  CHECK(OFF == 1); // side effect of transitions
+  
+  S("on"); // functor call changes the state
+  CHECK(S["on"]); // bracket query the state returning true if match
+  CHECK(S[1]); // can query by state id;
+  CHECK(ON == 1); 
+  CHECK(S.id("opz")==-1); // S.id() to query a state
+
+  S("off");
+  CHECK(OFF == 2);
+  CHECK(S["off"]);
+  CHECK(!S["on"]);
+
+  S(2); // can call functor with stated id;
+  CHECK(NONE == 1);
+  CHECK(S[2]); CHECK(!S[1]);
+  CHECK(S["none"]);
+  CHECK(S == "none");
+  CHECK(S == 2);
+
+  CHECK(S.name()=="none");
+  CHECK(S.name(1)=="on");
+  CHECK_EXCEPTION(S["opz"]); // non existent state raises an exception
+  CHECK(sstr(S)=="[none:2]"); // ostream operator
+}//
 
 }// uniq • Released under GPL 3.0 //*/

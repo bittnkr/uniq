@@ -94,40 +94,5 @@ ostream& operator<<(ostream& os, State& t) {
   return os << "[" << t() << ":" << t.id() << "]";
 }
 
-//================================================================= TEST(State)
-TEST(State) {
-  State S;
-
-  int ON = 0, OFF = 0, NONE = 0;
-  S.on("off", [&] { OFF++; /*out(CYN,"off");*/ }, [&] { /*out(ORA, "off");*/ });
-  S.on("on",  [&] { ON++; /*out(CYN,"on");*/ }, [&] { /*out(ORA, "on");*/ });
-  S.on("none",[&] { NONE++; /*out(CYN,"none");*/ }, [&] { /*out(ORA, "none");*/ });
-
-  CHECK(S["off"] && !S["on"] && !S["none"]);
-  CHECK(OFF == 1); // side effect of transitions
-  
-  S("on"); // functor call changes the state
-  CHECK(S["on"]); // bracket query the state returning true if match
-  CHECK(S[1]); // can query by state id;
-  CHECK(ON == 1); 
-  CHECK(S.id("opz")==-1); // S.id() to query a state
-
-  S("off");
-  CHECK(OFF == 2);
-  CHECK(S["off"]);
-  CHECK(!S["on"]);
-
-  S(2); // can call functor with stated id;
-  CHECK(NONE == 1);
-  CHECK(S[2]); CHECK(!S[1]);
-  CHECK(S["none"]);
-  CHECK(S == "none");
-  CHECK(S == 2);
-
-  CHECK(S.name()=="none");
-  CHECK(S.name(1)=="on");
-  CHECK_EXCEPTION(S["opz"]); // non existent state raises an exception
-  CHECK(sstr(S)=="[none:2]"); // ostream operator
-}//
 }// uniq • Releas under GPL 3.0
 // https://kentcdodds.com/blog/implementing-a-simple-state-machine-library-in-javascript?ck_subscriber_id=739354581

@@ -9,7 +9,9 @@
 #include "Named.h" // class with name
 #include "Time.h" // time primitive
 #include "Atomic.h" // basic atomic types
+#include "Set.h" // common interface for collections
 #include "Actor.h" // common parent for active classes
+#include "State.h" // state machine 
 #include "queue.h" // the queue
 #include "OpenQueue.h" // a locking queue with elastic storage
 #include "Log.h" // simple logger
@@ -20,7 +22,8 @@
 #include "Profiler.h" // execution time recording
 #include "Benchmark.h" // speed tests
 #include "Node.h" // parent/children node using shared_ptr
-#include "State.h" // state machine 
+#include "Vector.h" // std::vector with Set interface
+#include "Counter.h" // simple counter Actor;
 
 #include "Worker.h" // worker thread
 #include "pool.h" // thread pool
@@ -33,8 +36,8 @@
 // #include "Timer.h" // hi-precision timer
 // #include "Any.h" // simpler std:any 
 // #include "Event.h" // event emitter
-#include "Color.h" // color primitive
-#include "sha256.h" // cryptographic function
-#include "fs.h" // filesystem utilities readFile, saveFile() ...
+// #include "Color.h" // color primitive
+// #include "sha256.h" // cryptographic function
+// #include "fs.h" // filesystem utilities readFile, saveFile() ...
 
 //uniq • Released under GPL 3.0

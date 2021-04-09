@@ -4,7 +4,7 @@
 #include "uniq.h"
 namespace uniq {
 
-template <typename T> class OpenQueue : public Actor<T> {
+template <typename T> class OpenQueue: public Set<T>, public Actor {
   queue<T> q;
   mutable mutex m;
   condition_variable notEmpty;
@@ -13,7 +13,7 @@ template <typename T> class OpenQueue : public Actor<T> {
  public:
   
   OpenQueue(int maxsize = 0) 
-    : maxsize(maxsize), Actor<T>() { out = in = 1; }
+    : maxsize(maxsize), Set<T>() { out = in = 1; }
 
   int push(const T item, bool wait=true) {
     if(maxsize) WAIT(q.size() < maxsize);

@@ -4,7 +4,7 @@
 #pragma once
 namespace uniq {
 // ======================================================================= Queue
-template <typename T> struct Queue: Actor<T> {
+template <typename T> struct Queue: public Set<T>, public Actor {
 private:
   vector<T> buffer;
   vector<char> isfree;
@@ -57,10 +57,12 @@ private:
   bool full() override { return isfull(-1); }
   bool empty() override { return isempty(-1); }
 
-  int size() { return in-out; }
+  int size() override { return in-out; }
   int counter() { return out-1; }
   // inline void wait(int c) { while(out < c) sched_yield(); }
 
+  using Actor::start;
+  using Actor::stop;
 private:
   inline bool isfull(int i = -1) { 
     if (i<0) i = in; 

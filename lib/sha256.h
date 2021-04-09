@@ -38,8 +38,6 @@
 #pragma once
 #include <string>
 
-using namespace std;
-
 class SHA256 {
 protected:
   typedef unsigned char uint8;
@@ -88,8 +86,8 @@ string sha256(string input);
   }
 
 // sha256.cpp
-#include <cstring>
-#include <fstream>
+// #include <cstring>
+// #include <fstream>
 
 const unsigned int SHA256::sha256_k[64] = // UL = uint32
     {0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1,
@@ -209,8 +207,7 @@ string sha256(string input) {
     sprintf(buf + i * 2, "%02x", digest[i]);
   return string(buf);
 }
-
-// #define DOCTEST_CONFIG_DISABLE
+ 
 TEST(sha256){
   CHECK(sha256("grape") ==
     "0f78fcc486f5315418fbf095e71c0675ee07d318e5ac4d150050cd8e57966496");
