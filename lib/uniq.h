@@ -9,7 +9,7 @@
 
 #include "Time.h" // time primitive
 #include "Atomic.h" // basic atomic types
-#include "Named.h" // class with name
+#include "Name.h" // class with name
 #include "Id.h" // incremental id
 
 #include "test.h" // unit testing

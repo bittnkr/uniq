@@ -68,14 +68,6 @@ TEST(OpenQueue){ // ================================================== OpenQueue
   // log("OpenQueue:", double(t(CpuTime())));
 }
 
-TEST(Log){ //=============================================================== Log
-  // throw exception(); // to see an exception
-  // Log say, err("cerr");
-  // say("Hola!");
-  // err("Olá");
-  // log("To be or not?");
-}
-
 TEST(terminal) { // =================================================== terminal
   CHECK(RED+"X"+RST == "\033[31mX\033[0m");
   CHECK(colorcode(1)=="\033[22;31m");

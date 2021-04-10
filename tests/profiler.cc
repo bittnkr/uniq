@@ -3,7 +3,7 @@
 #include "utils.h"
 #include "terminal.h"
 #include "numtypes.h"
-#include "Named.h"
+#include "Name.h"
 #include "OpenQueue.h"
 #include "Time.h"
 

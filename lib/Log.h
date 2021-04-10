@@ -2,7 +2,7 @@
 // Log • A Logging utility
 //==============================================================================
 #pragma once
-#include "Named.h"
+#include "Name.h"
 #include "OpenQueue.h"
 namespace uniq {
 
@@ -46,5 +46,13 @@ string logn(Args &&... args ){
 // string log(double n) { return uniq::log(n); }
 // string log(integer n) { return uniq::log(n); }
 // string log(uinteger n) { return uniq::log(n); }
+
+TEST(Log){ //=============================================================== Log
+  throw exception(); // to see an exception
+  // Log say, err("cerr");
+  // say("Hola!");
+  // err("Olá");
+  // log("To be or not?");
+}
 
 }// uniq • Released under GPL 3.0
