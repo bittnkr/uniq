@@ -1,34 +1,37 @@
 //==============================================================================
-// Worker • A Queue of functions whose beat() runs in its own thread.
+// Worker • A Queue of functions whose enter() runs in its own thread.
 //==============================================================================
 #pragma once
-#include "uniq.h"
+// #include "uniq.h"
 namespace uniq {
 
 thread_local int TaskID = 0;  // the id of the current TaskID TaskID
 
-class Worker : public Queue<voidfunction>, public Id {
+class Worker : public Queue<voidfunction>{ //, public Id { 
  private:
   thread thrd;
-
  public:
-  Worker(int queueSize = 1) : Queue<voidfunction>(queueSize), Id() {
-    thrd = thread(&Worker::beat, this);
+  Worker(int queueSize = 1) : Queue<voidfunction>(queueSize) {
+    this->enter = [&]{
+      voidfunction f;
+      while (this->running()) {
+        try {
+          while ((TaskID = pop(f))) {
+            f();
+            // counter++;
+          }
+        } catch (...) {
+          handle_exception();
+        }
+        sleep(1);
+      }
+    };
+    // thrd = thread(this->enter, this);
+    thrd = thread(&Worker::loop, this);
+    // workers.push_back(thread(&ThreadPool::worker, this, i + 1));
   }
 
-  void beat() override {
-    voidfunction f;
-    while(running){
-      try {
-        while((TaskID = pop(f))){ 
-          f();
-          counter++;
-        }
-      } catch (...) { 
-        handle_exception(); 
-      }
-    }
-  }
+  void loop(){ this->enter(); }
 
   template <typename Func, typename... Args>
   inline int run(Func&& f, Args&&... args) {
@@ -37,15 +40,13 @@ class Worker : public Queue<voidfunction>, public Id {
 
   // template <typename Func, typename... Args>
   // inline int chain(int id, Func&& f, Args&&... args) {
-  //   auto fchain = [=]{
-      
-  //   }
+  //   auto fchain = [=]{ }
   //   return Queue::push(bind(forward<Func>(f), forward<Args>(args)...));
   // }
 
   void join() { thrd.join(); }
 
-  Worker(const Worker&) = delete; // no copy constructor
+  Worker(const Worker&) = delete;  // no copy constructor
   Worker& operator=(const Worker& w) { return *this; }
 
   // cout << colorcode(color) + "thread" + to_string(color) + ": " +

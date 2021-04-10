@@ -29,4 +29,4 @@ protected:
 };
 
 
-}//uniq • Released under GPL 3.0
+}// uniq • Released under GPL 3.0

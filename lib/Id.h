@@ -2,22 +2,22 @@
 // Id • A class with id
 //==============================================================================
 #pragma once
-#include "uniq.h"
+// #include "uniq.h"
 namespace uniq {
 //======================================================================= Id
-struct Id {
-  static map<string, Atomic<integer>> Ids;
-  static mutex mutexIds;
+template <typename T> class Id{ 
+  inline static map<string, integer> Ids = {};
+  inline static mutex m = {};
 
-  integer id;
-  Id(string group = ""){ 
-    if(group == "") group = anyType(*this);
-    lock_guard<mutex> lock(Id::mutexIds); // Mutex(Ids);
-    auto r = &Ids[group];
-    id = ++(*r);
+public:
+  Id(){ 
+    lock_guard<mutex> lock(Id::m); // Mutex(Ids);
+    auto r = &Ids[ anyType(*this) ];
+    id = AtomicAdd(*r,1);
     // log("Id()", group, " ", id);
   };
 
+  integer id;
   inline operator integer() const { return id; }
   
   bool operator<(const Id &other) const { return id < other.id; };
@@ -25,17 +25,16 @@ struct Id {
   bool operator==(const Id &other) const { return id == other.id; };
 };
 
-map<string, Atomic<integer>> Id::Ids = {};
-mutex Id::mutexIds = {};
-
 // #define ID(x) Id(#x);
 
-//========================================================================= test
+/*/========================================================================= test
 TEST(Id){
-  Id a("a"), b("a"), c;
+  Id<int> a, b;
   CHECK(b.id > 0);
   CHECK(b > 0);
   CHECK(a < b);
+
+  Id<string> c;
   CHECK(c.id == 1);
-}
-}// uniq • Released under GPL 3.0
+} //*///
+} // uniq • Released under GPL 3.0

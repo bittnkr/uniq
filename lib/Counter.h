@@ -1,27 +1,26 @@
 //==============================================================================
-// Counter • A a simple Actor
+// Counter • A Counter State 
 //==============================================================================
 #pragma once
-#include "uniq.h"
+// #include "uniq.h"
 namespace uniq {
 
-// ============================================================= Counter : Actor
-struct Counter : public Actor {
-  Atomic<int> counter = 0;
-
-  Counter(int start = 0)
-      : Actor([&]{ counter++; }) { counter = start; }
-
-  int operator()(int inc=1){ return counter.add(inc); }
-
-  operator int() { return counter; }
+// ============================================================= Counter : State
+struct Counter : public State<int> {
+  // Counter() { }
+  Counter(int start = 0) { 
+    state = start; 
+    onenter = [&]{ AddAtomic<int>(state, 1); };
+  }
+  operator int() { return state; }
+  int operator()(int increment){ while(increment--) enter(); }
 };
 
-ostream& operator<<(ostream& os, Counter& c) { return os << c.counter; }
+ostream& operator<<(ostream& os, Counter& c) { return os << c.state; }
 
-TEST(Counter){ // ====================================================== Counter
+TEST(Counter){ //================================================= TEST(Counter)
   // CHECK(sizeof(Counter)==sizeof(int))
-  Counter plus(1); CHECK(plus.counter==1); 
+  Counter<int> plus(1); CHECK(plus.state==1); 
   plus(); CHECK(plus==2); 
   plus(2); CHECK(plus==4); 
   CHECK(sstr(plus)=="4");

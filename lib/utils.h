@@ -78,14 +78,14 @@ string join(const vector<string>& v, string delimiter=" ") {
   return r;
 }
 
-vector<string> split(string text, char delim) {
-    string line;
-    vector<string> vec;
-    stringstream ss(text);
-    while(getline(ss, line, delim)) {
-        vec.push_back(line);
-    }
-    return vec;
+vector<string> split(string text, char delim=' ') {
+  string line;
+  vector<string> vec;
+  stringstream ss(text);
+  while(getline(ss, line, delim)) {
+      vec.push_back(line);
+  }
+  return vec;
 }
 
 string repeat(string s, int n) {

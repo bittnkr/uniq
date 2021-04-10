@@ -2,21 +2,22 @@
 // Primitive Time as double. Seconds with fractional sub-seconds
 //==============================================================================
 #pragma once
+#include "utils.h"
 namespace uniq {
 
 struct Time {
-  double value;  // double seconds with fractional nanos
+  double time;  // double seconds with fractional nanos
 
   Time();
-  Time(Time &t) { value = t.value; }
-  Time operator = (Time &t) { return value = t.value; }
+  Time(Time &t) { time = t.time; }
+  Time operator = (Time &t) { return time = t.time; }
 
-  Time(double t) { value = t; }
-  Time operator = (double t) { return value = t; }
-  inline operator double() const { return value; }
+  Time(double t) { time = t; }
+  Time operator = (double t) { return time = t; }
+  inline operator double() const { return time; }
 
   const string fmt(string fmtString) { // as put_time
-    time_t secs = value;
+    time_t secs = time;
     struct tm* timeinfo = localtime(&secs);
     std::ostringstream os;
     os << put_time(timeinfo, fmtString.c_str());
@@ -25,57 +26,57 @@ struct Time {
 
   const string str() { 
     string s;
-    if (value < MICRO) s = sstr(nanos(), "ns");
-    else if (value < MILI) s = sstr(micros(), "µs");
-    else if (value < 1) s = sstr(milis(), "ms");
-    else if (value < 60) s = sstr(seconds(), "s");
-    else if (value < 60*60) s = fmt("M:%S");
-    else if (value < 60*60*24) s = fmt("%H:%M:%S");
+    if (time < MICRO) s = sstr(nanos(), "ns");
+    else if (time < MILI) s = sstr(micros(), "µs");
+    else if (time < 1) s = sstr(milis(), "ms");
+    else if (time < 60) s = sstr(seconds(), "s");
+    else if (time < 60*60) s = fmt("M:%S");
+    else if (time < 60*60*24) s = fmt("%H:%M:%S");
     else s = fmt("%a %b %e %H:%M:%S %Y");
     return s;
   }
 
   const string ctime() {
-    time_t t = value;
+    time_t t = time;
     return trim(::ctime(&t));
   }  // for reference
 
-  inline bool operator == (Time t) { return fabs(value - t.value) < NANO; }
-  inline bool operator != (Time t) { return fabs(value - t.value) >= NANO; }
-  inline bool operator  < (Time t) { return value < t.value; }
-  inline bool operator  > (Time t) { return value > t.value; }
-  inline bool operator <= (Time t) { return value <= t.value; }
-  inline bool operator >= (Time t) { return value >= t.value; }
+  inline bool operator == (Time t) { return fabs(time - t.time) < NANO; }
+  inline bool operator != (Time t) { return fabs(time - t.time) >= NANO; }
+  inline bool operator  < (Time t) { return time < t.time; }
+  inline bool operator  > (Time t) { return time > t.time; }
+  inline bool operator <= (Time t) { return time <= t.time; }
+  inline bool operator >= (Time t) { return time >= t.time; }
 
-  inline bool operator == (double t) { return fabs(value - t) < NANO; }
-  inline bool operator != (double t) { return fabs(value - t) >= NANO; }
-  inline bool operator <  (double t) { return value < t; }
-  inline bool operator >  (double t) { return value > t; }
-  inline bool operator <= (double t) { return value <= t; }
-  inline bool operator >= (double t) { return value >= t; }
+  inline bool operator == (double t) { return fabs(time - t) < NANO; }
+  inline bool operator != (double t) { return fabs(time - t) >= NANO; }
+  inline bool operator <  (double t) { return time < t; }
+  inline bool operator >  (double t) { return time > t; }
+  inline bool operator <= (double t) { return time <= t; }
+  inline bool operator >= (double t) { return time >= t; }
 
-  void operator+=(Time t) { value += t.value; }
-  void operator-=(Time t) { value -= t.value; }
-  void operator*=(Time t) { value *= t.value; }
-  void operator/=(Time t) { value /= t.value; }
+  void operator+=(Time t) { time += t.time; }
+  void operator-=(Time t) { time -= t.time; }
+  void operator*=(Time t) { time *= t.time; }
+  void operator/=(Time t) { time /= t.time; }
 
-  Time operator+(Time t) { return Time(value + t.value); }
-  Time operator-(Time t) { return Time(value - t.value); }
-  Time operator*(Time t) { return Time(value * t.value); }
-  Time operator/(Time t) { return Time(value / t.value); }
+  Time operator+(Time t) { return Time(time + t.time); }
+  Time operator-(Time t) { return Time(time - t.time); }
+  Time operator*(Time t) { return Time(time * t.time); }
+  Time operator/(Time t) { return Time(time / t.time); }
 
-  Time operator+(double t) { return Time(value + t); }
-  Time operator-(double t) { return Time(value - t); }
-  Time operator*(double t) { return Time(value * t); }
-  Time operator/(double t) { return Time(value / t); }
+  Time operator+(double t) { return Time(time + t); }
+  Time operator-(double t) { return Time(time - t); }
+  Time operator*(double t) { return Time(time * t); }
+  Time operator/(double t) { return Time(time / t); }
 
-  void operator--() { value = value - 1; }
-  void operator++() { value = value + 1; }
+  void operator--() { time = time - 1; }
+  void operator++() { time = time + 1; }
 
-  double nanos(int places = 0) { return round(value * GIGA, places); }
-  double micros(int places = 0) { return round(value * MEGA, places); }
-  double milis(int places = 0) { return round(value * KILO, places); }
-  double seconds(int places = 0) { return round(value, places); }
+  double nanos(int places = 0) { return round(time * GIGA, places); }
+  double micros(int places = 0) { return round(time * MEGA, places); }
+  double milis(int places = 0) { return round(time * KILO, places); }
+  double seconds(int places = 0) { return round(time, places); }
   double minutes(int places = 0) { return round(seconds() / 60, places); }
   double hours(int places = 0) { return round(minutes() / 60, places); }
   double days(int places = 0) { return round(hours() / 24, places); }
@@ -84,16 +85,16 @@ struct Time {
   double years(int places = 0) { return round(months() / 12, places); }
 
   Time operator()() {
-    Time v, r = v.value - value;
-    value = v;
+    Time v, r = v.time - time;
+    time = v;
     return r;
   }
 
   Time operator()(double t) {
-    if (t == 0) return double(Time()) - value;
-    if (t < 0) return double(Time()) - value + t;
-    Time r(t - value);
-    value = t;
+    if (t == 0) return double(Time()) - time;
+    if (t < 0) return double(Time()) - time + t;
+    Time r(t - time);
+    time = t;
     return r;
   }
 };
@@ -107,7 +108,7 @@ Time SystemTime(int source=CLOCK_REALTIME){
     return NANO * t.tv_nsec + t.tv_sec;
 };
 
-Time::Time() { value = SystemTime(); }
+Time::Time() { time = SystemTime(); }
 
 const Time START_TIME();
 

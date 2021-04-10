@@ -2,14 +2,17 @@
 // Log • A Logging utility
 //==============================================================================
 #pragma once
+#include "Named.h"
+#include "OpenQueue.h"
 namespace uniq {
+
 //========================================================================== Log
-class Log : public uniq::OpenQueue<string>, public Named{ 
+class Log : public uniq::OpenQueue<string>, public Name{ 
 public:
   bool hasColors = 1;
   OpenQueue<string> Q; // Queue of strings waiting to be flushed
 
-  Log(string name="console") : Named(name){ };
+  Log(string name="console") : Name(name){ };
 
   virtual void flush(ostream &stream) { 
     string s;
@@ -29,7 +32,6 @@ public:
   inline int ready(){ return Q.size(); }
 
   ~Log() { flush(); };
-  virtual void beat(){ flush(); };
 };
 
 // ostream& operator<<(ostream& os, Log& t) { return os << string(id, '|') << name << " log: " << msg << endl; }

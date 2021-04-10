@@ -2,7 +2,7 @@
 // Vector • A std:vector implementation of Set<T>
 //==============================================================================
 #pragma once
-#include "uniq.h"
+// #include "uniq.h"
 namespace uniq {
 template <class T> struct Vector;
 
@@ -11,8 +11,8 @@ template <class T> ostream& operator<< ( ostream& os, const Vector<T>& L );
 //======================================================================= Vector
 template <class T> class Vector: public Set<T>{
 protected:
-  virtual void onempty() {}
-  virtual void onfull() {}
+  virtual void onempty() override {}
+  virtual void onfull() override {}
 public:
   vector<T> V;
 
@@ -34,7 +34,7 @@ public:
   int pop(T& item, bool wait = true) override { 
     if(V.empty() && !wait) return 0;
     WAIT(!V.empty());
-    item = *V.begin();
+    item = V[0];
     V.erase(V.begin());
     return 1;
   }

@@ -1,7 +1,14 @@
 #pragma once
-namespace uniq {
+#include "std.h"
+#include "utils.h"
+#include "terminal.h"
+#include "numtypes.h"
+#include "Named.h"
+#include "OpenQueue.h"
+#include "Time.h"
 
-// #ifdef TESTING
+namespace uniq {
+// #ifdef TESTS
 bool SILENT_TESTS = 0; // omit successul tests
 bool MUTE_TESTS = 0; // omit even failures, just return success or failure
 
@@ -24,14 +31,14 @@ class Fail : public exception{
 };
 
 //========================================================================= Test
-struct Test : public Named {
+struct Test : public Name {
   bool passed;
   string expr;
   string file;
   int line;
   exception ex;
 
-  Test(bool passed, string expr, string func, string file, int line) : Named(func), passed(passed), expr(expr), file(file), line(line) {
+  Test(bool passed, string expr, string func, string file, int line) : Name(func), passed(passed), expr(expr), file(file), line(line) {
     if (passed) {
       uniq::TEST_PASSED++;
       OUT(TEST_OK);
@@ -43,7 +50,7 @@ struct Test : public Named {
     }
   };
 
-  Test(const exception& ex, string func, string file, int line) : Named(func), ex(ex), file(file), line(line) {
+  Test(const exception& ex, string func, string file, int line) : Name(func), ex(ex), file(file), line(line) {
     if (ex.what() == string("uniq::Fail")) return;
     uniq::TEST_EXCEPTION++;
     if(SILENT_TESTS) FAIL(ORA, split(func,'_').back());
@@ -70,18 +77,19 @@ struct Test : public Named {
 
 //========================================================================= TestCase
 struct TestCase;
-vector<pair<string, TestCase*>> TESTS = {};
+vector<pair<string, TestCase*>> TestCases = {};
 
 typedef void (*testFunc)();
 
-struct TestCase: public Named {
+struct TestCase: public Name {
   testFunc func;
   string file;
   int line;
 
-  TestCase(string name, testFunc f, string file, int line) : Named(name), func(f), file(file), line(line) {
-    TESTS.push_back(make_pair(name, this));
-  }
+  TestCase(string name, testFunc f, string file, int line) : Name(name), func(f), file(file), line(line) 
+    { TestCases.push_back(make_pair(name, this)); }
+
+  TestCase(string name, string file, int line) : Name(name), file(file), line(line) {}
 
   void run(){
     OUT(ORA, name, " ");
@@ -102,7 +110,7 @@ int runTests() {
   string line = GRY +  repeat("=", 80);
   OUT("Running tests...\n", line, "\n");
 
-  for (auto [name, test] : TESTS)
+  for (auto [name, test] : TestCases)
     test->run();
 
   OUT(line,"\n");
@@ -110,7 +118,7 @@ int runTests() {
     , TEST_FAILED ? sstr("  ",TEST_FAIL," ", TEST_FAILED) : ""
     , TEST_EXCEPTION ? sstr("  ", TEST_EXCEPT," ",TEST_EXCEPTION) : "", "\n" );
 
-  TESTS.clear();
+  TestCases.clear();
   return TEST_FAILED + TEST_EXCEPTION;
 };
 
@@ -135,3 +143,13 @@ TEST(Test) {
   // throw exception(); // to see an exception
 }
 }  // namespace uniq
+
+/*/ New testing model
+struct TestCase_Profiler : public uniq::TestCase { 
+  TestCase_Profiler(string name, string file, int line) : TestCase(name, file, line){}; 
+  void enter(); 
+}; 
+static uniq::TestCase_Profiler testCase_Profiler("Profiler", "Profiler.h", 95); 
+void TestCase_Profiler::enter(){ TT
+  cout << "hello\n";
+}//*/

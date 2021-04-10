@@ -1,25 +1,25 @@
 //==============================================================================
-// Named • A class with name
+// Name • A class with name
 //==============================================================================
 #pragma once
 namespace uniq {
 
-//======================================================================= Named
-struct Named {
+//======================================================================= Name
+struct Name {
   string name;
-  Named(){name="";};
-  Named(string name_) : name(name_){};
-  Named operator = (Named o) { return name = o.name; }
+  Name(){name="";};
+  Name(string name_) : name(name_){};
+  Name operator = (Name o) { return name = o.name; }
   // used by std::set to compare event names
-  bool operator<(const Named &other) const { return name < other.name; };
-  bool operator>(const Named &other) const { return name > other.name; };
-  bool operator==(const Named &other) const { return name == other.name; };
+  bool operator<(const Name &other) const { return name < other.name; };
+  bool operator>(const Name &other) const { return name > other.name; };
+  bool operator==(const Name &other) const { return name == other.name; };
 };
 
-/*/================================================================== test_Named
+/*/================================================================== test_Name
 #include "test.h"
-TEST(Named){
-  Named alice("Alice"), bob("Bob");
+TEST(Name){
+  Name alice("Alice"), bob("Bob");
   CHECK(alice.name=="Alice");
   CHECK(alice<bob);
 }//*/

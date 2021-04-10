@@ -3,16 +3,16 @@
 //==============================================================================
 
 #pragma once
-#include "uniq.h"
+// #include "uniq.h"
 namespace uniq {
 
-struct Benchmark : public Named {
+struct Benchmark : public Name {
   inline static Time timeout = 0.1;
   static Time overhead;
 
   Time result; 
 
-  Benchmark(string name, voidfunction f, bool print=1) : Named(name) {
+  Benchmark(string name, voidfunction f, bool print=1) : Name(name) {
     Time t(CpuTime());
     i64 count = 1;
 
@@ -36,7 +36,7 @@ struct Benchmark : public Named {
     if(print) log(*this);
   }
 
-  Benchmark(string name, i64 (*f)(i64&), i64 counter=1e6, bool print=1) : Named(name) {
+  Benchmark(string name, i64 (*f)(i64&), i64 counter=1e6, bool print=1) : Name(name) {
     Time r; 
     // for(i64 i=counter; f(i););
     i64 i = counter; 

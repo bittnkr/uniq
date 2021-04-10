@@ -1,7 +1,8 @@
 // OpenQueue - A Thread-safe Queue using mutexes and condition variables.
 // Used for speed comparison. https://stackoverflow.com/a/16075550/9464885
 #pragma once
-#include "uniq.h"
+#include "Set.h"
+#include "Actor.h"
 namespace uniq {
 
 template <typename T> class OpenQueue: public Set<T>, public Actor {
@@ -24,6 +25,8 @@ template <typename T> class OpenQueue: public Set<T>, public Actor {
   }
 
   int pop(T &item, bool wait=true) {
+    if(q.empty( )&& !wait) return 0;
+    
     unique_lock<mutex> lock(m);
     notEmpty.wait(lock, [&]{ return !q.empty(); } );
     item = q.front();

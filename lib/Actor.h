@@ -11,16 +11,16 @@ inline const int coreCount() { return thread::hardware_concurrency(); }
 #define WAIT(condition) while(!(condition)) { sleep(); }
 
 //===================================================================== Actor<T>
-struct Actor {
+struct Actor { // todo: inherit Actor from State
  protected:
   bool _running = false;
-  uniq::voidfunction beat = [] {}; // voidfunction beat = []<typename... Args>(Args&&... args) { log(args...); };
+  uniq::voidfunction enter = [] {}; // voidfunction enter = []<typename... Args>(Args&&... args) { log(args...); };
 
  public:
   template <typename Func, typename... Args> 
   Actor(Func&& f, Args&&... args) {
     ASSERT_INVOCABLE(Func, Args);
-    beat = bind(forward<Func>(f), forward<Args>(args)...);
+    enter = bind(forward<Func>(f), forward<Args>(args)...);
     start();
   }
 
@@ -30,10 +30,10 @@ struct Actor {
   virtual void start() { _running = true; }
   virtual void stop() { _running = false; }
   inline bool running() { return _running; }
-  virtual int ready() { return 1; }  // beat can be called
+  virtual int ready() { return 1; }  // enter can be called
 
   // functor
-  inline void operator()() { beat(); }
+  inline void operator()() { enter(); }
 };
 
-}//uniq • Released under GPL 3.0
+}// uniq • Released under GPL 3.0

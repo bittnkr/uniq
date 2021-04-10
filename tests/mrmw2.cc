@@ -56,4 +56,4 @@ int main() {
   log("messages: ", Q.counter() );
   quick_exit(0); // return 0;
 }
-//uniq • Released under GPL 3.0
+//uniq

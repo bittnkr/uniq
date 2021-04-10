@@ -40,5 +40,3 @@ TEST(Color) { // ================================================= tests
 };
 
 }// uniq • Released under GPL 3.0
-
-// https://www.ncbi.nlm.nih.gov/IEB/ToolBox/CPP_DOC/lxr/source/include/gui/utils/rgba_color.hpp

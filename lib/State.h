@@ -1,13 +1,9 @@
-// Each state can define events that trigger a transition.
-// A transition defines how a machine would react to the event, by exiting one state and entering another state.
-// A transition can define actions that occur when the transition happens. Actions will typically have side effects.
-
 //==============================================================================
-// State is a
-// StateMachine or a collection of states
+// State is an object persistence layer
+// StateMachine or a collection of States
 //==============================================================================
 #pragma once
-#include "uniq.h"
+// #include "uniq.h"
 namespace uniq {
 
 struct StateRecord {
@@ -94,5 +90,42 @@ ostream& operator<<(ostream& os, State& t) {
   return os << "[" << t() << ":" << t.id() << "]";
 }
 
-}// uniq • Releas under GPL 3.0
-// https://kentcdodds.com/blog/implementing-a-simple-state-machine-library-in-javascript?ck_subscriber_id=739354581
+//================================================================= TEST(State)
+TEST(State) {
+  State S;
+
+  int ON = 0, OFF = 0, NONE = 0;
+  S.on("off", [&] { OFF++; /*out(CYN,"off");*/ }, [&] { /*out(ORA, "off");*/ });
+  S.on("on",  [&] { ON++; /*out(CYN,"on");*/ }, [&] { /*out(ORA, "on");*/ });
+  S.on("none",[&] { NONE++; /*out(CYN,"none");*/ }, [&] { /*out(ORA, "none");*/ });
+  CHECK(S.id("opz")==-1); // S.id() to query a state
+
+  // CHECK(S[1]=="on"); CHECK(S["on"]==1);
+  CHECK_EXCEPTION(S["opz"]); // non existent state raises an exception
+  
+  // State S = M();
+  CHECK(S["off"] && !S["on"] && !S["none"]);
+  CHECK(OFF == 1); // side effect of transitions
+  
+  S("on"); // functor call changes the state
+  CHECK(S["on"]); // bracket query the state returning true if match
+  CHECK(S[1]); // can query by state id;
+  CHECK(ON == 1); 
+
+  S("off");
+  CHECK(OFF == 2);
+  CHECK(S["off"]);
+  CHECK(!S["on"]);
+
+  S(2); // can call functor with stated id;
+  CHECK(NONE == 1);
+  CHECK(S[2]); CHECK(!S[1]);
+  CHECK(S["none"]);
+  CHECK(S == "none");
+  CHECK(S == 2);
+
+  CHECK(S=="none");
+  CHECK(sstr(S)=="[none:2]"); // ostream operator
+}//
+
+}// uniq • Released under GPL 3.0

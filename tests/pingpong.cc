@@ -17,7 +17,7 @@ void ping(int v) {
     run(pong, v - i);  // each ping run 1000 pongs
   };
 
-  if (v % 100000 == 0) log("count: ",v);
+  if (v % 1000000 == 0) log("count: ",v);
 
   if (v <= 0) {
     // log("\ntasks: ", pool().counter());

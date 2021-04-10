@@ -2,18 +2,18 @@
 // Node • Tree parent/children node using shared_ptr
 //==============================================================================
 #pragma once
-#include "uniq.h"
+// #include "uniq.h"
 namespace uniq {
 
-struct Node : public Named {
+struct Node : public Name {
   any value;
   Node* parent = nullptr;
   vector<shared_ptr<Node>> children;
 
-  Node(string name, any v) : Named(name), value(v) {}
+  Node(string name, any v) : Name(name), value(v) {}
 
   shared_ptr<Node> addChild(string name, any v) {
-    shared_ptr<Node> child(make_shared<Node>(name, v));
+    auto child(make_shared<Node>(name, v));
     child->parent = this;
     children.push_back(child);
     return child;
@@ -26,7 +26,7 @@ struct Node : public Named {
       v.push_back(n->name);
       n = n->parent;
     };
-    reverse(v.begin(), v.end());
+    std::reverse(v.begin(), v.end());
     return v;
   }
 

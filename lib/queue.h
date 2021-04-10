@@ -1,8 +1,9 @@
 //==============================================================================
-// uniq::Queue • A lock free multi-reader multi-writer circular buffered queue.
+// Queue • A lock free multi-reader multi-writer circular buffered queue.
 //==============================================================================
 #pragma once
 namespace uniq {
+
 // ======================================================================= Queue
 template <typename T> struct Queue: public Set<T>, public Actor {
 private:

@@ -2,17 +2,18 @@
 // Hello • A starting point for C++ classes
 //==============================================================================
 #pragma once
-#include "uniq.h"
+// #include "uniq.h"
 namespace uniq {
 
 //======================================================================== Hello
-struct Hello: public Named {
+class Hello: public Name {
+private:
   // fields
   string msg;
+public:
   integer id = Id("Hello");
-
   // constructors & destructor
-  Hello(string name = "somebody") : Named(name) { };
+  Hello(string name = "somebody") : Name(name) { };
   ~Hello() { say("goodbye."); };
 
   // methods

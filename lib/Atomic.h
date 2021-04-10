@@ -3,6 +3,10 @@ namespace uniq {
 
 #define CST __ATOMIC_SEQ_CST
 
+template<class T> inline T AtomicAdd(T& a, const T b) { return __atomic_fetch_add(&a, b, CST); }
+template<class T> inline T AtomicSub(T& a, const T b) { return __atomic_fetch_sub(&a, b, CST); }
+template<class T> inline T AtomicExchange(T& a, const T b) { return __atomic_exchange(&a, b); }
+
 template<class T>
 struct Atomic {
   T value;
@@ -13,9 +17,9 @@ struct Atomic {
   Atomic& operator = (const Atomic&);
   T operator = (T v) { __atomic_store(&value, &v, CST); return v; }
 
-  inline T add(const T v) { return __atomic_fetch_add(&value, v, CST); }
-  inline T sub(const T v) { return __atomic_fetch_sub(&value, v, CST); }
-  inline T xch(T v) {  return __atomic_exchange(&value, v, CST); }
+  inline T add(const T v) { return AtomicAdd(value, v); }
+  inline T sub(const T v) { return AtomicSub(value, v); }
+  inline T xch(T v) { return AtomicExchange(value, v); }
 
   inline bool CAS(T old, T v) { return __atomic_compare_exchange(&value, &old, &v, false, CST, CST); }
  

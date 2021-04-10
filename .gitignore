@@ -39,6 +39,7 @@
 *.o
 *.ii
 *_.*
+*_
 old/
 libs/
 try/
