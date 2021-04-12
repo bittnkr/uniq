@@ -2,7 +2,7 @@
 // Counter • A Counter State 
 //==============================================================================
 #pragma once
-// #include "uniq.h"
+#include "State.h"
 namespace uniq {
 
 // ============================================================= Counter : State
@@ -24,6 +24,6 @@ TEST(Counter){ //================================================= TEST(Counter)
   plus(); CHECK(plus==2); 
   plus(2); CHECK(plus==4); 
   CHECK(sstr(plus)=="4");
-};//*/
+};
 
-}// uniq • Released under GPL 3.0
+}// UniQ • Released under GPL 3 licence

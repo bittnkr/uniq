@@ -1,8 +1,8 @@
 // #include "backward.hpp"
 // namespace backward { backward::SignalHandling sh; }
 
-#define TESTS 1 // unit testing (0: MUTE, 1: SILENT, 2: NORMAL, 3 VERBOSE)
-// #define TRACE 0; // function call execution time tracing 
+#define TESTS 2 // unit testing 0: mute, 1: just bad news, 2: normal
+// #define TRACE 0; // execution time tracing 
 
 #include "uniq.h"
 using namespace uniq;

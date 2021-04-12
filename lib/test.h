@@ -1,22 +1,13 @@
 #pragma once
 namespace uniq {
+#ifdef TESTS
 
-// #ifdef TESTS
-bool SILENT_TESTS = 0;  // omit successul tests
-bool MUTE_TESTS = 0;    // omit even failures, just return success or failure
-
-int TEST_COUNT = 0;
 int TEST_PASSED = 0;
 int TEST_FAILED = 0;
 int TEST_EXCEPTION = 0;
-
-map<string, string> glyphs = {{"ready", "."}, {"passed", BLD + GRN + "✓" + RST}, 
-  {"failed", BLD + RED + "✘" + RST}, {"exception", " 💥 "}, {"testSet", ""}};
-
 //========================================================================= Test
-struct Test{  //}, State {
-public:
-  string state = "ready";
+struct Test {
+  string state;
   string expr;
   string file;
   int line;
@@ -25,78 +16,82 @@ public:
   Test(string state, string expr = "", string file = "", int line = 0)
       : state(state), expr(expr), file(file), line(line) {}
 
-  virtual void test() { 
-    if (state == "failed") TEST_FAILED++;
-    else TEST_PASSED++;
-  }
+  inline static map<string, string> glyphs = {
+    {"ready", "."}, {"passed", BLD + GRN + "✓" + RST}, 
+    {"failed", BLD + RED + "✘" + RST}, {"exception", "💥"}, {"testset", ""}
+  };
 
   virtual string print() {
-    if (MUTE_TESTS) return "";
-    string r = "";
-    if (!SILENT_TESTS) r += glyphs[state];
-    if (state == "passed") return r;
-    r += sstr(GRY, "(", RED, BLD, expr, GRY, ")", RST, "(", file, ":", line, ")");
-    return r;
+    if (!TESTS) return "";
+    if (state == "passed") return TESTS>1 ? Test::glyphs[state] : ""; 
+    return sstr("\n ", Test::glyphs[state], GRY, "(", RED,BLD, expr, GRY, ")", RST, " ", file, ":", line,"");
   }
+
+  virtual void test(){ }
 };
 
 ostream& operator<<(ostream& os, Test& t) { os << t.print() << std::flush; return os;}
 
 //===================================================================== TestSet
 struct TestSet;
-
-static vector<TestSet*> Tests = {};//("root", "RootTest", __FILE__, __LINE__);
+static vector<TestSet*> Tests = {};
 
 struct TestSet : public Test {
-public:
   vector<unique_ptr<Test>> tests;
+  bool errors = false;
 
-  TestSet(string state, string expr, string file, int line) : Test(state, expr, file, line) { 
-    Tests.push_back(this); 
-  }
+  TestSet(string state, string expr, string file, int line) 
+    : Test(state, expr, file, line) { Tests.push_back(this); }
 
-  void addtest(string state, string expr, string file, int line) {
-    tests.push_back(make_unique<Test>(state, expr, file, line));
-    (*tests.back()).test();
+  void add(string state, string expr, string file, int line) { // called by CHECK()
+    if (state == "passed") TEST_PASSED++;
+    else { if (state == "failed") TEST_FAILED++; else TEST_EXCEPTION++; errors = true; };
+    tests.push_back(make_unique<Test>(state, expr, file, line)); 
   };
 
   string print () override {
-    if (SILENT_TESTS) return "";
-    string r = sstr(ORA, glyphs[state], expr, RST, " ");
-    // string r = sstr(ORA, glyphs[state], GRY, " (", expr ,")" , RST, " ");
-    for (auto& test : tests)
-      r += sstr(*test);
-    if (time > MILI) r+=sstr(GRN, " ", time);  // show time if took > 1ms
-    return r += sstr(GRY, " (", GRY, split(file, '/').back(), ":", line, ")");
+    if (!TESTS) return "";
+    string s="";
+    
+    for (auto& t : tests) s += sstr(*t);
+
+    if( TESTS>1 || errors ){
+      s = sstr(ORA, Test::glyphs[state], expr, RST, " ") + s;
+      if (time > MILI) s+=sstr(GRN, " ", time);
+      s += errors? "\n" : sstr(GRY, " (", GRY, split(file, '/').back(), ":", line, ")\n");
+    }
+    return s;
   }
+
+  virtual void test() override { 
+    auto tm = CpuTime();
+    try { 
+      testFunc(); 
+      for (auto& test : this->tests) 
+        test->test();
+    } catch(const std::exception& e) { add("exception", e.what(), file, line); }
+    time = tm(CpuTime());
+  }
+
+  virtual void testFunc() { } // overriden by TEST()
 };
 
 // ==================================================================== RootTest
 int runTests() {
-  string line = GRY + repeat("=", 80);
+  string r="\n", line = GRY + repeat("=", 80);
 
-  string r = sstr(CLR, line,"\nRunning tests...\n", line, "\n");
+  for (auto &t : Tests) t->test();
+  
+  if(TESTS>1) r+=sstr(line,"\nRunning tests...\n", line, "\n");
 
-  for (auto &test : Tests){
-    auto time = CpuTime();
-    try {
-      test->test();
-    } catch (const exception& e) {
-      test->state = "exception";
-      test->expr = e.what();
-      TEST_EXCEPTION++;
-    };
-    test->time = time(CpuTime());
-    r += test->print()+"\n";
-  };
-  r+=sstr(line, "\n");
+  for (auto &t : Tests) r += t->print();
 
-  r+=sstr(glyphs["passed"], " ", TEST_PASSED, TEST_FAILED ? sstr("  ", 
-  glyphs["failed"], " ", TEST_FAILED) : "", TEST_EXCEPTION ? sstr("  ", 
-  glyphs["exception"], " ", TEST_EXCEPTION) : "");
+  if(TESTS>1) r+=sstr(line, "\n");
+  if(TESTS>0) r+=sstr(Test::glyphs["passed"], " ", TEST_PASSED, TEST_FAILED ? sstr("  ", 
+  Test::glyphs["failed"], " ", TEST_FAILED) : "", TEST_EXCEPTION ? sstr("  ", 
+  Test::glyphs["exception"], " ", TEST_EXCEPTION) : "");
 
-  uniq::log(r);
-
+  cout << r << "\n" << flush;
   Tests.clear();
   return TEST_FAILED + TEST_EXCEPTION;
 };
@@ -105,44 +100,32 @@ int runTests() {
 #define TEST(T)                                                   \
   struct TestSet_##T : public TestSet {                           \
     TestSet_##T(string state, string expr, string file, int line) \
-        : TestSet(state, expr, file, line){};                     \
-    void test() override;                                         \
+      : TestSet(state, expr, file, line){};                       \
+    void testFunc() override;                                     \
   };                                                              \
-  static TestSet_##T TS_##T("testset", #T, __FILE__, __LINE__);  \
-  void TestSet_##T::test()
- 
-//   static bool test_TestSet_##T = Tests.addtest(TestSet_##T("testset", #T, __FILE__, __LINE__)); \
-//   static bool test_TestSet_##T = TestFactory::Register(#name, &test_##name); \
+  static TestSet_##T TS_##T("testset", #T, __FILE__, __LINE__);   \
+  void TestSet_##T::testFunc()
 
 //================================================================== CHECK(expr)
-#define CHECK(expr) addtest(expr ? "passed":"failed", #expr, __FILE__, __LINE__)
+#define CHECK(expr) add((expr)?"passed":"failed", #expr, __FILE__, __LINE__)
 
 //======================================================== CHECK_EXCEPTION(expr)
-#define CHECK_EXCEPTION(expr)                         \
-  try {                                               \
-    (expr);                                           \
-    addtest("failed", #expr, __FUNCTION__, __LINE__); \
-  } catch (std::exception & e) {                      \
-    addtest("passed", #expr, __FUNCTION__, __LINE__); \
-  }
-// #else
-//   #define CHECK(x) ((void)sizeof(#x))
-//   #define CHECK_EXCEPTION(x) ((void)sizeof(#x))
-//   #define TEST(x) void test_##x()
-//   int runTests(){ return 0; }
-// #endif
+#define CHECK_EXCEPTION(expr) \
+  try { (expr); add("failed", #expr, __FUNCTION__, __LINE__); } \
+  catch (std::exception & e) { add("passed", #expr, __FUNCTION__, __LINE__); }
+
+#else
+  #define CHECK(x) ((void)sizeof(#x))
+  #define CHECK_EXCEPTION(x) ((void)sizeof(#x))
+  #define TEST(x) void test_##x()
+  int runTests(){ return 0; }
+#endif // TESTS
 
 //=================================================================== TEST(Test)
 TEST(Test) {
   CHECK(1==1);
-  CHECK(1==2);  // to see a failure
   CHECK_EXCEPTION(throw exception());
-  CHECK(true);
+  // CHECK(1==2);  // to see a failure
+  // throw exception(); // to see an exception
 }
-
-TEST(Test2) {
-  CHECK(1);
-  throw exception(); // to see an exception
-}
-
-}  // namespace uniq
+}// UniQ • Released under GPL 3 licence

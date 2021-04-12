@@ -3,7 +3,8 @@
 #include "test.h"
 namespace uniq {
 
-TEST(Queue){ // ========================================================== Queue
+// ========================================================== Queue
+TEST(Queue){ 
   Queue<int> q(64);
   vector<thread> threads;
 
@@ -34,9 +35,10 @@ TEST(Queue){ // ========================================================== Queue
   CHECK(produced != 0);
   CHECK(produced == consumed);
   // log("Queue:", double(CpuTime(t)));
-}
+}//*///
 
-TEST(OpenQueue){ // ================================================== OpenQueue
+// ================================================== OpenQueue
+TEST(OpenQueue){ 
   OpenQueue<int> q(64);  
   vector<thread> threads;
 
@@ -66,17 +68,19 @@ TEST(OpenQueue){ // ================================================== OpenQueue
   CHECK(produced > 0);
   CHECK(produced == consumed);
   // log("OpenQueue:", double(t(CpuTime())));
-}
+}//*///
 
-TEST(terminal) { // =================================================== terminal
+// =================================================== terminal
+TEST(terminal) { 
   CHECK(RED+"X"+RST == "\033[31mX\033[0m");
   CHECK(colorcode(1)=="\033[22;31m");
   CHECK(colorcode(13)=="\033[22;37m");
   // for (auto i = 0; i < 20; i++)
   //   log(colorcode(i),i," ",replace(colorcode(i),"\033",""),RST);
-}
+}//*///
 
-TEST(numtypes){ // ==================================================== numtypes
+// ==================================================== numtypes
+TEST(numtypes){ 
   CHECK(sizeof(integer) == __WORDSIZE/CHAR_BIT);
   CHECK(rehash(u64(1)) == 0xfffefffefffeffff);
   CHECK(rehash(rehash(u64(1))) == 1);
@@ -84,9 +88,10 @@ TEST(numtypes){ // ==================================================== numtypes
   CHECK(i32(-4) + u32(2) == 4294967294);
   CHECK(i64(-4) + u32(2) == -2);
   CHECK(i64(-4) + u32(2) == 18446744073709551614UL);
-}
+}//*///
 
-TEST(utils) { // ========================================================= utils
+// ========================================================= utils
+TEST(utils) { 
   CHECK(sstr("a",1) == "a1");
   CHECK(trim(" a b\t\n") == "a b" );
   CHECK(tolower("ABC") == "abc" );
@@ -94,7 +99,7 @@ TEST(utils) { // ========================================================= utils
   CHECK(join({"a","b","c"},"-") == "a-b-c" );
   CHECK(repeat("12",3) == "121212");
   CHECK(replace("a:=1",":=","=") == "a=1");
-};
+}//*///
 
 TEST(Time) { // =========================================================== Time
   CHECK(sizeof(Time) == sizeof(double));
@@ -102,25 +107,7 @@ TEST(Time) { // =========================================================== Time
 
   Time t;
   CHECK(t.str() == t.ctime());
-}
-
-TEST(Atomic){ //========================================================= Atomic
-  Atomic<int> i; CHECK(i == 0);
-
-  i = 1;   CHECK(i == 1);
-  i = i+1; CHECK(i == 2);
-  i = i-1; CHECK(i == 1);
-  i |= 3;  CHECK(i == 3);
-  i &= 1;  CHECK(i == 1);
-
-  CHECK(i.CAS(1,2) && i == 2);
-  CHECK(!i.CAS(3,1) && i == 2);
-
-  CHECK(i++ == 2 && i == 3);
-  CHECK(i-- == 3 && i == 2);
-  CHECK(++i == 3);
-  CHECK(--i == 2);
-}
+}//*///
 
 // ======================================================================= Actor
 TEST(Actor){
@@ -140,6 +127,34 @@ TEST(Actor){
   // C(); CHECK(X==4);
 
   A.stop(); CHECK(!A.running());
-};
+}//*///
 
+//===================================================================== TEST(Id)
+TEST(Id){
+  Id a("test_id1") , b("test_id1");
+  CHECK(a == 1L);
+  CHECK(b == 2L);
+
+  Id c("test_id2");
+  CHECK(c.id == 1L);
+}//*///
+
+// ================================================================ TEST(Atomic)
+TEST(Atomic){ 
+  Atomic<int> i; CHECK(i == 0);
+
+  i = 1;   CHECK(i == 1);
+  i = i+1; CHECK(i == 2);
+  i = i-1; CHECK(i == 1);
+  i |= 3;  CHECK(i == 3);
+  i &= 1;  CHECK(i == 1);
+
+  CHECK(i.CAS(1,2) && i == 2);
+  CHECK(!i.CAS(3,1) && i == 2);
+
+  CHECK(i++ == 2 && i == 3);
+  CHECK(i-- == 3 && i == 2);
+  CHECK(++i == 3);
+  CHECK(--i == 2);
+}//*///
 }// UniQ • Released under GPL 3 licence

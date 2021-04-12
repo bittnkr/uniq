@@ -47,4 +47,4 @@
 // #include "sha256.h" // cryptographic function
 // #include "fs.h" // filesystem utilities readFile, saveFile() ...
 
-//uniq
+// UniQ • Released under GPL 3 licence

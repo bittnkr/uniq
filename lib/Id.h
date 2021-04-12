@@ -1,40 +1,42 @@
 //==============================================================================
-// Id • A class with id
+// Id • Add id property to a class
 //==============================================================================
 #pragma once
-// #include "uniq.h"
 namespace uniq {
-//======================================================================= Id
-template <typename T> class Id{ 
-  inline static map<string, integer> Ids = {};
-  inline static mutex m = {};
 
+//======================================================================= Id
+class Id{ 
+  inline static map<string, Atomic<long>> Ids = {};
+  inline static std::mutex mutex = {};
 public:
-  Id(){ 
-    lock_guard<mutex> lock(Id::m); // Mutex(Ids);
-    auto r = &Ids[ anyType(*this) ];
-    id = AtomicAdd(*r,1);
-    // log("Id()", group, " ", id);
+  long id=0;
+
+  Id(string group=""){ 
+    lock_guard<std::mutex> lock(Id::mutex);
+    if(group=="") 
+      group = anyType(*this);
+    id = ++Ids[group];
   };
 
-  integer id;
-  inline operator integer() const { return id; }
+  inline operator long() const { return id; }
   
   bool operator<(const Id &other) const { return id < other.id; };
   bool operator>(const Id &other) const { return id > other.id; };
   bool operator==(const Id &other) const { return id == other.id; };
+
+  bool operator<(const long other) const { return id < other; };
+  bool operator>(const long other) const { return id > other; };
+  bool operator==(const long other) const { return id == other; };
 };
 
-// #define ID(x) Id(#x);
-
-/*/========================================================================= test
+/*/===================================================================== TEST(Id)
 TEST(Id){
-  Id<int> a, b;
-  CHECK(b.id > 0);
-  CHECK(b > 0);
-  CHECK(a < b);
+  Id a("test_id1") , b("test_id1");
+  CHECK(a == 1L);
+  CHECK(b == 2L);
 
-  Id<string> c;
-  CHECK(c.id == 1);
-} //*///
-} // uniq • Released under GPL 3.0
+  Id c("test_id2");
+  CHECK(c.id == 1L);
+}//*///
+
+} // UniQ • Released under GPL 3 licence

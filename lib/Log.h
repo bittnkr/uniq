@@ -45,12 +45,12 @@ string logn(Args &&... args ){
 
 // string log(double n) { return uniq::log(n); }
 
-TEST(Log){ //=============================================================== Log
-  throw exception(); // to see an exception
+//========================================================================== Log
+TEST(Log){ 
   // Log say, err("cerr");
   // say("Hola!");
   // err("Olá");
   // log("To be or not?");
-}
+}//*///
 
 }// UniQ • Released under GPL 3 licence

@@ -10,6 +10,7 @@ template<class T> inline T AtomicXCH(T& a, const T b) { return __atomic_exchange
 // template<class T> inline bool AtomicCAS(T& value, T& old, const T new_) { 
 //   return __atomic_compare_exchange(&value, &old, &new_, false, CST, CST); }
 
+// ====================================================================== Atomic
 template<class T>
 struct Atomic {
   T value;
@@ -23,7 +24,7 @@ struct Atomic {
   inline T add(const T v) { return AtomicAdd(value, v); }
   inline T sub(const T v) { return AtomicSub(value, v); }
   inline T xch(const T v) { return AtomicXCH(value, v); }
-  // inline bool CAS(T old, T v) { return AtomicCAS(&value, &old, &v, false, CST, CST); }
+  inline bool CAS(T old, T v) { return __atomic_compare_exchange(&value, &old, &v, false, CST, CST); }
  
   inline bool swapLower(T v) {
     int old;
