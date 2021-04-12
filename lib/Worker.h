@@ -11,7 +11,7 @@ class Worker : public Queue<voidfunction>{ //, public Id {
   thread thrd;
  public:
   Worker(int queueSize = 1) : Queue<voidfunction>(queueSize) {
-    this->enter = [&]{
+    this->beat = [&]{
       voidfunction f;
       while (this->running()) {
         try {
@@ -30,7 +30,7 @@ class Worker : public Queue<voidfunction>{ //, public Id {
     // workers.push_back(thread(&ThreadPool::worker, this, i + 1));
   }
 
-  void loop(){ this->enter(); }
+  void loop(){ this->beat(); }
 
   template <typename Func, typename... Args>
   inline int run(Func&& f, Args&&... args) {
