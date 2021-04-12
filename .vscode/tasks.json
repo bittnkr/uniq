@@ -33,10 +33,12 @@
         "-fpermissive",
         "-Wfatal-errors", // stop on first error
         "-fcompare-debug-second", // no notes
+
         "-lpthread",
-        // "-lbfd", // for backward.hpp
-        // "-ldl", // for backward.hpp
-        // "-ldw", // for backward.hpp
+        "-lbfd", // for backward.hpp
+        "-ldl", // for backward.hpp
+        "-ldw", // for backward.hpp
+
         // "-fopenmp",
         // "-msse3",
         // "-lX11",
@@ -75,11 +77,24 @@
         "-fpermissive",
         "-Wfatal-errors", // stop on first error
         "-fcompare-debug-second", // no notes
+
         "-lpthread",
-        "-lbfd", // for backward.hpp
-        "-ldl", // for backward.hpp
-        "-ldw", // for backward.hpp
+        // "-lbfd", // for backward.hpp
+        // "-ldl", // for backward.hpp
+        // "-ldw", // for backward.hpp
+
+        // "-fopenmp",
         // "-msse3",
+        // "-lX11",
+        // "-lncurses",
+        // "-lOpenCL",
+        // "-lOpenGL",
+        // "-lglut",
+        // "-lglfw",
+        // "-lGLU",
+        // "-lGL",
+        // "-lGLEW",
+        // "-lGLAD",
       ],
       "options": {
         "cwd": "${workspaceFolder}"
@@ -105,16 +120,21 @@
         "-rdynamic",
         "-fpermissive",
         "-Wfatal-errors", // stop on first error
+
         "-lpthread",
-        "-ldw", // libunwid for backward.hpp
-        "-fstandalone-debug",
+
+        "-lbfd", // for backward.hpp
+        "-ldl", // for backward.hpp
+        "-ldw", // for backward.hpp
         // "-fopenmp",
         // "-msse3",
-        // "-save-temps"
+        // "-lX11",
+        // "-lncurses",
         // "-lOpenCL",
         // "-lOpenGL",
         // "-lglut",
         // "-lglfw",
+        // "-lGLU",
         // "-lGL",
         // "-lGLEW",
         // "-lGLU",
@@ -143,20 +163,26 @@
         "${workspaceFolder}/lib",
         "-I",
         "${workspaceFolder}/libs",
+        
         "-std=c++17",
         "-g",
         "-rdynamic",
         "-fpermissive",
         "-Wfatal-errors", // stop on first error
+
         "-lpthread",
-        "-fstandalone-debug",
-        "-ldw", // libunwid for backward.hpp
+        // "-lbfd", // for backward.hpp
+        // "-ldl", // for backward.hpp
+        // "-ldw", // for backward.hpp
         // "-fopenmp",
         // "-msse3",
+        // "-lX11",
+        // "-lncurses",
         // "-lOpenCL",
         // "-lOpenGL",
         // "-lglut",
         // "-lglfw",
+        // "-lGLU",
         // "-lGL",
         // "-lGLEW",
         // "-lGLU",

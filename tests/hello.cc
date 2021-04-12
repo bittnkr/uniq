@@ -1,28 +1,27 @@
-// Hello world for uniq library
-// compile using ./build hello
+// Hello world for UniQ library
+// compile using ./build sayHello
 #include "uniq.h"
 using namespace uniq;
 
-void hello(string s, int N) { 
+void sayHello(string msg, int i) { 
 
-  if (N % 100000 == 0){
-    log("Hello ", s, " ", N);
+  if (i % 100'000 == 0)
+    log("Hello ", msg, " #", i);
 
-    for (auto i = N-1; i > N-100001; i--){
-      run(hello, s, i);
-    }
-  }
-
-  if(N<=0) pool().stop();
+  if(!i) pool().stop();
 }
 
 int main() { 
+  log("Say Hello in paralel a million times...");
+
+  pool().start();
   pool().showstats = true;
-  
-  run(hello, "World", 1e6); // say hello in paralel a million times
-  
+
+  for (int i = 1e6; i>=0 ; i--)
+    run(sayHello, "World", i);
+ 
   pool().join();
-  log("");
+  log("\n");
   return 0;
 }
-//uniq • Released under GPL 3.0
+//UniQ • Released under GPL 3 licence

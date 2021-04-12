@@ -23,4 +23,4 @@ TEST(Name){
   CHECK(alice.name=="Alice");
   CHECK(alice<bob);
 }//*/
-}// uniq • Released under GPL 3.0
+}// UniQ • Released under GPL 3 licence

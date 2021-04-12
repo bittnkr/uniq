@@ -2,6 +2,8 @@
 // Queue • A lock free multi-reader multi-writer circular buffered queue.
 //==============================================================================
 #pragma once
+#include "Set.h"
+#include "Actor.h"
 namespace uniq {
 
 // ======================================================================= Queue
@@ -83,4 +85,4 @@ private:
   const T& last() { return buffer[out & mask]; }
 };
 
-}// uniq • Released under GPL 3.0
+}// UniQ • Released under GPL 3 licence

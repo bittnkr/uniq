@@ -5,7 +5,10 @@ namespace uniq {
 
 template<class T> inline T AtomicAdd(T& a, const T b) { return __atomic_fetch_add(&a, b, CST); }
 template<class T> inline T AtomicSub(T& a, const T b) { return __atomic_fetch_sub(&a, b, CST); }
-template<class T> inline T AtomicExchange(T& a, const T b) { return __atomic_exchange(&a, b); }
+template<class T> inline T AtomicXCH(T& a, const T b) { return __atomic_exchange(&a, b); }
+
+// template<class T> inline bool AtomicCAS(T& value, T& old, const T new_) { 
+//   return __atomic_compare_exchange(&value, &old, &new_, false, CST, CST); }
 
 template<class T>
 struct Atomic {
@@ -19,9 +22,8 @@ struct Atomic {
 
   inline T add(const T v) { return AtomicAdd(value, v); }
   inline T sub(const T v) { return AtomicSub(value, v); }
-  inline T xch(T v) { return AtomicExchange(value, v); }
-
-  inline bool CAS(T old, T v) { return __atomic_compare_exchange(&value, &old, &v, false, CST, CST); }
+  inline T xch(const T v) { return AtomicXCH(value, v); }
+  // inline bool CAS(T old, T v) { return AtomicCAS(&value, &old, &v, false, CST, CST); }
  
   inline bool swapLower(T v) {
     int old;
@@ -62,4 +64,4 @@ struct Atomic {
   operator T() const { T v; __atomic_load(&value, &v, CST); return v; }
 };
 
-}// uniq • Released under GPL 3.0
+}// UniQ • Released under GPL 3 licence

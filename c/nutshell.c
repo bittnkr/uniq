@@ -24,4 +24,4 @@ int pop(int &item) {
   buffer = 0;
   return o;
 };
-// Released under GPL3, as part of the uniQ project
+}// UniQ • Released under GPL 3 licence

@@ -1,5 +1,5 @@
-// This is a early attemp to migrate uniQ lib to JavaScript. 
-// See README.md for details - Released under GNU 3.0
+// This is a early attemp to migrate the UniQ lib to JavaScript. 
+// See README.md for details
 const inNodeJS = typeof module != 'undefined'
 
 const assert = inNodeJS ? require('assert') : console.assert
@@ -64,3 +64,4 @@ function sleep(msg) {
   return new Promise(resolve => setImmediate(resolve))
   // return new Promise(resolve => setTimeout(resolve))
 }
+// UniQ • Released under GPL 3 licence

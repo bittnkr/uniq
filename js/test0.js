@@ -1,6 +1,7 @@
-// This is a early attemp to migrate uniQ lib to JavaScript. 
-// SINGLE THREADED WITH Promises
-// See README.md for details - Released under GNU 3.0
+// This is a early attemp to migrate the UniQ to JavaScript. 
+// SINGLE THREADED with Promises 
+// See uniq.js for a multithread version
+// Released under GPL 3 licence
 
 const AtomicInt32 = () => new Int32Array(new SharedArrayBuffer(Int32Array.BYTES_PER_ELEMENT))
   , AtomicInt32Array = (length) => new Int32Array(new SharedArrayBuffer(Int32Array.BYTES_PER_ELEMENT * length))

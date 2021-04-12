@@ -79,4 +79,4 @@ end;
 
 end.
 
-// Part of uniQ library released under GNU 3.0 
+// Part of UniQ library released under GNU 3.0 

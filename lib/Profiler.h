@@ -84,8 +84,9 @@ TEST(Profiler){ TT
   workers.push_back(thread(test_prof_h));
   workers.push_back(thread(test_prof_g));
   for (auto& w : workers) w.join();
-  // // run(f); run(g); run(h);
-  // // join();
+
+  // run(f); run(g); run(h); join();
+
   // profiler().save();
   CHECK(profiler().traces.size()==9);
 }//*/
@@ -93,4 +94,4 @@ TEST(Profiler){ TT
 #else 
 #define TT
 #endif // TRACE
-} // uniq • Released under GPL 3.0
+} // UniQ • Released under GPL 3 licence

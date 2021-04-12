@@ -133,4 +133,4 @@ inline Time CpuTime() { return (ticks()-START_TICKS) * CLOCK_CYCLE; } // 13ns
 inline Time CpuTime(Time prev) { return CpuTime()-prev;}
 
 
-}// uniq • Released under GPL 3.0
+}// UniQ • Released under GPL 3 licence

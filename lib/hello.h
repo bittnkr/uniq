@@ -42,4 +42,4 @@ TEST(Hello){
   // bob("Olá");
   // hello("Que tal?");
 }//*/
-}// uniq • Released under GPL 3.0
+}// UniQ • Released under GPL 3 licence

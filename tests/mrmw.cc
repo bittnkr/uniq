@@ -1,16 +1,16 @@
-// basic producer/consumer multi reader multi writer test for uniQ Library
-// this test was the first working proof of the ideia
-// for a more practical use of the queue look at mrmw2.cc
+// basic producer/consumer multi reader multi writer test for UniQ Library
+// this is the evolution of nutshell/main.cc using the official queue
+// but yet using std:: thdread for an example using run() function see mrmw2.cc
 // compile using ./build mrmw
 
 #include "std.h"
 #include "uniq.h"
+using namespace uniq;
 
-uniq::Atomic<long> total(0); // a checksum, to ensure that all count pushed are poped
+Atomic<long> total(0); // a checksum, to ensure that all count pushed are poped
 
-uniq::Queue<int> Q; // using the default 64 positions
-// Q(1); // stress test using a single position queue
-// Q(64*1024); // performance using a 64k queue
+Queue<int> Q; // using the default 64 positions
+// Queue<int> Q(1); // stress test using a single position queue
 
 void producer(int items) // pushes data into the queue
 {
@@ -21,8 +21,9 @@ void producer(int items) // pushes data into the queue
     sum += i;
   }
   Q.push(-1); // signal termination with -1
+
   total += sum;
-  printf("Produced: %ld\n", sum);
+  log(GRN, "Produced: ", sum);
 }
 
 void consumer() // takes data from the queue
@@ -33,27 +34,24 @@ void consumer() // takes data from the queue
     sum += v;
 
   total -= sum;
-  printf("Consumed: %ld\n", sum);
+  log(RED, "Consumed: ", sum);
 }
 
 int main(){
   total = 0;
-  printf("\nChecksum: %ld (it must be zero)\n", total.value);
-  long Items = 1000*1000;  // how many items each producer will push into the queue
+
+  long Items = 10'000'000;  // how many items each producer will push into the queue
   int pairs = thread::hardware_concurrency()/2;
 
-  printf("Creating %d producers & %d consumers\n", pairs, pairs);
-  printf("to flow %ld items through the queue.\n\n", Items*pairs);
+  log("Creating ", pairs*2, " producers & consumers to flow ", Items, " items trough the queue.\n");
 
   vector<thread> pool;
   for (auto i = 0; i < pairs; i++) {
     pool.push_back(thread(consumer));
     pool.push_back(thread(producer, Items));
   }
- 
-  for (auto &t : pool) t.join(); // Wait termination
+   for (auto &t : pool) t.join(); // Wait termination
 
-  printf("\nChecksum: %ld (it must be zero)\n", total.value);
-  printf("\ntasks: %d\n", Q.counter());
-  return 0; // quick_exit(0);
+  log("\nChecksum: ", total.value, "\ntasks: ", Q.counter());
+  return 0;
 }

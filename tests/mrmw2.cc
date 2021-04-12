@@ -1,4 +1,4 @@
-// producer/consumer test for uniQ Library
+// producer/consumer test for
 // See README.md for details
 // compile using ./build test
 
@@ -54,6 +54,6 @@ int main() {
   log("\nChecksum: ",total," (it must be zero)");
   log("tasks: ", pool().counter() );
   log("messages: ", Q.counter() );
-  quick_exit(0); // return 0;
+  return 0;
 }
 //uniq

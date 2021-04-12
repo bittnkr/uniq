@@ -40,4 +40,4 @@ template <typename T> class OpenQueue: public Set<T>, public Actor {
   inline int done() { return out-1; }
 };
 
-}// uniq • Released under GPL 3.0
+}// UniQ • Released under GPL 3 licence

@@ -1,12 +1,11 @@
 #pragma once
-// #include "uniq.h"
 namespace uniq {
 
 // ThreadPool =================================================================
 // #include "worker.h"
 struct ThreadPool : public Queue<voidfunction> {
   vector<thread> workers;
-  // vector<uniq::Worker&> workers;
+  // vector<uniqWorker&> workers;
   ThreadPool(int size = 0): Queue<voidfunction>(64) {
     if (!size) size = thread::hardware_concurrency();
     for (auto i = 0; i < size; i++) {
@@ -20,7 +19,6 @@ struct ThreadPool : public Queue<voidfunction> {
   bool showstats = false;
 
   void worker(int id) {
-    if(showstats) uniq::out("\n", colorcode(id), sstr("worker[", id, "] started"));
     int done = 0;
     Time t, total(0);
     voidfunction f;
@@ -35,8 +33,6 @@ struct ThreadPool : public Queue<voidfunction> {
 
   template <typename Func, typename... Args>
   inline int run(Func &&f, Args &&...args) {
-    if(!this->running() && counter() < 0) 
-      start();
     // voidfunction vf = [this]()->void { f(args...); }
     voidfunction vf = bind(forward<Func>(f), forward<Args>(args)...);
     return push(vf);
@@ -82,6 +78,7 @@ struct ThreadPool : public Queue<voidfunction> {
 // ====================================================================== pool()
 inline ThreadPool& pool(int size=0) {
   static ThreadPool p(size);
+  if(!p.running() && p.counter() < 0) p.start();
   return p;
 }
 
@@ -104,4 +101,4 @@ TEST(Pool) {
   pool().join();
   CHECK(rounds==1000);
 }
-}// uniq • Released under GPL 3.0
+}// UniQ • Released under GPL 3 licence

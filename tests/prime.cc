@@ -1,4 +1,4 @@
-// parallel primality test for uniQ Library
+// parallel primality test
 // compile using ./build prime
 #include "uniq.h"
 using namespace uniq;

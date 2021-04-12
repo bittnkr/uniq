@@ -2,7 +2,6 @@
 // Worker • A Queue of functions whose enter() runs in its own thread.
 //==============================================================================
 #pragma once
-// #include "uniq.h"
 namespace uniq {
 
 thread_local int TaskID = 0;  // the id of the current TaskID TaskID
@@ -68,4 +67,4 @@ TEST(Worker) {  //=======================================================
 
   CHECK(X == 1);
 }
-}  // namespace uniq
+}// UniQ • Released under GPL 3 licence

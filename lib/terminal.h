@@ -71,4 +71,4 @@ string log(double n, Args &&... args ){
   return out(n, args...,"\n");
 }
 
-}// uniq • Released under GPL 3.0
+}// UniQ • Released under GPL 3 licence

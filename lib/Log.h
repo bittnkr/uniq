@@ -44,8 +44,6 @@ string logn(Args &&... args ){
 }
 
 // string log(double n) { return uniq::log(n); }
-// string log(integer n) { return uniq::log(n); }
-// string log(uinteger n) { return uniq::log(n); }
 
 TEST(Log){ //=============================================================== Log
   throw exception(); // to see an exception
@@ -55,4 +53,4 @@ TEST(Log){ //=============================================================== Log
   // log("To be or not?");
 }
 
-}// uniq • Released under GPL 3.0
+}// UniQ • Released under GPL 3 licence
