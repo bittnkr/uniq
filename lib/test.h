@@ -127,5 +127,9 @@ TEST(Test) {
   CHECK_EXCEPTION(throw exception());
   // CHECK(1==2);  // to see a failure
   // throw exception(); // to see an exception
+
+  // todo: test exceptions inside lambdas
+  // CHECK_EXCEPTION([&]{ throw exception(); }() ); 
+  // CHECK_EXCEPTION( assert(false) );
 }
 }// UniQ • Released under GPL 3 licence
