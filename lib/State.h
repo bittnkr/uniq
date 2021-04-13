@@ -1,36 +1,40 @@
 //==============================================================================
-// StringMachine is a state machine
-// StringMachine or a collection of States
+// State is { data + events }
+// StateMachine or a collection of States
 //==============================================================================
 #pragma once
 #include "call.h"
 #include "utils.h"
 #include "test.h"
 namespace uniq {
-
-#define VAR(V,init) __typeof(init) V=(init)
-#define EACH(I,C) for(VAR(I,(C).begin());I!=(C).end();I++)
-// #define foreach(V, lambda) do { for_each(V.begin(), V.end(), lambda) } while(0)
+class StringMachine;
 
 //======================================================================== State
 struct State {
   string state;
-  voidfunction onenter = [&]{ };
-  voidfunction onexit = [&]{ };
-
-  ~State(){ 
-    onexit(); };
+  voidfunction onenter = nullptr;
+  voidfunction onexit = nullptr;
+  // vector<State&> transitions;
 
   // optional<vector<State&>> transitions;
+  // State(string state, voidfunction onenter = nullptr, voidfunction onexit = nullptr)
+  // : state(state), onenter(onenter), onexit(onexit ){ }
+
+  ~State(){ if(onexit) onexit(); };
 
   // void exit(State& other) { onexit(); } 
   State& enter(State& other) { other.onexit(); *this=other; onenter(); return *this; } 
 
   inline bool operator[](const string name) { return state == name; }
 
-  inline bool operator==(const string name) { return state == name; }
+  inline bool is(const string name) { return state == name; }
+  inline bool operator==(const string name) { return is(name); }
   inline bool operator!=(const string name) { return state != name; }
   // inline bool operator=(const string name) { 
+
+  inline bool is(const State& other) { return other.state == state; }
+  inline bool operator==(const State& other) { return is(other); }
+  inline bool operator!=(const State& other) { return other.state != state; }
 
   // inline State& operator()(const string name) { *this = name; return *this; }
   inline State& operator=(State& other){
@@ -42,35 +46,19 @@ struct State {
     onenter();
     return *this;
   }
+
+  friend StringMachine;
+  friend std::ostream& operator << ( std::ostream& os, const State& s) { return os << s.state; }
 };
-ostream& operator<<(ostream& os, State& s) { return os << s.state; }
 
 //================================================================== StringMachine
-typedef function<void(State, State)> StateEnterFunction;
-typedef function<void(State)> StateExitFunction;
-
 class StringMachine { // public StateMachine<string>
  private:
-  optional<StateEnterFunction> onenter;
-  optional<StateExitFunction> onexit;
+  function<void(State&, State&)> onchange;
   map<string, State> states;
- public:
-  StringMachine(){};
+  State* current;
 
-  StringMachine(string names) { 
-    onenter = [&](State state, State from) { };
-    onexit = [&](State from) { };    
-    parse(names); 
-  };
-
-  StringMachine(function<void(StringMachine&)> init) { init(*this); };
-    
-  ~StringMachine(){ 
-    for(auto [key,s] : states)
-      s.onexit=[]{};
-    // states.clear(); 
-  };
-
+  // State& parse(string names=""){ 
   void parse(string names=""){
     vector<string> tr;
     auto tokens = split(names, ' ');
@@ -80,35 +68,67 @@ class StringMachine { // public StateMachine<string>
     // foreach(, [&](string const& s){ states[t] = {}; });
   }
 
+ public:
+  StringMachine(){};
+
+  StringMachine(const string names) { 
+    onchange = nullptr; //[&](State state, State from) { };
+    // log(parse(names), this->current->state);
+    parse(names); 
+  };
+
+  // StringMachine(function<void(StringMachine&)> init) { init(*this); };
+    
+  ~StringMachine(){ 
+    for(auto &s : states) 
+      s.second.onexit = nullptr;
+  };
+
   // change events
-  void on(const string name, voidfunction onenter, voidfunction onexit = nullptr) {
+  State& on(const string name, voidfunction onenter, voidfunction onexit = nullptr) {
     states[name].onenter = onenter;
     if(onexit) states[name].onexit = onexit;
+    // assert(states.count(name));    
+    // states[name].onenter();
+    return states[name];
+    log(states[name].state);
   }
 
-  void remove(const string name) {
-    states.erase(name);
-  }
+  void remove(const string name) { states.erase(name); }
+
+  // inline bool is(const string name) { return *current == states[name];  }
+  // inline bool operator[](const string name) { return is(name); }
 
   inline State& operator[](const string name) { 
     assert(states.count(name));    
     return states[name]; 
   }
 
+  // inline State& operator()(const string name, voidfunction onenter= nullptr, voidfunction onexit = nullptr) { 
+  //   return on(name, onenter, onexit); }
   inline State& operator()(const string name) { 
     assert(states.count(name));    
     states[name].onenter();
     return states[name];
   }
-};
 
+  friend ostream& operator << ( ostream& os, const StringMachine& m) { 
+    os << "[";
+    auto it = m.states.begin(); //std::begin is a free function in C++11
+    while(it != m.states.end()) {
+      if (it != m.states.begin()) os << ",";
+      os << it->second;
+      it++;
+    }
+    return os<<"]";
+  }
+};
 
 //================================================================= TEST(StringMachine)
 TEST(StringMachine) {
   map<string, int> counter;
 
-  // StringMachine M("red grn yel red");
-  StringMachine M([&](StringMachine& ss){ ss.parse("red grn yel red"); });
+  StringMachine M("grn red yel"); // M([&](StringMachine& ss){ ss.parse("red->grn->yel->red"); });
 
   M.on("red", 
     [&]{ out(BLD,RED,"⏺"); counter["red"]++; },  // onenter
@@ -121,6 +141,8 @@ TEST(StringMachine) {
   M.on("grn",
     [&]{ out(BLD,GRN,"⏺"); counter["grn"]++; }, 
     [&]{ out(DIM,GRN,"⏺"); counter["grn"]--; });
+
+  CHECK(sstr(M)=="[grn,red,yel]");
 
   State S = M("red");
   CHECK(S["red"] && !S["yel"] && !S["grn"]);
