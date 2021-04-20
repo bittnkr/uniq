@@ -1,28 +1,20 @@
 #pragma once
-#include "uniq.h"
-#include "Name.h"
-#include "call.h"
+#include "Event.h"
 namespace uniq {
 
 struct EventEmitter{
-
-  struct functionCompare{ bool operator()(const voidfunction a, const voidfunction b) const { return &a < &b; }; };
-  map<string, set<voidfunction, functionCompare>> subs;
+  map<string, Event> events;
 
   void listen(const string name, const voidfunction f){ //, Args &&...args) {
-    lock_guard<std::mutex> lock(mutex);
-    subs[name].insert(f);
+    events[name].listen(f);
   }
 
   void remove(const string name, const voidfunction f) {
-    lock_guard<std::mutex> lock(mutex);
-    subs[name].erase(f);
+    events[name].remove(f);
   }
 
   void emit(string name) { 
-    lock_guard<std::mutex> lock(mutex);
-    for (auto f : subs[name]) 
-      f();
+    events[name].emit();
   };
 };
 
@@ -36,9 +28,11 @@ TEST(EventEmitter){
   e.listen("pong", [&]{ e.emit(V < 17 ? "ping" : "done"); /*out(RED," pong ", V);*/ });
   e.listen("pong", [&]{ /*out(MAG," pong ",V);*/ });
 
-  e.listen("done", [&]{ CHECK(V == 17); /*out(GRY," done!", V);*/ });
+  e.listen("done", [&]{ 
+    CHECK(V >= 17); /*out(GRY," done!", V);*/ });
 
   e.emit("ping"); // start the flow
-  WAIT(V==17);
+  WAIT(V>=17);
 };
+
 }// UniQ • Released under GPL 3 licence

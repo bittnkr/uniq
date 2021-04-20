@@ -14,9 +14,8 @@ template <typename T> struct State{
   T state = T {};
   voidfunction onenter = nullptr;
   voidfunction onexit = nullptr;
+  int counter = 0;
   // vector<State<T>&> transitions;
-  // State<T>(T state, voidfunction onenter, voidfunction onexit) : state(state), onenter(onenter), onexit(onexit ){ }
-  // State<T>& enter(State<T>& other) { other.onexit(); *this=other; onenter(); return *this; } 
 
   inline bool operator[](const T s) { return state == s; }
 
@@ -51,6 +50,7 @@ class StateMachine : public vector<State<T>>{
     if(current) current->onexit();
     current = &states[s];
     current->onenter();
+    current->counter++;
     return *current;
   }
   inline State<T>& operator()(const T s, voidfunction onenter= nullptr, voidfunction onexit = nullptr) { 
@@ -87,17 +87,19 @@ public:
     for(auto &t : tokens) states[t].state = t;
   }
 
+  StringMachine() : StateMachine<string>() { }
+
   StringMachine(const string names) : StateMachine<string>() { 
     // log(parse(names), this->current->state);
     parse(names); 
   };
 };
 
-//=========================================================== TEST(StateMachine)
-TEST(StateMachine) {
+//================================================================== TEST(State)
+TEST(State) {
   map<string, int> counter;
 
-  StringMachine M("red yel grn"); // M([&](StateMachine& ss){ ss.parse("red->grn->yel->red"); });
+  StringMachine M("red yel grn"); //to do: M("red->grn->yel->red");
 
   M.on("red", 
     [&]{ out(BLD,RED,"⏺"); counter["red"]++; },  // onenter

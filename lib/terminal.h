@@ -2,6 +2,8 @@
 #include "std.h"
 namespace uniq {
 
+// TerminalColor
+
 const string RST("\033[0m"); // reset
 const string BLD("\033[1m"); // bold/bright
 const string DIM("\033[2m"); // dimmed
@@ -70,5 +72,15 @@ template <typename... Args>
 string log(double n, Args &&... args ){
   return out(n, args...,"\n");
 }
+
+// =================================================== terminal
+TEST(terminal) { 
+  CHECK(RED+"X"+RST == "\033[31mX\033[0m");
+  CHECK(colorcode(1)=="\033[22;31m");
+  CHECK(colorcode(13)=="\033[22;37m");
+  // for (auto i = 0; i < 20; i++)
+  //   log(colorcode(i),i," ",replace(colorcode(i),"\033",""),RST);
+}//*///
+
 
 }// UniQ • Released under GPL 3 licence

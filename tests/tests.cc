@@ -9,6 +9,10 @@ using namespace uniq;
 
 int main(){
   // set_terminate([]{ log("Exception"); abort(); });
+  // pool().showstats = 1;
+
   int r = runTests(); 
+
+  // pool().join();
   quick_exit(r);
 }

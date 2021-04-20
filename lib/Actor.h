@@ -42,4 +42,24 @@ struct Actor  { // todo: inherit Actor from State
   inline void operator()() { beat(); }
 };
 
+// ======================================================================= Actor
+TEST(Actor){
+  int X = 0;
+  // increment X with a lambda call
+  auto L = [&]{ X++; }; L(); CHECK(X==1);
+
+  // increment X with the actor, using the same lambda
+  Actor A(L); CHECK(A.running());
+  A(); CHECK(X==2);
+
+  // increment X with another actor and lambda
+  Actor B([&]{ X=X+1; }); 
+  B(); CHECK(X==3);
+
+  // Actor<int>C(B); // passing a functor as the callable param copy constructor??
+  // C(); CHECK(X==4);
+
+  A.stop(); CHECK(!A.running());
+}//*///
+
 }// UniQ • Released under GPL 3 licence

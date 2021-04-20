@@ -37,10 +37,11 @@ TEST(Event){
   pong.listen([&]{ V < 17 ? ping.emit() : done.emit(); /*out(RED," pong ", V);*/ });
   pong.listen([&]{ /*out(MAG," pong ",V);*/ });
 
-  done.listen([&]{ CHECK(V == 17); /*out(GRY," done!", V);*/ });
+  done.listen([&]{ CHECK(V >= 17); /*out(GRY," done!", V);*/ });
 
   ping.emit(); // start the flow
   // WAIT(V==17);
   // pool().join();
 };
+
 }// UniQ • Released under GPL 3 licence

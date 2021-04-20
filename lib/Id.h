@@ -29,7 +29,7 @@ public:
   bool operator==(const long other) const { return id == other; };
 };
 
-/*/===================================================================== TEST(Id)
+//===================================================================== TEST(Id)
 TEST(Id){
   Id a("test_id1") , b("test_id1");
   CHECK(a == 1L);
@@ -37,6 +37,5 @@ TEST(Id){
 
   Id c("test_id2");
   CHECK(c.id == 1L);
-}//*///
-
+}
 } // UniQ • Released under GPL 3 licence

@@ -3,14 +3,14 @@
 //==============================================================================
 #pragma once
 #include "Name.h"
-#include "OpenQueue.h"
+#include "Vector.h"
 namespace uniq {
 
 //========================================================================== Log
-class Log : public uniq::OpenQueue<string>, public Name{ 
+class Log : public uniq::Vector<string>, public Name{ 
 public:
   bool hasColors = 1;
-  OpenQueue<string> Q; // Queue of strings waiting to be flushed
+  Vector<string> Q; // Queue of strings waiting to be flushed
 
   Log(string name="console") : Name(name){ };
 
@@ -43,14 +43,16 @@ string logn(Args &&... args ){
   return out(args..., "\n");
 }
 
-// string log(double n) { return uniq::log(n); }
-
-//========================================================================== Log
+//==================================================================== TEST(Log)
 TEST(Log){ 
+  CHECK(true);
   // Log say, err("cerr");
   // say("Hola!");
   // err("Olá");
   // log("To be or not?");
 }//*///
+
+
+// string log(double n) { return uniq::log(n); }
 
 }// UniQ • Released under GPL 3 licence

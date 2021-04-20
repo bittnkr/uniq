@@ -1,160 +1,75 @@
 // Dependable tests, that cannot be with original code because dependencies 
 //==============================================================================
-#include "test.h"
+// #include "uniq.h"
 namespace uniq {
 
-// ========================================================== Queue
-TEST(Queue){ 
-  Queue<int> q(64);
-  vector<thread> threads;
+#ifdef TESTS
 
-  atomic<int> produced(0);
-  auto producer = [&produced, &q](int N){
-    int i = 0;
-    while( ++i <= N && q.push(i) ) 
-      produced += i;
-    q.push(-1);
+map<string, string> Test::glyphs = {
+    {"ready", "."}, {"passed", BLD+GRN+"✓"+RST}, 
+    {"failed", BLD+RED+"✘"+RST}, {"exception", "💥"}, {"testset", ""}
   };
 
-  atomic<int> consumed(0);
-  auto consumer = [&consumed, &q](){
-    int v;
-    while (q.pop(v) && v != -1)
-      consumed += v;
-  };
+string Test::print() {
+  if (state == "passed") return TESTS>1 ? Test::glyphs[state] : ""; 
+  return sstr("\n ", Test::glyphs[state], GRY, "(", RED,BLD, expr, GRY, ")", RST, " ", file, ":", line,"");
+}
 
-  auto t = CpuTime();
+string TestSet::print() {
+  string s = "";
 
-  for (int i = 0; i < thread::hardware_concurrency()/2; i++) {
-    threads.push_back(thread(consumer));
-    threads.push_back(thread(producer, 100000));
-  };
+  for (auto& t : tests)
+    s += sstr(*t);
 
-  for (auto &t : threads) t.join();
+  if (TESTS > 1 || errors) {
+    s = sstr(ORA, Test::glyphs[state], expr, RST, " ") + s;
+    if (time > MILI)
+      s += sstr(GRN, " ", Time(time));
+    s += errors ? "\n" : sstr(GRY, " (", GRY, split(file, '/').back(), ":", line, ")\n");
+  }
+  return s;
+}
 
-  CHECK(produced != 0);
-  CHECK(produced == consumed);
-  // log("Queue:", double(CpuTime(t)));
-}//*///
+void TestSet::test() {
+  auto tm = CpuTime();
+  try {
+    testFunc();
+    // pool().run(&TestSet::testFunc, this);
+    // pool().wait();
 
-// ================================================== OpenQueue
-TEST(OpenQueue){ 
-  OpenQueue<int> q(64);  
-  vector<thread> threads;
+    for (auto& test : this->tests)
+      test->test();
+      // run(&Test::test, this);  
 
-  atomic<int> produced(0);
-  auto producer = [&produced, &q](int N){
-    int i = 0;
-    while( ++i <= N && q.push(i) ) 
-      produced++;
-    q.push(-1);
-  };
+    // pool().wait();
+  } catch (const std::exception& e) {
+    add("exception", e.what(), file, line);
+  }
+  time = tm(CpuTime());
+}
 
-  atomic<int> consumed(0);
-  auto consumer = [&consumed, &q](){
-    int v;
-    while (q.pop(v) && v != -1)
-      consumed++;
-  };
+// ==================================================================== RootTest
+int runTests() {
+  string r="\n", line = GRY + repeat("=", 80);
 
-  auto t = CpuTime();
+  for (auto &t : Tests) t->test();
+  
+  if(TESTS>1) r+=sstr(line,"\nRunning tests...\n", line, "\n");
 
-  for (int i = 0; i < thread::hardware_concurrency()/2; i++) {
-    threads.push_back(thread(consumer));
-    threads.push_back(thread(producer, 100'000));
-  };
-  for (auto &t : threads) t.join();
+  for (auto &t : Tests) r += t->print();
 
-  CHECK(produced > 0);
-  CHECK(produced == consumed);
-  // log("OpenQueue:", double(t(CpuTime())));
-}//*///
+  if(TESTS>1) r+=sstr(line, "\n");
+  
+  r+=sstr( Test::glyphs["passed"], " ", TEST_PASSED, TEST_FAILED ? sstr("  ", 
+           Test::glyphs["failed"], " ", TEST_FAILED) : "", TEST_EXCEPTION ? sstr("  ", 
+           Test::glyphs["exception"], " ", TEST_EXCEPTION) : "");
 
-// =================================================== terminal
-TEST(terminal) { 
-  CHECK(RED+"X"+RST == "\033[31mX\033[0m");
-  CHECK(colorcode(1)=="\033[22;31m");
-  CHECK(colorcode(13)=="\033[22;37m");
-  // for (auto i = 0; i < 20; i++)
-  //   log(colorcode(i),i," ",replace(colorcode(i),"\033",""),RST);
-}//*///
+  cout << r << "\n" << flush;
+  Tests.clear();
+  pool().wait();
+  return TEST_FAILED + TEST_EXCEPTION;
+};
 
-// ==================================================== numtypes
-TEST(numtypes){ 
-  CHECK(sizeof(integer) == __WORDSIZE/CHAR_BIT);
-  CHECK(rehash(u64(1)) == 0xfffefffefffeffff);
-  CHECK(rehash(rehash(u64(1))) == 1);
+#endif // TESTS
 
-  CHECK(i32(-4) + u32(2) == 4294967294);
-  CHECK(i64(-4) + u32(2) == -2);
-  CHECK(i64(-4) + u32(2) == 18446744073709551614UL);
-}//*///
-
-// ========================================================= utils
-TEST(utils) { 
-  CHECK(sstr("a",1) == "a1");
-  CHECK(trim(" a b\t\n") == "a b" );
-  CHECK(tolower("ABC") == "abc" );
-  CHECK(format("%d-%s",1,"a") == "1-a" );
-  CHECK(join({"a","b","c"},"-") == "a-b-c" );
-  CHECK(repeat("12",3) == "121212");
-  CHECK(replace("a:=1",":=","=") == "a=1");
-}//*///
-
-TEST(Time) { // =========================================================== Time
-  CHECK(sizeof(Time) == sizeof(double));
-  CHECK(u64(CLOCKS_PER_SEC) == MEGA);
-
-  Time t;
-  CHECK(t.str() == t.ctime());
-}//*///
-
-// ======================================================================= Actor
-TEST(Actor){
-  int X = 0;
-  // increment X with a lambda call
-  auto L = [&]{ X++; }; L(); CHECK(X==1);
-
-  // increment X with the actor, using the same lambda
-  Actor A(L); CHECK(A.running());
-  A(); CHECK(X==2);
-
-  // increment X with another actor and lambda
-  Actor B([&]{ X=X+1; }); 
-  B(); CHECK(X==3);
-
-  // Actor<int>C(B); // passing a functor as the callable param copy constructor??
-  // C(); CHECK(X==4);
-
-  A.stop(); CHECK(!A.running());
-}//*///
-
-//===================================================================== TEST(Id)
-TEST(Id){
-  Id a("test_id1") , b("test_id1");
-  CHECK(a == 1L);
-  CHECK(b == 2L);
-
-  Id c("test_id2");
-  CHECK(c.id == 1L);
-}//*///
-
-// ================================================================ TEST(Atomic)
-TEST(Atomic){ 
-  Atomic<int> i; CHECK(i == 0);
-
-  i = 1;   CHECK(i == 1);
-  i = i+1; CHECK(i == 2);
-  i = i-1; CHECK(i == 1);
-  i |= 3;  CHECK(i == 3);
-  i &= 1;  CHECK(i == 1);
-
-  CHECK(i.CAS(1,2) && i == 2);
-  CHECK(!i.CAS(3,1) && i == 2);
-
-  CHECK(i++ == 2 && i == 3);
-  CHECK(i-- == 3 && i == 2);
-  CHECK(++i == 3);
-  CHECK(--i == 2);
-}//*///
 }// UniQ • Released under GPL 3 licence

@@ -85,4 +85,37 @@ private:
   const T& last() { return buffer[out & mask]; }
 };
 
+// ================================================================= TEST(Queue)
+TEST(Queue){ 
+  Queue<int> q(64);
+  vector<thread> threads;
+
+  atomic<int> produced(0);
+  auto producer = [&produced, &q](int N){
+    int i = 0;
+    while( ++i <= N && q.push(i) ) 
+      produced += i;
+    q.push(-1);
+  };
+
+  atomic<int> consumed(0);
+  auto consumer = [&consumed, &q](){
+    int v;
+    while (q.pop(v) && v != -1)
+      consumed += v;
+  };
+
+  auto t = CpuTime();
+
+  for (int i = 0; i < thread::hardware_concurrency()/2; i++) {
+    threads.push_back(thread(consumer));
+    threads.push_back(thread(producer, 100000));
+  };
+
+  for (auto &t : threads) t.join();
+
+  CHECK(produced != 0);
+  CHECK(produced == consumed);
+  // log("Queue:", double(CpuTime(t)));
+}
 }// UniQ • Released under GPL 3 licence

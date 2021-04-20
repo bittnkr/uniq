@@ -11,20 +11,19 @@
 #include "Atomic.h" // basic atomic types
 #include "Name.h" // class with name
 #include "Id.h" // incremental id
-
-#include "test.h" // unit testing
-
 #include "State.h" // state machine 
-// #include "Counter.h" // simple counter Actor;
 #include "Actor.h" // common parent for active classes
-#include "Set.h" // common interface for collections
-#include "Vector.h" // std::vector with Set interface
+#include "Log.h" // simple logger
+#include "test.h" // unit testing
 
 #include "queue.h" // the queue
 #include "pool.h" // thread pool
 
-#include "OpenQueue.h" // a locking queue with elastic storage
-#include "Log.h" // simple logger
+// #include "Counter.h" // simple counter Actor;
+#include "Event.h"
+#include "EventEmitter.h"
+#include "Set.h" // common interface for collections
+#include "Vector.h" // std::vector with Set interface
 
 #include "test.cc" // dependable tests
 
@@ -41,7 +40,6 @@
 // #include "Number.h" // big number
 // #include "Timer.h" // hi-precision timer
 // #include "Any.h" // simpler std:any 
-// #include "Event.h" // event emitter
 
 // #include "Color.h" // color primitive
 // #include "sha256.h" // cryptographic function

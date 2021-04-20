@@ -150,4 +150,14 @@ string anyType(const any v)
 //   return r;
 // }
 
+// ================================================================= TEST(utils)
+TEST(utils) { 
+  CHECK(sstr("a",1) == "a1");
+  CHECK(trim(" a b\t\n") == "a b" );
+  CHECK(tolower("ABC") == "abc" );
+  CHECK(format("%d-%s",1,"a") == "1-a" );
+  CHECK(join({"a","b","c"},"-") == "a-b-c" );
+  CHECK(repeat("12",3) == "121212");
+  CHECK(replace("a:=1",":=","=") == "a=1");
+}
 }// UniQ • Released under GPL 3 licence

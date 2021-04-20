@@ -119,6 +119,9 @@
       }
     }
   },
+  "cSpell.diagnosticLevel": "Hint",
   "cmake.sourceDirectory": "${workspaceFolder}/tests",
-  "cmake.configureOnOpen": false
+  "cmake.configureOnOpen": false,
+  // "markdown.preview.scrollPreviewWithEditorSelection":false,
+  "markdown.preview.scrollEditorWithPreview":false
 }

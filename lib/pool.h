@@ -1,11 +1,17 @@
+// Hey @elonmusk! Why don't you use this in your next rocket?
 #pragma once
+#include "queue.h" // the queue
 namespace uniq {
 
 // ThreadPool =================================================================
 // #include "worker.h"
 struct ThreadPool : public Queue<voidfunction> {
+  int done = -1;
   vector<thread> workers;
   // vector<uniqWorker&> workers;
+  // ThreadPool(int queueSize=64, int poolSize = 0): Queue<voidfunction>(queueSize) {
+  //   if (!poolSize) poolSize = thread::hardware_concurrency();
+  //   for (auto i = 0; i < poolSize; i++) {
   ThreadPool(int size = 0): Queue<voidfunction>(64) {
     if (!size) size = thread::hardware_concurrency();
     for (auto i = 0; i < size; i++) {
@@ -16,10 +22,15 @@ struct ThreadPool : public Queue<voidfunction> {
 
   void join() { for (auto &w : workers) w.join(); }
 
+  void wait() { 
+    // log(done, " ", counter());
+    while(!empty() && done != counter() ) 
+      sleep(); 
+  }
+
   bool showstats = false;
 
   void worker(int id) {
-    int done = 0;
     Time t, total(0);
     voidfunction f;
     while (this->running() && pop(f)){
@@ -40,7 +51,6 @@ struct ThreadPool : public Queue<voidfunction> {
 
   // int size() { return workers.size(); }
   // void sleep(int ms=0) {if (ms==0) sched_yield(); else this_thread::sleep_for(chrono::milliseconds(ms)); }
-  // inline void wait(int id) { while(counter() < id) sleep(); }
 
   // void wait(int id) {
   //   for (auto &w : workers) {
@@ -88,17 +98,19 @@ inline int run(Func&& f, Args&&... args) {
   return pool().run(f, args...);
 }
 
-// tests =======================================================================
-Atomic<int> rounds = 0;
+//=================================================================== TEST(Pool)
+Atomic<int> rounds = -1;
 void test_ping(int v);
 
 void test_pong(int v) { if (v) run(test_ping, v - 1); else pool().stop(); }
 void test_ping(int v) { run(test_pong, v); rounds++; }
 
 TEST(Pool) {
-  pool().start();
-  run(test_ping, 999); // start the flow
-  pool().join();
-  CHECK(rounds==1000);
-}
+  run(test_ping, 50'000); // start the flow
+  WAIT(rounds==50'000)
+  // pool().wait();
+  // pool().stop();
+  // pool().join();
+  CHECK(rounds == 50'000);
+}//*/
 }// UniQ • Released under GPL 3 licence

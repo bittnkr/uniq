@@ -65,4 +65,22 @@ struct Atomic {
   operator T() const { T v; __atomic_load(&value, &v, CST); return v; }
 };
 
+// ================================================================ TEST(Atomic)
+TEST(Atomic){ 
+  Atomic<int> i; CHECK(i == 0);
+
+  i = 1;   CHECK(i == 1);
+  i = i+1; CHECK(i == 2);
+  i = i-1; CHECK(i == 1);
+  i |= 3;  CHECK(i == 3);
+  i &= 1;  CHECK(i == 1);
+
+  CHECK(i.CAS(1,2) && i == 2);
+  CHECK(!i.CAS(3,1) && i == 2);
+
+  CHECK(i++ == 2 && i == 3);
+  CHECK(i-- == 3 && i == 2);
+  CHECK(++i == 3);
+  CHECK(--i == 2);
+}
 }// UniQ • Released under GPL 3 licence
