@@ -11,21 +11,22 @@
 #include "Atomic.h" // basic atomic types
 #include "Name.h" // class with name
 #include "Id.h" // incremental id
+#include "Event.h" // event emitter classes
 #include "State.h" // state machine 
 #include "Actor.h" // common parent for active classes
 #include "Log.h" // simple logger
+
 #include "test.h" // unit testing
 
 #include "queue.h" // the queue
 #include "pool.h" // thread pool
 
 // #include "Counter.h" // simple counter Actor;
-#include "Event.h"
-#include "EventEmitter.h"
 #include "Set.h" // common interface for collections
 #include "Vector.h" // std::vector with Set interface
 
 #include "test.cc" // dependable tests
+#include "Event.cc"
 
 // #include "model.h" // UniQ classes mockup
 #include "Worker.h" // worker thread

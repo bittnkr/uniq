@@ -66,7 +66,7 @@ int runTests() {
 
   cout << r << "\n" << flush;
   Tests.clear();
-  pool().wait();
+  // pool().wait();
   return TEST_FAILED + TEST_EXCEPTION;
 };
 

@@ -22,11 +22,12 @@ struct ThreadPool : public Queue<voidfunction> {
 
   void join() { for (auto &w : workers) w.join(); }
 
-  void wait() { 
-    // log(done, " ", counter());
-    while(!empty() && done != counter() ) 
-      sleep(); 
-  }
+  // void wait(double timeout) { 
+  //   // log(done, " ", counter());
+  //   Time t = CpuTime();
+  //   while(!empty() && done != counter() ) 
+  //     sleep(); 
+  // }
 
   bool showstats = false;
 
