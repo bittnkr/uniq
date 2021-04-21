@@ -1,5 +1,5 @@
 #pragma once
-#include "queue.h"
+#include "Queue.h"
 namespace uniq {
 
 // ================================================================== ThreadPool 
@@ -49,16 +49,17 @@ inline int run(Func&& f, Args&&... args) {
   return pool().run(f, args...);
 }
 
-//=================================================================== TEST(Pool)
+//============================================================= TEST(ThreadPool)
 Atomic<int> rounds = -1;
 void test_ping(int v);
 
 void test_pong(int v) { if (v) run(test_ping, v - 1); else pool().stop(); }
 void test_ping(int v) { run(test_pong, v); rounds++; }
 
-TEST(Pool) {
+TEST(ThreadPool) {
   run(test_ping, 1000); // start the flow
   WAIT(rounds == 1000);
   CHECK(true);
-}//*/
+}
+
 }// UniQ • Released under GPL 3 licence

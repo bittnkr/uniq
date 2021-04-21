@@ -1,12 +1,12 @@
 //==============================================================================
-// Worker • A Queue of functions whose enter() runs in its own thread.
+// Worker • A Queue with a threaded beat()
 //==============================================================================
 #pragma once
 namespace uniq {
 
-thread_local int TaskID = 0;  // the id of the current TaskID TaskID
+thread_local int TaskID = 0;
 
-class Worker : public Queue<voidfunction>{ //, public Id { 
+class Worker : public Queue<voidfunction>{
  private:
   thread thrd;
  public:
@@ -17,7 +17,6 @@ class Worker : public Queue<voidfunction>{ //, public Id {
         try {
           while ((TaskID = pop(f))) {
             f();
-            // counter++;
           }
         } catch (...) {
           handle_exception();
@@ -25,9 +24,7 @@ class Worker : public Queue<voidfunction>{ //, public Id {
         sleep(1);
       }
     };
-    // thrd = thread(this->enter, this);
     thrd = thread(&Worker::loop, this);
-    // workers.push_back(thread(&ThreadPool::worker, this, i + 1));
   }
 
   void loop(){ this->beat(); }
@@ -37,23 +34,14 @@ class Worker : public Queue<voidfunction>{ //, public Id {
     return Queue::push(bind(forward<Func>(f), forward<Args>(args)...));
   }
 
-  // template <typename Func, typename... Args>
-  // inline int chain(int id, Func&& f, Args&&... args) {
-  //   auto fchain = [=]{ }
-  //   return Queue::push(bind(forward<Func>(f), forward<Args>(args)...));
-  // }
-
   void join() { thrd.join(); }
 
   Worker(const Worker&) = delete;  // no copy constructor
   Worker& operator=(const Worker& w) { return *this; }
-
-  // cout << colorcode(color) + "thread" + to_string(color) + ": " +
-  // to_string(count) + "\n";
 };
 
-// int Worker::nextId = 0;
-TEST(Worker) {  //=======================================================
+//================================================================= TEST(Worker)
+TEST(Worker) {  
   int X = 0;
 
   auto w = Worker();
