@@ -24,7 +24,7 @@ The puzzle was being completed. And I was realizing that everything is just a pa
 
 But suddenly, by the end of the year, just as she came, the capricious muse was gone. And all I had from her visit was a notebook full of squiggles and some proof of concepts written in pascal. 
 
-Of these, the most valuable was a small implementation of a *lock-free circular buffered queue*. Which is the reason of this writings and the base of UniQ library, hence the name, *uni-queue*, a single unifying queue. 
+Of these, the most valuable was a small implementation of a *lock-free circular buffered queue*. Which is the reason of this writings and the base of [UniQ][1] multithreading libray. hence the name, *uni-queue*, a single unifying queue. 
 
 You may ask, what the heck is this and why should I care?
 
@@ -40,7 +40,7 @@ In [another S.O. question][3] someone said:
 
 > Lock-free queues are unicorns.
 
-Searching the literature, we found no more encouraging words: The book [The Art of Multiprocessor Programming][4] (2012) asserts that the construction of a wait-free queue is impossible:
+Searching the literature, we found no more encouraging words: The book [The Art of Multiprocessor Programming][4] (2012) says that the construction of a wait-free queue is impossible:
 
 > Corollary 5.4.1. It is impossible to construct a wait-free implementation of a queue, stack, priority queue, set, or list from a set of atomic registers. 
 
@@ -54,7 +54,7 @@ It is so simple that when I first figured it out I thought: Why hasn't anyone se
 
 In the next articles, I will guide you trough the line of thought she gave me and everything will make sense. 
 
-But, after the Muse departure, the black book got the drawer bottom and I was back to my life of middle aged IT guy, in a broken marriage, solving problems of others while my own life was a mess.
+After the Muse departure, the black book got the drawer bottom and I was back to my life of middle aged IT guy, in a broken marriage, solving problems of others while my own life was a mess.
 
 But something had changed in me... After those glimpses of the higher dimensions, I was not the same person anymore.
 
@@ -70,10 +70,13 @@ And that's the reason why took me almost 10 years to bring you the git of the Mu
 
 Maybe someday, around a campfire, we could share histories of shamanic experiences with the indian tribes in the Amazon forest or the sky of the Himalayas, but for now, I need to help you unlock your computer.
 
-If you like to learn about fundamental problems of computer science and want to get the most of your computing power, stick with me and I'll take you on a beautiful journey through the magic world of parallel computing and its sorcery.
+If you like to think about fundamental problems of computer science and want to get the most of your computing power, stick with me and I'll take you on a beautiful journey through the magic world of parallel computing and its sorcery.
+
+See you in the next chapter:
 
 Multithreading 101 (Soon)
 
+[1]: https://github.com/bittnkr/uniq
 [2]: https://stackoverflow.com/a/890269/9464885
 [3]: https://stackoverflow.com/questions/6089029/lock-free-queue#comment7056198_6089029
 [4]: https://www.amazon.com.br/Art-Multiprocessor-Programming-Revised-Reprint/dp/0123973376

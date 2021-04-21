@@ -2,9 +2,9 @@
 
 A multithreading class model build around a *lock-free circular buffered queue*.
 
-It is yet in a early stage of development, critiques and pull requests are welcome:
+This is a work in progress in its early stages of development, critiques and pull requests are welcome.
 
-But for now, we have some tested features:
+For now, we have some tested features:
 
 * N threads
 * N buffer size (minimum 1 seat).
@@ -227,9 +227,6 @@ With default buffer size (64), varying the number of threads:
 ![Throughput x Threads](https://i.stack.imgur.com/laMSX.png)
 
 * The cost per operation with 2 threads is the same for 512.
-I think this is the definitive proof lock-freedom.
-
-Comments, benchmarks and use cases are welcome.
 
 ---
 
