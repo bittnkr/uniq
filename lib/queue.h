@@ -23,15 +23,10 @@ private:
     mask--; // 01000000 => 00111111
   } 
 
-  // ~Queue(){  stop(); }
-  // void stop() override { 
-  //   running = false; }
-
   int push(const T &item, bool wait=true) override {
     int i;
     do {
       i = in;
-// Base<std::vector<InterfaceType> >::myOption = 10;
       if((isfull(i) && !wait) || !this->running()) return 0;
       else WAIT(!isfull(i) || !this->running());
 
@@ -62,7 +57,6 @@ private:
 
   int size() override { return in-out; }
   int counter() { return out-1; }
-  // inline void wait(int c) { while(out < c) sched_yield(); }
 
   using Actor::start;
   using Actor::stop;
