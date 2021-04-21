@@ -1,36 +1,15 @@
-# The Lock Free [Queue][1]
+## UniQ Multithreading Libray
 
-In a [question in Stackoverflow][2] about lock-free queues, the most upvoted answer (jan/20) is:
+A multithreading class model build around a *lock-free circular buffered queue*.
 
-> I've made a particular study of lock-free data structures in the last couple of years. I've read most of the papers in the field (there's only about fourty or so - although only about ten or fifteen are any real use :-)
+It is yet in a early stage of development, critiques and pull requests are welcome:
 
-> **AFAIK, a lock-free circular buffer has not been invented.**
+But for now, we have some tested features:
 
-In [another S.O. question][3] someone said: 
-
-> Lock-free queues are unicorns.
-
-Searching the literature, we found no more encouraging words: The book [The Art of Multiprocessor Programming][4] asserts that the construction of a wait-free queue is impossible:
-
-> Corollary 5.4.1. **It is impossible to construct a wait-free implementation of a queue**, stack, priority queue, set, or list **from a set of atomic registers**. 
-
-> Although FIFO queues solve two-thread consensus, **they cannot solve 3-thread consensus**. (pg. 107)
-
-## The Discovery
-
-After years of investigation and lot of tests, I finally destiled a bare minimum solution to this problem, which I'm pretty sure that it is wait-free.
-I believe that is the smallest/simplest solution ever found. 
-  
-In this paper/repository, I did my best to bring only the essential to the compreension of the problem and its solution. Focusing on what really matters. And yet giving some code ready to be used.
-
-
-Here is some verified facts and features:
-
-* N threads (tested up to 512).
+* N threads
 * N buffer size (minimum 1 seat).
 * Constant cost per operation O(1).
 * Only 2 atomic variables.
-* No locks or mutexes.
 * Freely preempted.
 * Zero checksum.
 
@@ -38,11 +17,11 @@ Follow a compreensive description of the algorithm.
 
 If you like to put your hands dirt and dive right into de code, start at [test.cpp and queue.h][6]. (We have implementations in **C#**, **JavaScript** and **Pascal** too.)
 
-# Under the Hood
+# A lock-free circular buffered queue
 
-A **bare minimum** solution to the 3-thread consensus, implemented as a MRMW (multi-read/multi-write) circular buffer. In the context of a multi-threaded producer/consumer testcase.
+This paper demonstrate a solution to the 3-thread consensus, implemented as a MRMW (multi-read/multi-write) circular buffer. In the context of a multi-threaded producer/consumer testcase.
 
-For the sake of simplicity, in this docs I used a simplified JavaScript pseudocode, familiar for anyone using C-like languages. For the real thing, refer to source code.
+For the sake of simplicity, in this docs I'm using a simplified JavaScript pseudocode, familiar for anyone using C-like languages. For the real thing, refer to source code.
 
 ## The Queue object
 
