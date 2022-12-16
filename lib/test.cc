@@ -50,7 +50,7 @@ void TestSet::test() {
 
 // ==================================================================== RootTest
 int runTests() {
-  string r="\n", line = GRY + repeat("=", 80);
+  string r="\n", line = GRY + repeat("=", 60);
 
   for (auto &t : Tests) t->test();
   

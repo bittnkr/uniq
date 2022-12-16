@@ -4,7 +4,7 @@ Back to home, I couldn't turn off my mind from a need I had at work: Speed up a 
 
 Buying another server was not the solution. We already had the best we could buy. A brand new 16 core server. Which could finish the job just 20% faster then its antecessor.
 
-That task was part of a legacy system running in a single thread process. 
+That task was part of a legacy system running in a single thread process.
 
 And was my task to write a multithreading version of it, splitting up the data the in smaller pieces, execute each one in parallel and glue the results at the end. So that one hour task would be finished in about 4 minutes.
 
@@ -18,13 +18,13 @@ From this door, in the next days I started designing a new class model. At same 
 
 I was having some kind of epiphany. For some brief moments I had glimpses of higher dimensions. And everything just made sense, with an overwhelming flow of ideas that came chaotically to my mind at an incredible speed that I could not even type. So I took a pen and a half-used statistics notebook and started writing furiously.
 
-At that point I had been working with software development for 20 years and finally I was able to see the whole picture. Not only of the computer science but also of my own life and existence. 
+At that point I had been working with software development for 20 years and finally I was able to see the whole picture. Not only of the computer science but also of my own life and existence.
 
-The puzzle was being completed. And I was realizing that everything is just a part of a 'bigger machine' in a level I could never imagined. 
+The puzzle was being completed. And I was realizing that everything is just a part of a 'bigger machine' in a level I could never imagined.
 
-But suddenly, by the end of the year, just as she came, the capricious muse was gone. And all I had from her visit was a notebook full of squiggles and some proof of concepts written in pascal. 
+But suddenly, by the end of the year, just as she came, the capricious muse was gone. And all I had from her visit was a notebook full of squiggles and some proof of concepts written in pascal.
 
-Of these, the most valuable was a small implementation of a *lock-free circular buffered queue*. Which is the reason of this writings and the base of [UniQ][1] multithreading libray. hence the name, *uni-queue*, a single unifying queue. 
+Of these, the most valuable was a small implementation of a *lock-free circular buffered queue*. Which is the reason of this writings and the base of [UniQ][1] multithreading libray. hence the name, *uni-queue*, a single unifying queue.
 
 You may ask, what the heck is this and why should I care?
 
@@ -36,23 +36,23 @@ In a question in Stackoverflow about [Circular lock-free buffer][2], (asked 11 y
 
 > AFAIK, a lock-free circular buffer has not been invented.
 
-In [another S.O. question][3] someone said: 
+In [another S.O. question][3] someone said:
 
 > Lock-free queues are unicorns.
 
 Searching the literature, we found no more encouraging words: The book [The Art of Multiprocessor Programming][4] (2012) says that the construction of a wait-free queue is impossible:
 
-> Corollary 5.4.1. It is impossible to construct a wait-free implementation of a queue, stack, priority queue, set, or list from a set of atomic registers. 
+> Corollary 5.4.1. It is impossible to construct a wait-free implementation of a queue, stack, priority queue, set, or list from a set of atomic registers.
 
 > Although FIFO queues solve two-thread consensus, they cannot solve 3-thread consensus. (pg. 107)
 
-And that was the gift of the muse, the pearl behind the cryptic squiggles in the black book: 
+And that was the gift of the muse, the pearl behind the cryptic squiggles in the black book:
 
-A surprisingly small and simple solution to the 3-thread consensus using only 2 atomic registers. 
+A surprisingly small and simple solution to the 3-thread consensus using only 2 atomic registers.
 
 It is so simple that when I first figured it out I thought: Why hasn't anyone seen this before?
 
-In the next articles, I will guide you trough the line of thought she gave me and everything will make sense. 
+In the next articles, I will guide you trough the line of thought she gave me and everything will make sense.
 
 After the Muse departure, the black book got the drawer bottom and I was back to my life of middle aged IT guy, in a broken marriage, solving problems of others while my own life was a mess.
 
@@ -62,13 +62,13 @@ I use to say that the year 2012 was my personal revelation and my world has came
 
 When in tears, my daughter asked me why I was leaving her, the only answer I had was: I'm not leaving you. I'm going to find myself.
 
-Then, the book got a safe place in my mom's closet. I got a backpack, a warm jacket and a good pair of boots, and went to walk the world. Learn how to say slangs and tell dirt jokes in foreign languages. (There are some things that sounds funnier when said by a foreigner.) 
+Then, the book got a safe place in my mom's closet. I got a backpack, a warm jacket and a good pair of boots, and went to walk the world. Learn how to say slangs and tell dirt jokes in foreign languages. (There are some things that sounds funnier when said by a foreigner.)
 
-When someone asked me what I was doing in the winter in "La Tierra del Fuego" near the Antarctica I just answered in spanish: *Para cometer nuevos errores* (To make new errors) because I was tired of doing the same over and over again.
+When someone asked me what I was doing in the winter in "La Tierra del Fuego" near the Antarctica I just answered in spanish: *Para cometer nuevos errores* (To make new mistakes) because I was tired of doing the same over and over again.
 
-And that's the reason why took me almost 10 years to bring you the git of the Muse. 
+And that's the reason why took me almost 10 years to bring you the gift of the Muse.
 
-Maybe someday, around a campfire, we could share histories of shamanic experiences with the indian tribes in the Amazon forest or the sky of the Himalayas, but for now, I need to help you unlock your computer.
+Maybe someday, around a campfire, we could share histories of shamanic experiences with the indian tribes in the Amazon forest or the sky of the Andes, but for now, I need to help you unlock your computer.
 
 If you like to think about fundamental problems of computer science and want to get the most of your computing power, stick with me and I'll take you on a beautiful journey through the magic world of parallel computing and its sorcery.
 

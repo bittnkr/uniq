@@ -119,6 +119,11 @@
       }
     }
   },
+  "disasexpl.associations": {
+    "**/*.c": "${fileDirname}/${fileBasenameNoExtension}.s",
+    "**/*.cpp": "${fileDirname}/${fileBasenameNoExtension}.s",
+    "**/*.cc": "${fileDirname}/${fileBasenameNoExtension}.s"
+  },
   "cSpell.diagnosticLevel": "Hint",
   "cmake.sourceDirectory": "${workspaceFolder}/tests",
   "cmake.configureOnOpen": false,
