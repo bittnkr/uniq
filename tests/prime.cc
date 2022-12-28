@@ -37,13 +37,12 @@ u64 spiralDivisor(u64 n, u64 limit = 0) {
   if (!(n % 5)) return 5;
   if (limit == 0) limit = n;
   limit = std::min(limit, (u64)sqrt(n));
+  // if(is_avx2_supported()) return spiral_simd(n, 7, limit);
   return spiral(n, 7, limit);
 }
 
-/* paralel version using spiral,
-distribute work to cores using blocks
-and pushing each block into the queue
-until a worker find a divisor. */
+/* paralel version using spiral, distribute work to cores using blocks
+and pushing each block into the queue until a worker find a divisor. */
 u64 paralelDivisor(u64 n) {
   u64 blockSize = 3e6;
   atomic<u64> block(7);
