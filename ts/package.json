@@ -1,0 +1,11 @@
+{
+  "name": "uniq",
+  "version": "1.0.0",
+  "description": "Lock-free multi-reader multi-writer circular buffered queue implemented in AssemblyScript",
+  "main": "queue.test.mjs",
+  "scripts": {
+    "build": "./run.sh queue.test.ts"
+  },
+  "author": "Your Name",
+  "license": "GPL-3.0"
+}
