@@ -1,0 +1,19 @@
+{
+  "name": "freeloop",
+  "version": "1.0.0",
+  "description": "A lock-free event loop for nodejs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "lockfree",
+    "event-loop"
+  ],
+  "author": "Anderson arli",
+  "license": "MIT",
+  "dependencies": {
+    "nan": "^2.17.0",
+    "node-gyp": "^9.3.1"
+  }
+}
