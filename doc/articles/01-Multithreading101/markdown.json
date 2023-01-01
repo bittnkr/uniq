@@ -1,0 +1,7 @@
+{
+	"build" : "01-Multithreading101.dist.md",
+	"files" : ["01-Multithreading101.md"],
+	"tableOfContents": {
+		"heading": "# Table of Contents"
+	}
+}

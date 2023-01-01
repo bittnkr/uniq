@@ -49,3 +49,4 @@ out/
 tools/
 sandbox/
 debug/
+node_modules/
