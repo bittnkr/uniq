@@ -1,25 +1,10 @@
-## UniQ Multithreading Libray
+# UniQ Multithreading Libray
 
 A multithreading class model build around a *lock-free circular buffered queue*.
 
-This is a work in progress in its early stages of development, critiques and pull requests are welcome.
+## A lock-free circular buffered queue
 
-For now, we have some tested features:
-
-* N threads
-* N buffer size (minimum 1 seat).
-* Constant cost per operation O(1).
-* Only 2 atomic variables.
-* Freely preempted.
-* Zero checksum.
-
-Follow a compreensive description of the algorithm.
-
-If you like to put your hands dirt and dive right into de code, start at [test.cpp and queue.h][6]. (We have implementations in **C#**, **JavaScript** and **Pascal** too.)
-
-# A lock-free circular buffered queue
-
-This paper demonstrate a solution to the 3-thread consensus, implemented as a MRMW (multi-read/multi-write) circular buffer. In the context of a multi-threaded producer/consumer testcase.
+This repository has asolution to the 3-thread consensus, implemented as a MRMW (multi-read/multi-write) circular buffer. In the context of a multi-threaded producer/consumer testcase.
 
 For the sake of simplicity, in this docs I'm using a simplified JavaScript pseudocode, familiar for anyone using C-like languages. For the real thing, refer to source code.
 
